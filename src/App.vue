@@ -75,7 +75,7 @@
           <div class="text-right hidden sm:block">
             <p class="font-semibold text-gray-800">User name</p>
             <p class="text-xs text-gray-500">Position</p>
-          </div>
+          </div>npm
           <div class="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center">
             <span class="material-icons text-blue-800">person</span>
           </div>
@@ -132,6 +132,13 @@ const menus = [
     icon: "bar_chart",
     items: ["Drugs Movement", "Inventory Summary"],
   },
+  {
+    title: "Credit",
+    icon: "bar_chart",
+    items: ["Credit Sale", "Credit History"],
+  },
+
+  
 ];
 
 function toggleMenu(index) {
