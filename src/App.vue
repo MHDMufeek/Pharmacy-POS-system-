@@ -41,6 +41,7 @@
               v-for="(sub, i) in menu.items"
               :key="i"
               class="hover:text-white cursor-pointer"
+              @click="navigateTo(sub)"
             >
               › {{ sub }}
             </li>
@@ -58,8 +59,11 @@
           <span class="material-icons text-gray-700">menu</span>
         </button>
 
-        <!-- Search Bar -->
-        <div class="flex items-center w-1/2 max-w-lg">
+        <!-- Page Title -->
+        <h1 class="text-xl font-semibold text-blue-900">{{ currentPage || 'Dashboard' }}</h1>
+
+        <!-- Search Bar (only show on dashboard) -->
+        <div v-if="!currentPage" class="flex items-center w-1/2 max-w-lg">
           <div class="flex items-center w-full bg-gray-100 rounded-lg px-3 py-2">
             <span class="material-icons text-gray-400 mr-2">search</span>
             <input
@@ -74,25 +78,68 @@
         <div class="flex items-center gap-3">
           <div class="text-right hidden sm:block">
             <p class="font-semibold text-gray-800">User name</p>
-            <p class="text-xs text-gray-500">Position</p>
-          </div>npm
+            <p class="text-xs text-gray-500">Administrator</p>
+          </div>
           <div class="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center">
             <span class="material-icons text-blue-800">person</span>
           </div>
         </div>
       </header>
 
-      <!-- Dashboard Buttons -->
+      <!-- Content Area -->
       <main class="flex-1 p-6 overflow-y-auto">
-        <div
-          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-        >
+        <!-- Show Change Password page when active -->
+        <ChangePassword 
+          v-if="currentPage === 'Change Password'" 
+          @go-back="currentPage = null" 
+        />
+        
+        <!-- Show Create User Account page when active -->
+        <CreateUserAccount 
+          v-if="currentPage === 'Create User Account'" 
+          @go-back="currentPage = null" 
+        />
+        
+        <!-- Show Assist Capability page when active -->
+        <AssistCapability 
+          v-if="currentPage === 'Assist Capability'" 
+          @go-back="currentPage = null" 
+        />
+        
+        <!-- Show Item Category page when active -->
+        <ItemCategory 
+          v-if="currentPage === 'Item Category'" 
+          @go-back="currentPage = null" 
+        />
+        
+        <!-- Show Item Details page when active -->
+        <ItemDetails 
+          v-if="currentPage === 'Item Details'" 
+          @go-back="currentPage = null" 
+        />
+        
+        <!-- Show Stock Update page when active -->
+        <StockUpdate 
+          v-if="currentPage === 'Stock Update'" 
+          @go-back="currentPage = null" 
+        />
+        
+        <!-- Show Supplier Details page when active -->
+        <SupplierDetails 
+          v-if="currentPage === 'Supplier Details'" 
+          @go-back="currentPage = null" 
+        />
+        
+        <!-- Show Dashboard otherwise -->
+        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           <div
             v-for="(menu, index) in menus"
             :key="'card-' + index"
-            class="bg-blue-100 hover:bg-blue-200 shadow-md rounded-xl p-16 text-center cursor-pointer"
+            class="bg-blue-100 hover:bg-blue-200 shadow-md rounded-xl p-16 text-center cursor-pointer transition-all duration-300 hover:scale-105"
+            @click="navigateTo(menu.title)"
           >
-            <span class="text-2xl font-semibold text-blue-900">{{ menu.title }}</span>
+            <span class="material-icons text-4xl text-blue-800 mb-2">{{ menu.icon }}</span>
+            <span class="text-2xl font-semibold text-blue-900 block">{{ menu.title }}</span>
           </div>
         </div>
       </main>
@@ -102,9 +149,17 @@
 
 <script setup>
 import { ref } from "vue";
+import ChangePassword from './ChangePassword.vue';
+import CreateUserAccount from './CreateUserAccount.vue';
+import AssistCapability from './AssistCapability.vue';
+import ItemCategory from './ItemCategory.vue';
+import ItemDetails from './ItemDetails.vue';
+import StockUpdate from './StockUpdate.vue';
+import SupplierDetails from './SupplierDetails.vue';
 
 const sidebarOpen = ref(true);
 const openMenu = ref(null);
+const currentPage = ref(null);
 
 const menus = [
   {
@@ -132,17 +187,39 @@ const menus = [
     icon: "bar_chart",
     items: ["Drugs Movement", "Inventory Summary"],
   },
-  {
-    title: "Credit",
-    icon: "bar_chart",
-    items: ["Credit Sale", "Credit History"],
-  },
-
-  
 ];
 
 function toggleMenu(index) {
   openMenu.value = openMenu.value === index ? null : index;
+}
+
+function navigateTo(destination) {
+  // Check if it's a main menu item
+  const mainMenuItems = menus.map(menu => menu.title);
+  if (mainMenuItems.includes(destination)) {
+    // For main menu items, just expand the appropriate section
+    const menuIndex = menus.findIndex(menu => menu.title === destination);
+    toggleMenu(menuIndex);
+    return;
+  }
+  
+  // Check if it's a submenu item we have a component for
+  const supportedPages = [
+    "Change Password", 
+    "Create User Account", 
+    "Assist Capability",
+    "Item Category",
+    "Item Details",
+    "Stock Update",
+    "Supplier Details"
+  ];
+  
+  if (supportedPages.includes(destination)) {
+    currentPage.value = destination;
+  } else {
+    // For other menu items, show a notification
+    alert(`Navigating to ${destination} - Page under development`);
+  }
 }
 </script>
 
