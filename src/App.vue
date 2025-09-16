@@ -130,6 +130,18 @@
           @go-back="currentPage = null" 
         />
         
+        <!-- Show Supplier Invoice page when active -->
+        <SupplierInvoice 
+          v-if="currentPage === 'Supplier Invoice'" 
+          @go-back="currentPage = null" 
+        />
+        
+        <!-- Show Sales Bill page when active -->
+        <SalesBill 
+          v-if="currentPage === 'Sales Bill'" 
+          @go-back="currentPage = null" 
+        />
+        
         <!-- Show Dashboard otherwise -->
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           <div
@@ -156,6 +168,8 @@ import ItemCategory from './ItemCategory.vue';
 import ItemDetails from './ItemDetails.vue';
 import StockUpdate from './StockUpdate.vue';
 import SupplierDetails from './SupplierDetails.vue';
+import SupplierInvoice from './SupplierInvoice.vue';
+import SalesBill from './SalesBill.vue';
 
 const sidebarOpen = ref(true);
 const openMenu = ref(null);
@@ -211,7 +225,9 @@ function navigateTo(destination) {
     "Item Category",
     "Item Details",
     "Stock Update",
-    "Supplier Details"
+    "Supplier Details",
+    "Supplier Invoice",
+    "Sales Bill"
   ];
   
   if (supportedPages.includes(destination)) {
