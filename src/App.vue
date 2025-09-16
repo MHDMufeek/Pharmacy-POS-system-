@@ -142,6 +142,31 @@
           @go-back="currentPage = null" 
         />
         
+        <!-- Show Customer Return / Refund page when active -->
+        <CustomerReturnRefund 
+          v-if="currentPage === 'Customer Return / Refund'" 
+          @go-back="currentPage = null" 
+        />
+        
+        <!-- Show Creditors page when active -->
+        <Creditors 
+          v-if="currentPage === 'Creditors'" 
+          @go-back="currentPage = null" 
+        />
+        
+        <!-- Show Drug Movement page when active -->
+        <DrugMovement 
+          v-if="currentPage === 'Drugs Movement'" 
+          @go-back="currentPage = null" 
+        />
+
+        <DrugMovement 
+          v-if="currentPage === 'Inventory Summary'" 
+          @go-back="currentPage = null" 
+        />
+        
+       
+        
         <!-- Show Dashboard otherwise -->
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           <div
@@ -170,6 +195,10 @@ import StockUpdate from './StockUpdate.vue';
 import SupplierDetails from './SupplierDetails.vue';
 import SupplierInvoice from './SupplierInvoice.vue';
 import SalesBill from './SalesBill.vue';
+import CustomerReturnRefund from './CustomerReturnRefund.vue';
+import Creditors from './Creditors.vue';
+import DrugMovement from './DrugMovement.vue';
+import InventorySummary from './InventorySummary.vue';
 
 const sidebarOpen = ref(true);
 const openMenu = ref(null);
@@ -201,6 +230,11 @@ const menus = [
     icon: "bar_chart",
     items: ["Drugs Movement", "Inventory Summary"],
   },
+  {
+    title: "Debit",
+    icon: "attach_money",
+    items: ["Debit history"],
+  },
 ];
 
 function toggleMenu(index) {
@@ -227,7 +261,12 @@ function navigateTo(destination) {
     "Stock Update",
     "Supplier Details",
     "Supplier Invoice",
-    "Sales Bill"
+    "Sales Bill",
+    "Customer Return / Refund",
+    "Creditors",
+    "Drugs Movement",
+    "Inventory Summary"
+   
   ];
   
   if (supportedPages.includes(destination)) {
