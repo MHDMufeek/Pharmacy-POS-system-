@@ -107,8 +107,8 @@
         />
         
         <!-- Show Item Category page when active -->
-        <ItemCategory 
-          v-if="currentPage === 'Item Category'" 
+        <ItemSales 
+          v-if="currentPage === 'Item Sales'" 
           @go-back="currentPage = null" 
         />
         
@@ -160,7 +160,7 @@
           @go-back="currentPage = null" 
         />
 
-        <DrugMovement 
+        <InventorySummary 
           v-if="currentPage === 'Inventory Summary'" 
           @go-back="currentPage = null" 
         />
@@ -189,7 +189,7 @@ import { ref } from "vue";
 import ChangePassword from './ChangePassword.vue';
 import CreateUserAccount from './CreateUserAccount.vue';
 import AssistCapability from './AssistCapability.vue';
-import ItemCategory from './ItemCategory.vue';
+import ItemSales from './ItemSales.vue';
 import ItemDetails from './ItemDetails.vue';
 import StockUpdate from './StockUpdate.vue';
 import SupplierDetails from './SupplierDetails.vue';
@@ -199,6 +199,8 @@ import CustomerReturnRefund from './CustomerReturnRefund.vue';
 import Creditors from './Creditors.vue';
 import DrugMovement from './DrugMovement.vue';
 import InventorySummary from './InventorySummary.vue';
+
+
 
 const sidebarOpen = ref(true);
 const openMenu = ref(null);
@@ -213,7 +215,7 @@ const menus = [
   {
     title: "Item",
     icon: "inventory_2",
-    items: ["Item Category", "Item Details", "Stock Update"],
+    items: ["Item Sales", "Item Details", "Stock Update"],
   },
   {
     title: "Supplier",
@@ -230,11 +232,7 @@ const menus = [
     icon: "bar_chart",
     items: ["Drugs Movement", "Inventory Summary"],
   },
-  {
-    title: "Debit",
-    icon: "attach_money",
-    items: ["Debit history"],
-  },
+   
 ];
 
 function toggleMenu(index) {
@@ -256,7 +254,7 @@ function navigateTo(destination) {
     "Change Password", 
     "Create User Account", 
     "Assist Capability",
-    "Item Category",
+    "Item Sales",
     "Item Details",
     "Stock Update",
     "Supplier Details",
