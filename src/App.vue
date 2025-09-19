@@ -202,6 +202,7 @@ import InventorySummary from './InventorySummary.vue';
 
 
 
+
 const sidebarOpen = ref(true);
 const openMenu = ref(null);
 const currentPage = ref(null);
@@ -232,6 +233,8 @@ const menus = [
     icon: "bar_chart",
     items: ["Drugs Movement", "Inventory Summary"],
   },
+   
+  
    
 ];
 
