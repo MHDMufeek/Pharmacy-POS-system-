@@ -107,36 +107,36 @@
           
           <div class="form-group">
             <label class="form-label">Permissions</label>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2 ">
               <label class="flex items-center">
                 <input type="checkbox" v-model="userForm.permissions" value="inventory" class="mr-2">
-                <span>Inventory Management</span>
+               <p class="font-serif"> <span class="text-black">Inventory Management</span></p>
               </label>
               <label class="flex items-center">
                 <input type="checkbox" v-model="userForm.permissions" value="sales" class="mr-2">
-                <span>Sales Management</span>
+                <p class="font-serif"><span class="text-black">Sales Management</span></p>
               </label>
               <label class="flex items-center">
                 <input type="checkbox" v-model="userForm.permissions" value="reports" class="mr-2">
-                <span>View Reports</span>
+                <p class="font-serif"><span class="text-black "> View Reports</span></p>
               </label>
               <label class="flex items-center">
                 <input type="checkbox" v-model="userForm.permissions" value="users" class="mr-2">
-                <span>User Management</span>
+                <p class="font-serif"><span class="text-black text-bold">User Management</span></p>
               </label>
             </div>
           </div>
           
           <div class="form-group">
             <label class="form-label">Status</label>
-            <div class="flex items-center space-x-4 mt-2">
+            <div class="flex items-center justify-center space-x-4 mt-2">
               <label class="flex items-center">
                 <input type="radio" v-model="userForm.status" value="active" class="mr-2">
-                <span>Active</span>
+                <span class="text-black">Active</span>
               </label>
-              <label class="flex items-center">
+              <label class="flex items-center ">
                 <input type="radio" v-model="userForm.status" value="inactive" class="mr-2">
-                <span>Inactive</span>
+                <span class="text-black">Inactive</span>
               </label>
             </div>
           </div>

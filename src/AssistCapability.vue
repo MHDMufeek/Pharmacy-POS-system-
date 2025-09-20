@@ -28,27 +28,27 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
             <label class="flex items-center">
               <input type="checkbox" v-model="assistForm.capabilities" value="inventory" class="mr-2">
-              <span>Inventory Management</span>
+              <span class="text-black">Inventory Management</span>
             </label>
             <label class="flex items-center">
               <input type="checkbox" v-model="assistForm.capabilities" value="sales" class="mr-2">
-              <span>Sales Operations</span>
+              <span  class="text-black">Sales Operations</span>
             </label>
             <label class="flex items-center">
               <input type="checkbox" v-model="assistForm.capabilities" value="reports" class="mr-2">
-              <span>Report Generation</span>
+              <span  class="text-black">Report Generation</span>
             </label>
             <label class="flex items-center">
               <input type="checkbox" v-model="assistForm.capabilities" value="users" class="mr-2">
-              <span>User Management</span>
+              <span  class="text-black">User Management</span>
             </label>
             <label class="flex items-center">
               <input type="checkbox" v-model="assistForm.capabilities" value="suppliers" class="mr-2">
-              <span>Supplier Management</span>
+              <span  class="text-black">Supplier Management</span>
             </label>
             <label class="flex items-center">
               <input type="checkbox" v-model="assistForm.capabilities" value="customers" class="mr-2">
-              <span>Customer Management</span>
+              <span  class="text-black">Customer Management</span>
             </label>
           </div>
         </div>
@@ -59,11 +59,11 @@
           <div class="flex items-center space-x-4 mt-2">
             <label class="flex items-center">
               <input type="radio" v-model="assistForm.duration" value="temporary" class="mr-2">
-              <span>Temporary (Until logout)</span>
+              <span  class="text-black">Temporary (Until logout)</span>
             </label>
             <label class="flex items-center">
               <input type="radio" v-model="assistForm.duration" value="scheduled" class="mr-2">
-              <span>Scheduled</span>
+              <span  class="text-black">Scheduled</span>
             </label>
           </div>
         </div>
