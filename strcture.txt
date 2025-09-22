@@ -1,0 +1,68 @@
+pharmacy-pos-system/          <-- ROOT of the project
+│
+├── backend/                  <-- Node.js + MongoDB backend
+│   ├── src/
+│   │   ├── models/           <-- Mongoose schemas (User.js, Product.js, Sales.js)
+│   │   ├── routes/           <-- Express routes (auth.js, product.js, sales.js)
+│   │   ├── controllers/      <-- Business logic for each route
+│   │   ├── middleware/       <-- Auth middleware, error handler, etc.
+│   │   ├── config/           <-- DB connection config (db.js)
+│   │   └── server.js         <-- Entry point (starts Express server)
+│   │
+│   ├── package.json          <-- Dependencies: express, mongoose, cors, dotenv, etc.
+│   ├── package-lock.json     <-- Auto-generated when running npm install
+│   ├── .gitignore            <-- Ignores node_modules, .env, logs, etc.
+│   └── node_modules/         <-- Backend dependencies (auto-created)
+│
+├── frontend/                 <-- Vue.js + Tailwind frontend (your current folder)
+│   ├── public/               <-- Static assets
+│   ├── src/
+│   │   ├── assets/           <-- Images, CSS, logos
+│   │   ├── components/       <-- Vue components
+│   │   ├── views/            <-- Full pages (Dashboard, Sales, Inventory, etc.)
+│   │   ├── router/           <-- Vue Router setup
+│   │   ├── store/            <-- Pinia or Vuex state management (optional)
+│   │   ├── App.vue           <-- Main Vue component
+│   │   └── main.js           <-- Entry file
+│   │
+│   ├── package.json          <-- Dependencies: vue, tailwind, vite, axios, etc.
+│   ├── package-lock.json     <-- Auto-generated when running npm install
+│   ├── postcss.config.js     <-- Tailwind CSS setup (kept in frontend root)
+│   ├── tailwind.config.js    <-- Tailwind configuration
+│   ├── vite.config.js        <-- Vite build config
+│   ├── .gitignore            <-- Ignores node_modules, dist, etc.
+│   └── node_modules/         <-- Frontend dependencies (auto-created)
+│
+├── .gitignore                <-- (optional root-level) If you keep a single git repo
+├── README.md                 <-- Documentation
+└── structure.txt             <-- Optional (your exported folder structure)
+
+
+
+
+
+src/
+├── App.vue
+├── components/
+│   ├── Sidebar.vue
+│   ├── Navbar.vue
+│   └── DashboardCards.vue   (optional: the quick stats/cards)
+├── views/
+│   ├── Dashboard.vue
+│   ├── Admin/
+│   │   ├── ChangePassword.vue
+│   │   ├── CreateUserAccount.vue
+│   │   └── AssistCapability.vue
+│   ├── Item/
+│   │   ├── ItemSales.vue
+│   │   ├── ItemDetails.vue
+│   │   └── StockUpdate.vue
+│   ├── Supplier/
+│   │   ├── SupplierDetails.vue
+│   │   └── SupplierInvoice.vue
+│   ├── Sales/
+│   │   ├── CustomerReturnRefund.vue
+│   │   └── Creditors.vue
+│   └── Reports/
+│       ├── DrugMovement.vue
+│       └── InventorySummary.vue
