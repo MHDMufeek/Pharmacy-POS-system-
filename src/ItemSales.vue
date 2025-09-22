@@ -1,235 +1,199 @@
 <template>
-    <div class="p-6">
+  <div class="flex h-screen bg-gray-50">
+    <!-- Left: Item Grid -->
+    <div class="flex-1 p-6 overflow-y-auto">
       <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-blue-900">Item Category Management</h1>
-        <button 
-          @click="showAddForm = true"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center gap-2"
-        >
-          <span class="material-icons">add</span>
-          Add Category
-        </button>
-      </div>
-  
-      <!-- Search and Filter -->
-      <div class="bg-white p-4 rounded-lg shadow mb-6">
-        <div class="flex flex-col md:flex-row gap-4">
-          <div class="flex-1">
-            <div class="flex items-center bg-gray-100 rounded-lg px-3 py-2">
-              <span class="material-icons text-gray-400 mr-2">search</span>
-              <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Search categories..."
-                class="bg-transparent outline-none w-full text-sm"
-              />
-            </div>
+        <h1 class="text-2xl font-bold text-blue-900">Medicines</h1>
+
+        <!-- Search + Category -->
+        <div class="flex items-center gap-4">
+          <!-- Search -->
+          <div class="flex items-center bg-gray-100 rounded-lg px-3 py-2 w-72">
+            <span class="material-icons text-gray-400 mr-2">search</span>
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Search by name, category, note or price..."
+              class="bg-transparent outline-none w-full text-sm"
+            />
           </div>
-          <div class="w-full md:w-48">
-            <select v-model="statusFilter" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none">
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
+
+          <!-- Category Dropdown -->
+          <select 
+            v-model="selectedCategory"
+            class="border rounded-lg px-3 py-2 text-sm text-gray-600"
+          >
+            <option value="">All Categories</option>
+            <option 
+              v-for="cat in categories" 
+              :key="cat" 
+              :value="cat"
+            >
+              {{ cat }}
+            </option>
+          </select>
         </div>
       </div>
-  
-      <!-- Categories Table -->
-      <div class="bg-white rounded-lg shadow overflow-hidden">
-        <table class="w-full">
-          <thead class="bg-blue-50">
-            <tr>
-              <th class="py-3 px-4 text-left text-blue-900 font-semibold">Category Name</th>
-              <th class="py-3 px-4 text-left text-blue-900 font-semibold">Description</th>
-              <th class="py-3 px-4 text-left text-blue-900 font-semibold">Items Count</th>
-              <th class="py-3 px-4 text-left text-blue-900 font-semibold">Status</th>
-              <th class="py-3 px-4 text-left text-blue-900 font-semibold">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <tr v-for="category in filteredCategories" :key="category.id">
-              <td class="py-3 px-4">{{ category.name }}</td>
-              <td class="py-3 px-4">{{ category.description }}</td>
-              <td class="py-3 px-4">{{ category.itemsCount }}</td>
-              <td class="py-3 px-4">
-                <span 
-                  :class="{
-                    'bg-green-100 text-green-800': category.status === 'active',
-                    'bg-red-100 text-red-800': category.status === 'inactive'
-                  }" 
-                  class="px-2 py-1 rounded-full text-xs font-medium"
-                >
-                  {{ category.status }}
-                </span>
-              </td>
-              <td class="py-3 px-4">
-                <div class="flex items-center gap-2">
-                  <button 
-                    @click="editCategory(category)"
-                    class="text-blue-600 hover:text-blue-800"
-                  >
-                    <span class="material-icons text-sm">edit</span>
-                  </button>
-                  <button 
-                    @click="deleteCategory(category.id)"
-                    class="text-red-600 hover:text-red-800"
-                  >
-                    <span class="material-icons text-sm">delete</span>
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr v-if="filteredCategories.length === 0">
-              <td colspan="5" class="py-6 px-4 text-center text-gray-500">
-                No categories found
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-  
-      <!-- Add/Edit Category Modal -->
-      <div v-if="showAddForm || editingCategory" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
-          <div class="p-6 border-b">
-            <h2 class="text-xl font-semibold text-blue-900">
-              {{ editingCategory ? 'Edit Category' : 'Add New Category' }}
-            </h2>
+
+      <!-- Medicines Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div
+          v-for="item in filteredItems"
+          :key="item.id"
+          class="bg-white rounded-lg shadow p-4 flex flex-col justify-between"
+        >
+          <!-- Medicine Image -->
+          <img
+            :src="item.image"
+            alt="medicine"
+            class="w-full h-28 object-contain mb-3"
+          />
+
+          <!-- Medicine Info -->
+          <div>
+            <h3 class="font-semibold text-red-600">{{ item.name }}</h3>
+            <p class="text-sm text-gray-500">{{ item.note }}</p>
+            <p class="text-xs text-gray-400 mt-1">
+              Category: <span class="font-medium">{{ item.category }}</span>
+            </p>
+            <p class="text-xs text-gray-400">
+              Stock: <span class="font-medium">{{ item.stock }}</span>
+            </p>
           </div>
-          <div class="p-6">
-            <form @submit.prevent="saveCategory">
-              <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Category Name</label>
-                <input
-                  v-model="currentCategory.name"
-                  type="text"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea
-                  v-model="currentCategory.description"
-                  rows="3"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                ></textarea>
-              </div>
-              <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <select
-                  v-model="currentCategory.status"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-              </div>
-              <div class="flex justify-end gap-3 pt-4">
-                <button
-                  type="button"
-                  @click="closeModal"
-                  class="px-4 py-2 text-gray-700 hover:text-gray-900 border border-gray-300 rounded-md"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                >
-                  {{ editingCategory ? 'Update' : 'Save' }}
-                </button>
-              </div>
-            </form>
+
+          <!-- Price + Add Button -->
+          <div class="flex justify-between items-center mt-4">
+            <p class="text-red-600 font-bold">Rs. {{ item.price }}</p>
+            <button 
+              @click="addToCart(item)"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm"
+            >
+              +
+            </button>
           </div>
         </div>
       </div>
     </div>
-  </template>
-  
-  <script setup>
-  import { ref, computed, onMounted } from 'vue'
-  
-  // Sample data for demonstration
-  const sampleCategories = [
-    { id: 1, name: 'Medicines', description: 'All types of medicines', itemsCount: 125, status: 'active' },
-    { id: 2, name: 'Medical Equipment', description: 'Surgical and diagnostic equipment', itemsCount: 78, status: 'active' },
-    { id: 3, name: 'Supplements', description: 'Vitamins and dietary supplements', itemsCount: 92, status: 'active' },
-    { id: 4, name: 'Discontinued', description: 'Items no longer in use', itemsCount: 15, status: 'inactive' }
-  ]
-  
-  const categories = ref([])
-  const searchQuery = ref('')
-  const statusFilter = ref('all')
-  const showAddForm = ref(false)
-  const editingCategory = ref(null)
-  
-  const currentCategory = ref({
-    id: null,
-    name: '',
-    description: '',
-    status: 'active'
+
+    <!-- Right: Cart / Selected Items -->
+    <div class="w-80 bg-white shadow-lg border-l flex flex-col">
+      <div class="p-4 border-b">
+        <h2 class="text-lg font-semibold text-blue-900">Current Sale</h2>
+      </div>
+      <div class="flex-1 overflow-y-auto p-4">
+        <div v-if="cart.length > 0">
+          <div 
+            v-for="cartItem in cart" 
+            :key="cartItem.id" 
+            class="flex justify-between items-center mb-3"
+          >
+            <div>
+              <p class="font-medium text-red-600">{{ cartItem.name }}</p>
+              <p class="text-sm text-red-500">Rs. {{ cartItem.price }} × {{ cartItem.qty }}</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button 
+                @click="updateQty(cartItem, -1)"
+                class="px-2 py-1 border rounded hover:bg-gray-100"
+              >-</button>
+              <span class="text-red-600 font-semibold">{{ cartItem.qty }}</span>
+              <button 
+                @click="updateQty(cartItem, 1)"
+                class="px-2 py-1 border rounded hover:bg-gray-100"
+              >+</button>
+              <button 
+                @click="removeFromCart(cartItem.id)"
+                class="text-red-600 hover:text-red-800"
+              >
+                <span class="material-icons text-sm">delete</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <p v-else class="text-gray-500 text-center">No items selected</p>
+      </div>
+      <div class="p-4 border-t">
+        <div class="flex justify-between mb-3">
+          <span class="font-medium">Total:</span>
+          <span class="font-bold text-red-600">Rs. {{ totalAmount }}</span>
+        </div>
+        <button 
+          class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md"
+          :disabled="cart.length === 0"
+        >
+          Print Bill
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue'
+
+const items = ref([
+  { id: 1, name: 'Adhesive Bandages', category: 'First Aid', price: 300, stock: 73, note: 'Flexible bandages for cuts and scrapes.', image: 'https://via.placeholder.com/100x80?text=Bandage' },
+  { id: 2, name: 'Allergy Relief Tabs', category: 'Allergy', price: 899, stock: 25, note: 'Relief from allergy symptoms like sneezing.', image: 'https://via.placeholder.com/100x80?text=Allergy' },
+  { id: 3, name: 'Amoxicillin 250mg', category: 'Antibiotics', price: 1200, stock: 19, note: 'Antibiotic for bacterial infections.', image: 'https://via.placeholder.com/100x80?text=Amoxicillin' },
+  { id: 4, name: 'Vitamin C', category: 'Vitamins', price: 500, stock: 40, note: 'Boosts immune system and energy.', image: 'https://via.placeholder.com/100x80?text=Vitamin+C' },
+  { id: 5, name: 'Paracetamol', category: 'Pain Relief', price: 150, stock: 60, note: 'Reduces fever and relieves pain.', image: 'https://via.placeholder.com/100x80?text=Paracetamol' }
+])
+
+const searchQuery = ref('')
+const selectedCategory = ref('')
+const cart = ref([])
+
+const categories = computed(() => {
+  return [...new Set(items.value.map(i => i.category))]
+})
+
+const filteredItems = computed(() => {
+  const q = (searchQuery.value || '').trim().toLowerCase()
+
+  return items.value.filter(i => {
+    // safe field extraction
+    const name = (i.name || '').toLowerCase()
+    const note = (i.note || '').toLowerCase()
+    const category = (i.category || '').toLowerCase()
+    const priceStr = String(i.price || '')
+
+    // search matches if q is empty OR any field contains q
+    const matchesSearch =
+      q === '' ||
+      name.includes(q) ||
+      note.includes(q) ||
+      category.includes(q) ||
+      priceStr.includes(q)
+
+    // category filter (keeps dropdown separate)
+    const matchesCategory =
+      !selectedCategory.value || selectedCategory.value === '' || i.category === selectedCategory.value
+
+    return matchesSearch && matchesCategory
   })
-  
-  // Filter categories based on search and status
-  const filteredCategories = computed(() => {
-    return categories.value.filter(category => {
-      const matchesSearch = category.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                           category.description.toLowerCase().includes(searchQuery.value.toLowerCase())
-      const matchesStatus = statusFilter.value === 'all' || category.status === statusFilter.value
-      return matchesSearch && matchesStatus
-    })
-  })
-  
-  // Load categories (in a real app, this would be an API call)
-  onMounted(() => {
-    categories.value = [...sampleCategories]
-  })
-  
-  // Add or update a category
-  function saveCategory() {
-    if (editingCategory.value) {
-      // Update existing category
-      const index = categories.value.findIndex(c => c.id === currentCategory.value.id)
-      if (index !== -1) {
-        categories.value[index] = { ...currentCategory.value }
-      }
-    } else {
-      // Add new category
-      const newCategory = {
-        ...currentCategory.value,
-        id: Math.max(...categories.value.map(c => c.id), 0) + 1,
-        itemsCount: 0
-      }
-      categories.value.push(newCategory)
-    }
-    
-    closeModal()
+})
+
+function addToCart(item) {
+  const existing = cart.value.find(c => c.id === item.id)
+  if (existing) {
+    existing.qty += 1
+  } else {
+    cart.value.push({ ...item, qty: 1 })
   }
-  
-  // Edit a category
-  function editCategory(category) {
-    currentCategory.value = { ...category }
-    editingCategory.value = true
+}
+
+function updateQty(cartItem, change) {
+  cartItem.qty += change
+  if (cartItem.qty <= 0) {
+    removeFromCart(cartItem.id)
   }
-  
-  // Delete a category
-  function deleteCategory(id) {
-    if (confirm('Are you sure you want to delete this category?')) {
-      categories.value = categories.value.filter(c => c.id !== id)
-    }
-  }
-  
-  // Close the modal and reset form
-  function closeModal() {
-    showAddForm.value = false
-    editingCategory.value = null
-    currentCategory.value = {
-      id: null,
-      name: '',
-      description: '',
-      status: 'active'
-    }
-  }
-  </script>
+}
+
+function removeFromCart(id) {
+  cart.value = cart.value.filter(c => c.id !== id)
+}
+
+const totalAmount = computed(() => {
+  return cart.value.reduce((sum, i) => sum + i.price * i.qty, 0)
+})
+</script>
