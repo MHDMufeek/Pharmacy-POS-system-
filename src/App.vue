@@ -3,9 +3,9 @@
     <!-- Sidebar -->
     <aside
       :class="[
-        'bg-blue-900 text-white flex flex-col fixed top-0 left-0 h-screen z-50 transition-all duration-300',
-        sidebarOpen ? 'w-72' : 'w-20'
+        'bg-blue-900 text-white flex flex-col fixed top-0 left-0 h-screen z-50 transition-all duration-300'
       ]"
+      :style="{ width: sidebarOpen ? '240px' : '80px' }"
     >
       <!-- Logo -->
       <div class="flex items-center gap-3 p-6 border-b border-blue-800">
@@ -51,7 +51,10 @@
     </aside>
 
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col ml-20 md:ml-72 transition-all duration-300">
+    <div
+      class="flex-1 flex flex-col transition-all duration-300"
+      :style="{ marginLeft: sidebarOpen ? '240px' : '80px' }"
+    >
       <!-- Top Navbar -->
       <header class="flex items-center justify-between bg-white shadow px-6 py-4 sticky top-0 w-full">
         <!-- Hamburger for mobile -->
@@ -136,12 +139,6 @@
           @go-back="currentPage = null" 
         />
         
-        <!-- Show Sales Bill page when active -->
-        <SalesBill 
-          v-if="currentPage === 'Sales Bill'" 
-          @go-back="currentPage = null" 
-        />
-        
         <!-- Show Customer Return / Refund page when active -->
         <CustomerReturnRefund 
           v-if="currentPage === 'Customer Return / Refund'" 
@@ -164,8 +161,6 @@
           v-if="currentPage === 'Inventory Summary'" 
           @go-back="currentPage = null" 
         />
-        
-       
         
         <!-- Show Dashboard otherwise -->
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -194,7 +189,6 @@ import ItemDetails from './ItemDetails.vue';
 import StockUpdate from './StockUpdate.vue';
 import SupplierDetails from './SupplierDetails.vue';
 import SupplierInvoice from './SupplierInvoice.vue';
-import SalesBill from './SalesBill.vue';
 import CustomerReturnRefund from './CustomerReturnRefund.vue';
 import Creditors from './Creditors.vue';
 import DrugMovement from './DrugMovement.vue';
@@ -225,7 +219,7 @@ const menus = [
   {
     title: "Sales",
     icon: "point_of_sale",
-    items: ["Sales Bill", "Customer Return / Refund", "Creditors"],
+    items: ["Customer Return / Refund", "Creditors"],
   },
   {
     title: "Reports",
@@ -240,16 +234,13 @@ function toggleMenu(index) {
 }
 
 function navigateTo(destination) {
-  // Check if it's a main menu item
   const mainMenuItems = menus.map(menu => menu.title);
   if (mainMenuItems.includes(destination)) {
-    // For main menu items, just expand the appropriate section
     const menuIndex = menus.findIndex(menu => menu.title === destination);
     toggleMenu(menuIndex);
     return;
   }
   
-  // Check if it's a submenu item we have a component for
   const supportedPages = [
     "Change Password", 
     "Create User Account", 
@@ -264,13 +255,11 @@ function navigateTo(destination) {
     "Creditors",
     "Drugs Movement",
     "Inventory Summary"
-   
   ];
   
   if (supportedPages.includes(destination)) {
     currentPage.value = destination;
   } else {
-    // For other menu items, show a notification
     alert(`Navigating to ${destination} - Page under development`);
   }
 }
@@ -279,7 +268,6 @@ function navigateTo(destination) {
 <style>
 @import url("https://fonts.googleapis.com/icon?family=Material+Icons");
 
-/* FIX black background issues */
 html, body, #app {
   margin: 0;
   padding: 0;
