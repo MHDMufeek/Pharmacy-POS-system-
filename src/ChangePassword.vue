@@ -54,8 +54,8 @@
               </span>
             </button>
           </div>
-          <p class="text-xs text-gray-500 mt-1">
-            Must be at least 8 characters with a mix of letters, numbers and symbols
+          <p class="helper-text">
+            Must be at least 8 characters with a mix of letters, numbers, and symbols
           </p>
         </div>
 
@@ -85,9 +85,8 @@
         <div class="form-group">
           <label class="form-label">Choose Role</label>
           <select v-model="selectedRole" class="form-input" required>
-           
             <option value="admin">Admin</option>
-            <option value="editor">Pharmecist</option>
+            <option value="editor">Pharmacist</option>
             <option value="user">Store Manager</option>
           </select>
         </div>
@@ -133,25 +132,21 @@ function changePassword() {
   successMessage.value = ''
   errorMessage.value = ''
 
-  // Validate role selection
   if (!selectedRole.value) {
     errorMessage.value = 'Please select a role'
     return
   }
 
-  // Validate password match
   if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
     errorMessage.value = "New passwords don't match"
     return
   }
 
-  // Validate password strength
   if (passwordForm.value.newPassword.length < 8) {
     errorMessage.value = 'Password must be at least 8 characters long'
     return
   }
 
-  // Simulate API call
   console.log('Changing password:', passwordForm.value)
   console.log('Selected role:', selectedRole.value)
 
@@ -180,20 +175,20 @@ function goBack() {
 
 <style scoped>
 .page-container {
-  background: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
+  background: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 2rem;
   margin-top: 1.5rem;
 }
 
 .page-header {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 600;
   color: #1e40af;
   margin-bottom: 1.5rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 2px solid #e5e7eb;
 }
 
 .form-container {
@@ -207,8 +202,8 @@ function goBack() {
 
 .form-label {
   display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 0.9rem;
+  font-weight: 600;
   color: #374151;
   margin-bottom: 0.5rem;
 }
@@ -217,15 +212,24 @@ function goBack() {
   width: 100%;
   padding: 0.75rem 1rem;
   border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
+  border-radius: 0.5rem;
   font-size: 1rem;
-  transition: border-color 0.15s ease;
+  background-color: #ffffff;
+  color: #111827;
+  transition: all 0.2s ease;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .form-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+}
+
+.helper-text {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
 }
 
 .btn {
@@ -233,26 +237,22 @@ function goBack() {
   align-items: center;
   justify-content: center;
   padding: 0.75rem 1.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  border-radius: 0.375rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
   border: none;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
 }
 
 .btn-primary {
-  background-color: #1e40af;
+  background: linear-gradient(90deg, #2563eb, #1e40af);
   color: white;
 }
 
 .btn-primary:hover {
-  background-color: #1e3a8a;
-}
-
-.btn-primary:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.3);
+  background: linear-gradient(90deg, #1d4ed8, #1e3a8a);
+  transform: translateY(-1px);
 }
 
 .btn-secondary {
@@ -263,24 +263,30 @@ function goBack() {
 
 .btn-secondary:hover {
   background-color: #6b7280;
+  transform: translateY(-1px);
 }
 
 .alert {
   padding: 1rem;
-  border-radius: 0.375rem;
+  border-radius: 0.5rem;
   margin-bottom: 1.5rem;
+  font-weight: 500;
 }
 
 .alert-success {
-  background-color: #dcfce7;
-  color: #166534;
-  border: 1px solid #bbf7d0;
+  background-color: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
 }
 
 .alert-error {
-  background-color: #fee2e2;
-  color: #b91c1c;
+  background-color: #fef2f2;
+  color: #991b1b;
   border: 1px solid #fecaca;
+}
+
+.password-input-container {
+  position: relative;
 }
 
 .password-toggle {
@@ -292,10 +298,12 @@ function goBack() {
   border: none;
   color: #6b7280;
   cursor: pointer;
+  font-size: 1.25rem;
+  transition: color 0.2s ease;
 }
 
-.password-input-container {
-  position: relative;
+.password-toggle:hover {
+  color: #2563eb;
 }
 
 @media (max-width: 768px) {
