@@ -164,8 +164,8 @@
         <DrugMovement v-if="currentPage === 'Drugs Movement'" @go-back="currentPage = null" />
         <InventorySummary v-if="currentPage === 'Inventory Summary'" @go-back="currentPage = null" />
 
-        <!-- Dashboard Cards -->
-        <div v-else>
+        <!-- Dashboard Content (Only shown when no page is selected) -->
+        <div v-if="!currentPage">
           <!-- Welcome Section -->
           <div class="mb-8">
             <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-3xl p-8 text-white shadow-2xl">
