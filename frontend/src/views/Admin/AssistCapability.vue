@@ -328,6 +328,7 @@
     border-radius: 0.375rem;
     font-size: 1rem;
     transition: border-color 0.15s ease;
+    background-color: #fcfcfc;
   }
   
   .form-input:focus {
