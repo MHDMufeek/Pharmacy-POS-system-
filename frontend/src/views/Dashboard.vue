@@ -94,7 +94,7 @@ const menus = [
   {
     title: "Administrator",
     icon: "admin_panel_settings",
-    items: ["Change Password", "Create User Account", "Assist Capability"],
+    items: ["Change Password", "Create User Account", "Assign Capability"],
   },
   {
     title: "Item",

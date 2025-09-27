@@ -1,11 +1,22 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import Login from "../Login.vue";
+import Dashboard from "../views/Dashboard.vue";
 
 const routes = [
+  // Login route - first page
   {
     path: '/',
-    name: 'Dashboard',
-    component: () => import('../views/Dashboard.vue')
+    name: 'Login',
+    component: Login
   },
+  
+  // Dashboard route - after login
+  {
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: Dashboard
+  },
+  
   // Admin Routes
   {
     path: '/admin/change-password',
@@ -19,9 +30,10 @@ const routes = [
   },
   {
     path: '/admin/assist',
-    name: 'AssistCapability',
-    component: () => import('../views/admin/AssistCapability.vue')
+    name: 'AssignCapability',
+    component: () => import('../views/Admin/AssignCapability.vue')
   },
+  
   // Item Routes
   {
     path: '/item/sales',
@@ -38,6 +50,7 @@ const routes = [
     name: 'StockUpdate',
     component: () => import('../views/item/StockUpdate.vue')
   },
+  
   // Supplier Routes
   {
     path: '/supplier/details',
@@ -49,6 +62,7 @@ const routes = [
     name: 'SupplierInvoice',
     component: () => import('../views/supplier/SupplierInvoice.vue')
   },
+  
   // Sales Routes
   {
     path: '/sales/return-refund',
@@ -60,6 +74,7 @@ const routes = [
     name: 'Creditors',
     component: () => import('../views/sales/Creditors.vue')
   },
+  
   // Reports Routes
   {
     path: '/reports/drug-movement',
