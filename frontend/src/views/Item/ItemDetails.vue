@@ -8,7 +8,7 @@
           class="flex items-center text-blue-600 hover:text-blue-800"
         >
           <span class="material-icons mr-1">arrow_back</span>
-          Back
+          
         </button>
       </div>
   
@@ -17,7 +17,7 @@
         <div class="flex flex-col md:flex-row gap-4">
           <div class="flex-1">
             <div class="flex items-center bg-gray-100 rounded-lg px-3 py-2">
-              <span class="material-icons text-gray-400 mr-2">search</span>
+              <span class="material-icons text-gray-400 mr-2">Search</span>
               <input
                 type="text"
                 placeholder="Search items..."
@@ -32,8 +32,8 @@
               <option v-for="category in categories" :key="category">{{ category }}</option>
             </select>
             <button class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center">
-              <span class="material-icons text-sm mr-1">filter_list</span>
-              Filter
+              <span class="material-icons text-sm mr-1">Filter</span>
+              
             </button>
           </div>
         </div>
@@ -42,19 +42,22 @@
       <!-- Action Buttons -->
       <div class="flex justify-between mb-6">
         <div class="flex gap-2">
-          <button class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center">
-            <span class="material-icons text-sm mr-1">add</span>
-            Add New Item
+          <button 
+            @click="showAddItemModal = true"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors"
+          >
+            <span class="material-icons text-sm mr-1">Add New Item</span>
+            
           </button>
-          <button class="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center">
-            <span class="material-icons text-sm mr-1">file_download</span>
-            Export
+          <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
+            <span class="material-icons text-sm mr-1">File_download</span>
+          
           </button>
         </div>
         <div>
-          <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center">
-            <span class="material-icons text-sm mr-1">settings</span>
-            Columns
+          <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg flex items-center transition-colors">
+            <span class="material-icons text-sm mr-1">Settings</span>
+            
           </button>
         </div>
       </div>
@@ -95,7 +98,7 @@
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
                   <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <span class="material-icons text-blue-600">inventory_2</span>
+                    <span class="material-icons text-blue-600"></span>
                   </div>
                   <div class="ml-4">
                     <div class="text-sm font-medium text-gray-900">{{ item.name }}</div>
@@ -122,10 +125,10 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <button class="text-blue-600 hover:text-blue-900 mr-3">
-                  <span class="material-icons">edit</span>
+                  <span class="material-icons text-sm">edit</span>
                 </button>
                 <button class="text-red-600 hover:text-red-900">
-                  <span class="material-icons">delete</span>
+                  <span class="material-icons text-sm">delete</span>
                 </button>
               </td>
             </tr>
@@ -145,27 +148,276 @@
               <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
                 <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                   <span class="sr-only">Previous</span>
-                  <span class="material-icons">chevron_left</span>
+                  <span class="material-icons">Back</span>
                 </a>
                 <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600 hover:bg-blue-100">1</a>
                 <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">2</a>
                 <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">3</a>
                 <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                   <span class="sr-only">Next</span>
-                  <span class="material-icons">chevron_right</span>
+                  <span class="material-icons">Next</span>
                 </a>
               </nav>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Add New Item Modal -->
+      <div v-if="showAddItemModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <!-- Modal Header -->
+          <div class="flex items-center justify-between p-6 border-b">
+            <h2 class="text-xl font-bold text-gray-900">Add New Medicine</h2>
+            <button 
+              @click="closeModal"
+              class="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <span class="material-icons">close</span>
+            </button>
+          </div>
+
+          <!-- Modal Form -->
+          <form @submit.prevent="submitForm" class="p-6 space-y-6">
+            <!-- Basic Information -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Item Name -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Medicine Name <span class="text-red-500">*</span>
+                </label>
+                <input
+                  v-model="newItem.name"
+                  type="text"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="Enter medicine name"
+                >
+              </div>
+
+              <!-- Category -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Category <span class="text-red-500">*</span>
+                </label>
+                <select
+                  v-model="newItem.category"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                >
+                  <option value="">Select Category</option>
+                  <option v-for="category in categories" :key="category" :value="category">
+                    {{ category }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Price -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Price (Rs.) <span class="text-red-500">*</span>
+                </label>
+                <input
+                  v-model.number="newItem.price"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="0.00"
+                >
+              </div>
+
+              <!-- Stock Quantity -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Stock Quantity <span class="text-red-500">*</span>
+                </label>
+                <input
+                  v-model.number="newItem.stock"
+                  type="number"
+                  min="0"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="0"
+                >
+              </div>
+
+              <!-- Supplier -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Supplier <span class="text-red-500">*</span>
+                </label>
+                <select
+                  v-model="newItem.supplier"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                >
+                  <option value="">Select Supplier</option>
+                  <option v-for="supplier in suppliers" :key="supplier" :value="supplier">
+                    {{ supplier }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Expiry Date -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Expiry Date
+                </label>
+                <input
+                  v-model="newItem.expiryDate"
+                  type="date"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                >
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Description / Notes
+              </label>
+              <textarea
+                v-model="newItem.description"
+                rows="3"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                placeholder="Enter medicine description, usage instructions, or notes..."
+              ></textarea>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <!-- Dosage -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Dosage
+                </label>
+                <input
+                  v-model="newItem.dosage"
+                  type="text"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="e.g., 500mg"
+                >
+              </div>
+
+              <!-- Manufacturer -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Manufacturer
+                </label>
+                <input
+                  v-model="newItem.manufacturer"
+                  type="text"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="Manufacturer name"
+                >
+              </div>
+
+              <!-- Batch Number -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Batch Number
+                </label>
+                <input
+                  v-model="newItem.batchNumber"
+                  type="text"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="Batch number"
+                >
+              </div>
+            </div>
+
+            <!-- Status -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Status
+              </label>
+              <div class="flex gap-4">
+                <label class="inline-flex items-center">
+                  <input
+                    v-model="newItem.status"
+                    type="radio"
+                    value="Active"
+                    class="text-blue-600 focus:ring-blue-500"
+                  >
+                  <span class="ml-2 text-sm text-gray-700">Active</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input
+                    v-model="newItem.status"
+                    type="radio"
+                    value="Inactive"
+                    class="text-blue-600 focus:ring-blue-500"
+                  >
+                  <span class="ml-2 text-sm text-gray-700">Inactive</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Image Upload -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Medicine Image
+              </label>
+              <div class="flex items-center justify-center w-full">
+                <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 transition-colors">
+                  <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                    <span class="material-icons text-gray-400 text-3xl mb-2">cloud_upload</span>
+                    <p class="text-sm text-gray-500">
+                      <span class="font-semibold">Click to upload</span> or drag and drop
+                    </p>
+                    <p class="text-xs text-gray-400">PNG, JPG, GIF up to 10MB</p>
+                  </div>
+                  <input type="file" class="hidden" @change="handleImageUpload" accept="image/*">
+                </label>
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex justify-end gap-3 pt-6 border-t">
+              <button
+                type="button"
+                @click="closeModal"
+                class="px-6 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center"
+              >
+                <span class="material-icons text-sm mr-2">save</span>
+                Save Medicine
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   </template>
   
   <script setup>
-  import { ref, computed } from 'vue'
+  import { ref, computed, onMounted } from 'vue'
   
   const searchQuery = ref('')
+  const showAddItemModal = ref(false)
+  
+  // New item form data
+  const newItem = ref({
+    name: '',
+    category: '',
+    price: 0,
+    stock: 0,
+    supplier: '',
+    expiryDate: '',
+    description: '',
+    dosage: '',
+    manufacturer: '',
+    batchNumber: '',
+    status: 'Active',
+    image: null
+  })
   
   // Sample data - in a real application, this would come from an API
   const items = ref([
@@ -182,6 +434,7 @@
   ])
   
   const categories = ref(['Pain Relief', 'Antibiotics', 'Supplements', 'Diabetes', 'Cholesterol', 'Cardiac', 'GI', 'Hormones', 'Respiratory'])
+  const suppliers = ref(['HealthCorp', 'MediLife', 'PharmaPlus', 'NutriHealth', 'Global Pharma', 'BioMed Solutions'])
   
   const filteredItems = computed(() => {
     if (!searchQuery.value) return items.value
@@ -191,6 +444,84 @@
       item.category.toLowerCase().includes(query) ||
       item.id.toLowerCase().includes(query)
     )
+  })
+  
+  // Generate unique ID for new items
+  function generateItemId() {
+    const lastId = items.value.length > 0 
+      ? parseInt(items.value[items.value.length - 1].id.replace('MED', '')) 
+      : 0
+    return `MED${String(lastId + 1).padStart(3, '0')}`
+  }
+  
+  // Handle form submission
+  function submitForm() {
+    // Create new item object
+    const itemToAdd = {
+      id: generateItemId(),
+      ...newItem.value
+    }
+    
+    // Add to items array
+    items.value.push(itemToAdd)
+    
+    // Show success message
+    alert('Medicine added successfully!')
+    
+    // Reset form and close modal
+    resetForm()
+    closeModal()
+  }
+  
+  // Reset form data
+  function resetForm() {
+    newItem.value = {
+      name: '',
+      category: '',
+      price: 0,
+      stock: 0,
+      supplier: '',
+      expiryDate: '',
+      description: '',
+      dosage: '',
+      manufacturer: '',
+      batchNumber: '',
+      status: 'Active',
+      image: null
+    }
+  }
+  
+  // Close modal
+  function closeModal() {
+    showAddItemModal.value = false
+    resetForm()
+  }
+  
+  // Handle image upload
+  function handleImageUpload(event) {
+    const file = event.target.files[0]
+    if (file) {
+      // In a real application, you would upload the file to a server
+      // For now, we'll just store the file object
+      newItem.value.image = file
+      
+      // You can also create a preview URL
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        // You can use this URL for preview
+        console.log('Image preview URL:', e.target.result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+  
+  // Close modal on ESC key
+  onMounted(() => {
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && showAddItemModal.value) {
+        closeModal()
+      }
+    })
   })
   </script>
   

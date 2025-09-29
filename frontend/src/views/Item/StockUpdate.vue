@@ -8,7 +8,7 @@
           class="flex items-center text-blue-600 hover:text-blue-800"
         >
           <span class="material-icons mr-1">arrow_back</span>
-          Back
+        
         </button>
       </div>
   
@@ -18,21 +18,21 @@
           <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Item</label>
-              <select class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none">
+              <select class="w-full bg-black-100 rounded-lg px-3 py-2 text-sm outline-none">
                 <option value="">All Items</option>
                 <option v-for="item in items" :key="item.id" :value="item.id">{{ item.name }}</option>
               </select>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-              <select class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none">
+              <select class="w-full bg-black-100 rounded-lg px-3 py-2 text-sm outline-none">
                 <option value="">All Categories</option>
                 <option v-for="category in categories" :key="category">{{ category }}</option>
               </select>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Stock Status</label>
-              <select class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none">
+              <select class="w-full bg-black-100 rounded-lg px-3 py-2 text-sm outline-none">
                 <option value="">All Status</option>
                 <option value="low">Low Stock</option>
                 <option value="adequate">Adequate Stock</option>
@@ -43,11 +43,11 @@
           <div class="flex gap-2">
             <button class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center">
               <span class="material-icons text-sm mr-1">search</span>
-              Apply Filters
+              
             </button>
             <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center">
               <span class="material-icons text-sm mr-1">refresh</span>
-              Reset
+              
             </button>
           </div>
         </div>
@@ -58,21 +58,21 @@
         <div class="flex gap-2">
           <button class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center" @click="showBulkUpdate = true">
             <span class="material-icons text-sm mr-1">edit</span>
-            Bulk Update
+            
           </button>
           <button class="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center">
-            <span class="material-icons text-sm mr-1">file_download</span>
-            Export
+            <span class="material-icons text-sm mr-1">File_download</span>
+            
           </button>
         </div>
         <div class="flex gap-2">
           <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center">
             <span class="material-icons text-sm mr-1">settings</span>
-            Columns
+            
           </button>
           <button class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg flex items-center" @click="loadStockData">
             <span class="material-icons text-sm mr-1">sync</span>
-            Refresh
+            
           </button>
         </div>
       </div>
@@ -110,7 +110,7 @@
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
                   <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <span class="material-icons text-blue-600">inventory_2</span>
+                    <span class="material-icons text-blue-600"></span>
                   </div>
                   <div class="ml-4">
                     <div class="text-sm font-medium text-gray-900">{{ item.name }}</div>
@@ -170,14 +170,14 @@
               <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
                 <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                   <span class="sr-only">Previous</span>
-                  <span class="material-icons">chevron_left</span>
+                  <span class="material-icons">Back</span>
                 </a>
                 <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600 hover:bg-blue-100">1</a>
                 <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">2</a>
                 <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">3</a>
                 <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                   <span class="sr-only">Next</span>
-                  <span class="material-icons">chevron_right</span>
+                  <span class="material-icons">Next</span>
                 </a>
               </nav>
             </div>
