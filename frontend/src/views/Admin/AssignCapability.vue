@@ -22,36 +22,81 @@
         </select>
       </div>
       
-      <!-- Capabilities -->
-      <div class="form-group">
-        <label class="form-label">Assign Capabilities <span class="text-red-500">*</span></label>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-          <label class="flex items-center">
-            <input type="checkbox" v-model="assignForm.capabilities" value="inventory" class="mr-2">
-            <span class="text-black">Inventory Management</span>
-          </label>
-          <label class="flex items-center">
-            <input type="checkbox" v-model="assignForm.capabilities" value="sales" class="mr-2">
-            <span class="text-black">Sales Operations</span>
-          </label>
-          <label class="flex items-center">
-            <input type="checkbox" v-model="assignForm.capabilities" value="reports" class="mr-2">
-            <span class="text-black">Report Generation</span>
-          </label>
-          <label class="flex items-center">
-            <input type="checkbox" v-model="assignForm.capabilities" value="users" class="mr-2">
-            <span class="text-black">User Management</span>
-          </label>
-          <label class="flex items-center">
-            <input type="checkbox" v-model="assignForm.capabilities" value="suppliers" class="mr-2">
-            <span class="text-black">Supplier Management</span>
-          </label>
-          <label class="flex items-center">
-            <input type="checkbox" v-model="assignForm.capabilities" value="customers" class="mr-2">
-            <span class="text-black">Customer Management</span>
-          </label>
-        </div>
-      </div>
+    <!-- Capabilities -->
+<div class="form-group">
+  <label class="form-label">
+    Assign Capabilities <span class="text-red-500">*</span>
+  </label>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+    
+    <!-- Items Module -->
+    <div class="mb-4">
+      <label class="flex items-center font-semibold mb-1">
+        <span class="text-black">Items</span>
+      </label>
+      <label class="flex items-center">
+        <input type="checkbox" v-model="assignForm.capabilities" value="item-sales" class="mr-2" />
+        <span class="text-black">Item Sales</span>
+      </label>
+      <label class="flex items-center">
+        <input type="checkbox" v-model="assignForm.capabilities" value="item-details" class="mr-2" />
+        <span class="text-black">Item Details</span>
+      </label>
+      <label class="flex items-center">
+        <input type="checkbox" v-model="assignForm.capabilities" value="stock-update" class="mr-2" />
+        <span class="text-black">Stock Update</span>
+      </label>
+    </div>
+
+    <!-- Suppliers Module -->
+    <div class="mb-4">
+      <label class="flex items-center font-semibold mb-1">
+        <span class="text-black">Suppliers</span>
+      </label>
+      <label class="flex items-center">
+        <input type="checkbox" v-model="assignForm.capabilities" value="supplier-details" class="mr-2" />
+        <span class="text-black">Supplier Details</span>
+      </label>
+      <label class="flex items-center">
+        <input type="checkbox" v-model="assignForm.capabilities" value="supply-invoice" class="mr-2" />
+        <span class="text-black">Supply Invoice</span>
+      </label>
+    </div>
+
+    <!-- Sales Module -->
+    <div class="mb-4">
+      <label class="flex items-center font-semibold mb-1">
+        <span class="text-black">Sales</span>
+      </label>
+      <label class="flex items-center">
+        <input type="checkbox" v-model="assignForm.capabilities" value="customer-return-refund" class="mr-2" />
+        <span class="text-black">Customer Return / Refund</span>
+      </label>
+      <label class="flex items-center">
+        <input type="checkbox" v-model="assignForm.capabilities" value="creditors" class="mr-2" />
+        <span class="text-black">Creditors</span>
+      </label>
+    </div>
+
+    <!-- Reports Module -->
+    <div class="mb-4">
+      <label class="flex items-center font-semibold mb-1">
+        <span class="text-black">Reports</span>
+      </label>
+      <label class="flex items-center">
+        <input type="checkbox" v-model="assignForm.capabilities" value="drug-movement" class="mr-2" />
+        <span class="text-black">Drug Movement</span>
+      </label>
+      <label class="flex items-center">
+        <input type="checkbox" v-model="assignForm.capabilities" value="inventory-summary" class="mr-2" />
+        <span class="text-black">Inventory Summary</span>
+      </label>
+    </div>
+
+  </div>
+</div>
+
       
       <!-- Duration -->
       <div class="form-group">
