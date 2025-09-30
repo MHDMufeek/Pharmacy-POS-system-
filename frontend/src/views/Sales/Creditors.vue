@@ -5,6 +5,7 @@
       <h1 class="text-2xl font-bold text-blue-900">Creditors Management</h1>
       <button
         class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center"
+        @click="openAddCreditorForm"
       >
         <span class="material-icons mr-2">add</span>
         Add Creditor
@@ -28,11 +29,12 @@
         <div class="w-full md:w-48">
           <select
             class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
+            v-model="statusFilter"
           >
-            <option>All Status</option>
-            <option>Active</option>
-            <option>Overdue</option>
-            <option>Paid</option>
+            <option value="">All Status</option>
+            <option value="Active">Active</option>
+            <option value="Overdue">Overdue</option>
+            <option value="Paid">Paid</option>
           </select>
         </div>
       </div>
@@ -70,7 +72,7 @@
                 <div
                   class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3"
                 >
-                  <span class="material-icons text-blue-600"></span>
+                  
                 </div>
                 <div>
                   <div class="font-medium text-gray-900">
@@ -111,7 +113,7 @@
                 @click="openCreditorDetails(creditor)"
                 title="View Creditor Details"
               >
-                <span class="material-icons">visibility</span>
+                   <span class="text-lg">{{ showPassword ? '🙈' : '👁️' }}</span>
               </button>
               
               <!-- 💰 Make Payment -->
@@ -127,7 +129,7 @@
                 class="text-gray-600 hover:text-gray-900"
                 title="More Options"
               >
-                <span class="material-icons">more_vert</span>
+                <span class="material-icons bg-red-100 rounded-s">delete</span>
               </button>
             </td>
           </tr>
@@ -148,7 +150,8 @@
         <button
           class="px-3 py-1 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200"
         >
-          Previous
+            <span class="sr-only">next</span>
+                  <span class="material-icons">chevron_left</span>
         </button>
         <button
           class="px-3 py-1 rounded-md bg-blue-600 text-white hover:bg-blue-700"
@@ -168,8 +171,196 @@
         <button
           class="px-3 py-1 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200"
         >
-          Next
+            <span class="sr-only">next</span>
+                  <span class="material-icons">chevron_right</span>
         </button>
+      </div>
+    </div>
+
+    <!-- 🔹 Add Creditor Modal -->
+    <div
+      v-if="showAddCreditorModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
+        <!-- Header -->
+        <div class="flex justify-between items-center p-6 border-b">
+          <h2 class="text-2xl font-bold text-gray-800">
+            Add New Creditor
+          </h2>
+          <button
+            class="text-gray-500 hover:text-gray-700"
+            @click="closeAddCreditorForm"
+          >
+            <span class="material-icons text-2xl">close</span>
+          </button>
+        </div>
+
+        <!-- Add Creditor Form -->
+        <div class="p-6">
+          <form @submit.prevent="submitCreditorForm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Creditor Information -->
+              <div class="space-y-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Creditor Information</h3>
+                
+                <div class="form-group">
+                  <label class="form-label">Creditor Name <span class="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    v-model="newCreditor.name"
+                    required
+                    placeholder="Enter creditor name"
+                    class="form-input"
+                  >
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Contact Person <span class="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    v-model="newCreditor.contact"
+                    required
+                    placeholder="Enter contact person"
+                    class="form-input"
+                  >
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Email Address</label>
+                  <input
+                    type="email"
+                    v-model="newCreditor.email"
+                    placeholder="Enter email address"
+                    class="form-input"
+                  >
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Phone Number</label>
+                  <input
+                    type="tel"
+                    v-model="newCreditor.phone"
+                    placeholder="Enter phone number"
+                    class="form-input"
+                  >
+                </div>
+              </div>
+
+              <!-- Financial Information -->
+              <div class="space-y-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Financial Information</h3>
+                
+                <div class="form-group">
+                  <label class="form-label">Amount Owed <span class="text-red-500">*</span></label>
+                  <div class="relative">
+                    <span class="absolute left-3 top-2 text-gray-500">$</span>
+                    <input
+                      type="number"
+                      v-model="newCreditor.amount"
+                      required
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                      class="form-input pl-8"
+                    >
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Due Date <span class="text-red-500">*</span></label>
+                  <input
+                    type="date"
+                    v-model="newCreditor.dueDate"
+                    required
+                    class="form-input"
+                  >
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Status <span class="text-red-500">*</span></label>
+                  <select v-model="newCreditor.status" required class="form-input">
+                    <option value="">Select Status</option>
+                    <option value="Active">Active</option>
+                    <option value="Overdue">Overdue</option>
+                    <option value="Paid">Paid</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Account Number</label>
+                  <input
+                    type="text"
+                    v-model="newCreditor.accountNumber"
+                    placeholder="Enter account number"
+                    class="form-input"
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="mt-6">
+              <h3 class="text-lg font-semibold text-gray-800 mb-4">Additional Information</h3>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-group">
+                  <label class="form-label">Credit Limit</label>
+                  <div class="relative">
+                    <span class="absolute left-3 top-2 text-gray-500">$</span>
+                    <input
+                      type="number"
+                      v-model="newCreditor.creditLimit"
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                      class="form-input pl-8"
+                    >
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Payment Terms</label>
+                  <select v-model="newCreditor.terms" class="form-input">
+                    <option value="">Select Terms</option>
+                    <option value="Net 15">Net 15</option>
+                    <option value="Net 30">Net 30</option>
+                    <option value="Net 45">Net 45</option>
+                    <option value="Net 60">Net 60</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group mt-4">
+                <label class="form-label">Notes</label>
+                <textarea
+                  v-model="newCreditor.notes"
+                  rows="3"
+                  placeholder="Add any additional notes..."
+                  class="form-input"
+                ></textarea>
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex justify-end space-x-3 mt-8 pt-6 border-t">
+              <button
+                type="button"
+                @click="closeAddCreditorForm"
+                class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center"
+              >
+                <span class="material-icons mr-2">save</span>
+                Save Creditor
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -196,7 +387,7 @@
         <div class="p-6">
           <!-- Basic Information -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div class="bg-black-50 p-4 rounded-lg">
+            <div class="bg-gray-50 p-4 rounded-lg">
               <h3 class="text-lg font-semibold text-gray-800 mb-4">Basic Information</h3>
               <div class="space-y-3">
                 <div class="flex justify-between">
@@ -222,12 +413,12 @@
               <h3 class="text-lg font-semibold text-gray-800 mb-4">Financial Information</h3>
               <div class="space-y-3">
                 <div class="flex justify-between">
-                  <span class="text-gray-600">Amount Owed:</span>
-                  <span class="font-medium text-red-600 text-black">${{ selectedCreditor?.amount?.toLocaleString() }}</span>
+                  <span class="text-gray-600 text-black">Amount Owed:</span>
+                  <span class="font-medium text-red-600">${{ selectedCreditor?.amount?.toLocaleString() }}</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-gray-600">Due Date:</span>
-                  <span class="font-medium text-black">{{ formatDate(selectedCreditor?.dueDate) }}</span>
+                  <span class="text-gray-600 ">Due Date:</span>
+                  <span class="font-medium">{{ formatDate(selectedCreditor?.dueDate) }}</span>
                 </div>
                 <div class="flex justify-between">
                   <span class="text-gray-600">Status:</span>
@@ -244,7 +435,7 @@
                 </div>
                 <div class="flex justify-between">
                   <span class="text-gray-600">Account Number:</span>
-                  <span class="font-medium text-black">{{ selectedCreditor?.accountNumber || 'N/A' }}</span>
+                  <span class="font-medium">{{ selectedCreditor?.accountNumber || 'N/A' }}</span>
                 </div>
               </div>
             </div>
@@ -256,7 +447,7 @@
             <div class="space-y-3">
               <div>
                 <span class="text-gray-600 block mb-1">Notes:</span>
-                <p class="text-gray-800 bg-white p-3 rounded border min-h-[60px] text-black">
+                <p class="text-gray-800 bg-white p-3 rounded border min-h-[60px]">
                   {{ selectedCreditor?.notes || 'No additional notes available.' }}
                 </p>
               </div>
@@ -382,9 +573,26 @@
 import { ref, computed } from "vue";
 
 const searchQuery = ref("");
+const statusFilter = ref("");
 const showHistory = ref(false);
 const showCreditorDetails = ref(false);
+const showAddCreditorModal = ref(false);
 const selectedCreditor = ref(null);
+
+// New creditor form data
+const newCreditor = ref({
+  name: "",
+  contact: "",
+  email: "",
+  phone: "",
+  amount: 0,
+  dueDate: "",
+  status: "",
+  accountNumber: "",
+  creditLimit: 0,
+  terms: "",
+  notes: ""
+});
 
 // Enhanced sample data with more details
 const creditors = ref([
@@ -445,16 +653,25 @@ const creditors = ref([
 ]);
 
 const filteredCreditors = computed(() => {
-  if (!searchQuery.value) {
-    return creditors.value;
+  let filtered = creditors.value;
+
+  // Filter by search query
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase();
+    filtered = filtered.filter(
+      (c) =>
+        c.name.toLowerCase().includes(query) ||
+        c.contact.toLowerCase().includes(query) ||
+        c.status.toLowerCase().includes(query)
+    );
   }
-  const query = searchQuery.value.toLowerCase();
-  return creditors.value.filter(
-    (c) =>
-      c.name.toLowerCase().includes(query) ||
-      c.contact.toLowerCase().includes(query) ||
-      c.status.toLowerCase().includes(query)
-  );
+
+  // Filter by status
+  if (statusFilter.value) {
+    filtered = filtered.filter(c => c.status === statusFilter.value);
+  }
+
+  return filtered;
 });
 
 function formatDate(dateString) {
@@ -471,8 +688,104 @@ function openCreditorDetails(creditor) {
   selectedCreditor.value = creditor;
   showCreditorDetails.value = true;
 }
+
+function openAddCreditorForm() {
+  // Reset form
+  newCreditor.value = {
+    name: "",
+    contact: "",
+    email: "",
+    phone: "",
+    amount: 0,
+    dueDate: "",
+    status: "",
+    accountNumber: "",
+    creditLimit: 0,
+    terms: "",
+    notes: ""
+  };
+  showAddCreditorModal.value = true;
+}
+
+function closeAddCreditorForm() {
+  showAddCreditorModal.value = false;
+}
+
+function submitCreditorForm() {
+  // Generate a simple ID (in real app, this would come from backend)
+  const newId = Math.max(...creditors.value.map(c => c.id), 0) + 1;
+  
+  // Add the new creditor
+  creditors.value.push({
+    id: newId,
+    ...newCreditor.value,
+    history: [] // Initialize empty history
+  });
+
+  // Close modal and show success message
+  showAddCreditorModal.value = false;
+  
+  // Reset form
+  newCreditor.value = {
+    name: "",
+    contact: "",
+    email: "",
+    phone: "",
+    amount: 0,
+    dueDate: "",
+    status: "",
+    accountNumber: "",
+    creditLimit: 0,
+    terms: "",
+    notes: ""
+  };
+
+  // You can add a success notification here
+  alert("Creditor added successfully!");
+}
 </script>
 
 <style scoped>
-/* Add any custom styles here if needed */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 1rem;
+  transition: all 0.15s ease;
+  background-color: #f9fafb;
+  color: #111827;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  background-color: #ffffff;
+}
+
+select.form-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+.text-red-500 {
+  color: #ef4444;
+}
 </style>

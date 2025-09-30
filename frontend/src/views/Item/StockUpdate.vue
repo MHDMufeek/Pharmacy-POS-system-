@@ -61,7 +61,7 @@
             
           </button>
           <button class="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center">
-            <span class="material-icons text-sm mr-1">File_download</span>
+            <span class="material-icons text-sm mr-1">file_download</span>
             
           </button>
         </div>
@@ -169,15 +169,15 @@
             <div>
               <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
                 <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                  <span class="sr-only">Previous</span>
-                  <span class="material-icons">Back</span>
+                  <span class="sr-only">revious</span>
+                    <span class="material-icons">chevron_left</span>
                 </a>
                 <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600 hover:bg-blue-100">1</a>
                 <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">2</a>
                 <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">3</a>
                 <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                  <span class="sr-only">Next</span>
-                  <span class="material-icons">Next</span>
+                  <span class="sr-only">next</span>
+                    <span class="material-icons">chevron_right</span>
                 </a>
               </nav>
             </div>

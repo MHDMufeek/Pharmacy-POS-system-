@@ -17,7 +17,7 @@
               <span class="material-icons mr-2">add</span>
               New Return
             </button>
-            <button class="border border-gray-300 hover:bg-gray-100 text-gray-700 px-4 py-2 rounded-md flex items-center">
+            <button class="bg-blue-600 hover:bg-blue-700 text-white-700 px-4 py-2 rounded-md flex items-center">
               <span class="material-icons mr-2">print</span>
               Print
             </button>
