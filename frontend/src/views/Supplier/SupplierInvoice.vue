@@ -244,9 +244,9 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div class="flex items-center space-x-2">
-                        <button class="text-blue-600 hover:text-blue-900 transition-colors" @click="viewInvoice(invoice)" title="View Invoice">
-                          <span class="material-icons text-base">visibility</span>
-                        </button>
+                        <button type="button" class="password-toggle" @click="showPassword = !showPassword">
+  <span class="text-lg">{{ showPassword ? '🙈' : '👁️' }}</span>
+</button>
                         <button class="text-green-600 hover:text-green-900 transition-colors" @click="editInvoice(invoice)" v-if="invoice.status === 'pending'" title="Edit Invoice">
                           <span class="material-icons text-base">edit</span>
                         </button>

@@ -100,9 +100,9 @@
                 <button class="text-blue-600 hover:text-blue-900 mr-3" @click="editSupplier(supplier)">
                   <span class="material-icons">edit</span>
                 </button>
-                <button class="text-green-600 hover:text-green-900 mr-3" @click="viewSupplier(supplier)">
-                  <span class="material-icons">visibility</span>
-                </button>
+                <button type="button" class="password-toggle" @click="showPassword = !showPassword">
+  <span class="text-lg">{{ showPassword ? '🙈' : '👁️' }}</span>
+</button>
                 <button class="text-red-600 hover:text-red-900" @click="deleteSupplier(supplier)">
                   <span class="material-icons">delete</span>
                 </button>
