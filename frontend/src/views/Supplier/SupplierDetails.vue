@@ -8,7 +8,7 @@
           class="flex items-center text-blue-600 hover:text-blue-800"
         >
           <span class="material-icons mr-1">arrow_back</span>
-          Back
+          
         </button>
       </div>
   
@@ -17,11 +17,11 @@
         <div class="flex gap-2">
           <button class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center" @click="showAddSupplierModal">
             <span class="material-icons text-sm mr-1">add</span>
-            Add New Supplier
+            
           </button>
           <button class="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center">
             <span class="material-icons text-sm mr-1">file_download</span>
-            Export
+            
           </button>
         </div>
         <div class="flex gap-2">
@@ -36,7 +36,7 @@
           </div>
           <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center">
             <span class="material-icons text-sm mr-1">filter_list</span>
-            Filter
+            
           </button>
         </div>
       </div>
@@ -71,7 +71,7 @@
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
                   <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <span class="material-icons text-blue-600">business</span>
+                    <span class="material-icons text-blue-600"></span>
                   </div>
                   <div class="ml-4">
                     <div class="text-sm font-medium text-gray-900">{{ supplier.name }}</div>
@@ -133,14 +133,14 @@
               <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
                 <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                   <span class="sr-only">Previous</span>
-                  <span class="material-icons">chevron_left</span>
+                  <span class="material-icons">Back</span>
                 </a>
                 <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600 hover:bg-blue-100">1</a>
                 <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">2</a>
                 <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">3</a>
                 <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                   <span class="sr-only">Next</span>
-                  <span class="material-icons">chevron_right</span>
+                  <span class="material-icons">Next</span>
                 </a>
               </nav>
             </div>
@@ -160,7 +160,7 @@
               <input 
                 type="text" 
                 v-model="currentSupplier.name" 
-                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
+                class="w-full bg-black-100 rounded-lg px-3 py-2 text-sm outline-none"
                 placeholder="Enter supplier name"
               >
             </div>
@@ -169,7 +169,7 @@
               <input 
                 type="text" 
                 v-model="currentSupplier.contactPerson" 
-                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
+                class="w-full bg-black-100 rounded-lg px-3 py-2 text-sm outline-none"
                 placeholder="Enter contact person name"
               >
             </div>
@@ -178,7 +178,7 @@
               <input 
                 type="tel" 
                 v-model="currentSupplier.phone" 
-                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
+                class="w-full bg-black-100 rounded-lg px-3 py-2 text-sm outline-none"
                 placeholder="Enter phone number"
               >
             </div>
@@ -187,7 +187,7 @@
               <input 
                 type="email" 
                 v-model="currentSupplier.email" 
-                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
+                class="w-full bg-black-100 rounded-lg px-3 py-2 text-sm outline-none"
                 placeholder="Enter email address"
               >
             </div>
@@ -195,14 +195,14 @@
               <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
               <textarea 
                 v-model="currentSupplier.address" 
-                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
+                class="w-full bg-black-100 rounded-lg px-3 py-2 text-sm outline-none"
                 placeholder="Enter full address"
                 rows="3"
               ></textarea>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-              <select v-model="currentSupplier.status" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none">
+              <select v-model="currentSupplier.status" class="w-full bg-black-100 rounded-lg px-3 py-2 text-sm outline-none">
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
               </select>
@@ -211,14 +211,14 @@
               <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
               <textarea 
                 v-model="currentSupplier.notes" 
-                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
+                class="w-full bg-black-100 rounded-lg px-3 py-2 text-sm outline-none"
                 placeholder="Additional notes about this supplier"
                 rows="2"
               ></textarea>
             </div>
           </div>
           <div class="px-6 py-4 border-t flex justify-end gap-3">
-            <button @click="showSupplierModal = false" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg">Cancel</button>
+            <button @click="showSupplierModal = false" class="px-4 py-2 text-gray-700 bg-blue-200 rounded-lg">Cancel</button>
             <button @click="saveSupplier" class="px-4 py-2 text-white bg-blue-600 rounded-lg">{{ isEditing ? 'Update' : 'Save' }}</button>
           </div>
         </div>

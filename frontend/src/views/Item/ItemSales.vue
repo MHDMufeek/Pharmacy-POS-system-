@@ -91,8 +91,8 @@
       <!-- Header -->
       <div class="p-4 border-b bg-blue-50">
         <h2 class="text-lg font-bold text-blue-900 flex items-center gap-2">
-          <span class="material-icons text-blue-600 flex item-center"> Current Sale</span>
-         
+          <span class="material-icons text-blue-600">shopping_cart</span>
+          Current Sale
         </h2>
       </div>
 
@@ -149,8 +149,131 @@
         </div>
       </div>
 
+      <!-- Payment Section -->
+      <div v-if="cart.length > 0" class="p-4 border-t bg-white">
+        <h3 class="text-sm font-semibold text-blue-900 mb-3">Payment Method</h3>
+        
+        <!-- Payment Method Selection -->
+        <div class="grid grid-cols-2 gap-2 mb-4">
+          <button
+            @click="selectedPaymentMethod = 'cash'"
+            :class="paymentMethodClass('cash')"
+          >
+            💵 Cash
+          </button>
+          <button
+            @click="selectedPaymentMethod = 'card'"
+            :class="paymentMethodClass('card')"
+          >
+            💳 Card
+          </button>
+          <button
+            @click="selectedPaymentMethod = 'credit'"
+            :class="paymentMethodClass('credit')"
+          >
+            📝 Credit
+          </button>
+          <button
+            @click="selectedPaymentMethod = 'upi'"
+            :class="paymentMethodClass('upi')"
+          >
+            📱 UPI
+          </button>
+        </div>
+
+        <!-- Payment Details based on selected method -->
+        <div v-if="selectedPaymentMethod === 'cash'" class="space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-medium text-gray-700">Amount Paid:</span>
+            <input
+              v-model.number="amountPaid"
+              type="number"
+              min="0"
+              :max="totalAmount"
+              class="w-24 border rounded px-2 py-1 text-sm text-right"
+              placeholder="0.00"
+            />
+          </div>
+          <div v-if="amountPaid > 0" class="flex justify-between items-center text-sm">
+            <span class="font-medium text-gray-700">Change:</span>
+            <span class="font-bold text-green-600">Rs. {{ (amountPaid - totalAmount).toFixed(2) }}</span>
+          </div>
+        </div>
+
+        <!-- Card Payment Details -->
+        <div v-if="selectedPaymentMethod === 'card'" class="space-y-3">
+          <div>
+            <label class="text-xs text-gray-600">Card Number</label>
+            <input
+              type="text"
+              placeholder="1234 5678 9012 3456"
+              class="w-full border rounded px-3 py-2 text-sm"
+            />
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-xs text-gray-600">Expiry Date</label>
+              <input
+                type="text"
+                placeholder="MM/YY"
+                class="w-full border rounded px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <label class="text-xs text-gray-600">CVV</label>
+              <input
+                type="text"
+                placeholder="123"
+                class="w-full border rounded px-3 py-2 text-sm"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Credit Payment Details -->
+        <div v-if="selectedPaymentMethod === 'credit'" class="space-y-3">
+          <div class="flex justify-between items-center mb-3">
+            <label class="text-sm font-medium text-gray-700">Creditor:</label>
+            <select 
+              v-model="selectedSupplier" 
+              class="border rounded px-2 py-1 text-sm text-gray-700"
+            >
+              <option 
+                v-for="supplier in suppliers" 
+                :key="supplier" 
+                :value="supplier"
+              >
+                {{ supplier }}
+              </option>
+            </select>
+          </div>
+          <div class="bg-yellow-50 border border-yellow-200 rounded p-3">
+            <p class="text-xs text-yellow-800 text-center">
+              💡 This sale will be recorded as credit
+            </p>
+          </div>
+        </div>
+
+        <!-- UPI Payment Details -->
+        <div v-if="selectedPaymentMethod === 'upi'" class="space-y-3">
+          <div>
+            <label class="text-xs text-gray-600">UPI ID</label>
+            <input
+              type="text"
+              placeholder="username@upi"
+              class="w-full border rounded px-3 py-2 text-sm"
+            />
+          </div>
+          <div class="bg-blue-50 border border-blue-200 rounded p-3">
+            <p class="text-xs text-blue-800 text-center">
+              📱 Scan QR code or enter UPI ID
+            </p>
+          </div>
+        </div>
+      </div>
+
       <!-- Overall Totals -->
-      <div class="p-4 border-t bg-gradient-to-r from-blue-50 to-blue-100 space-y-2">
+      <div class="p-4 border-t bg-gradient-to-r from-blue-50 to-blue-100 space-y-3">
         <div class="flex justify-between">
           <span class="font-medium text-gray-700">Total Items:</span>
           <span class="font-bold text-gray-900">{{ totalItems }}</span>
@@ -159,37 +282,30 @@
           <span class="font-medium text-gray-700">Total Amount:</span>
           <span class="font-bold text-green-700 text-lg">Rs. {{ totalAmount }}</span>
         </div>
-         <!-- Supplier Selection -->
-<div class="flex justify-between items-center mb-3">
-  <label class="font-medium text-gray-700">Creditor:</label>
-  <select 
-    v-model="selectedSupplier" 
-    class="border rounded px-2 py-1 text-gray-700"
-  >
-    <option 
-      v-for="supplier in suppliers" 
-      :key="supplier" 
-      :value="supplier"
-    >
-      {{ supplier }}
-    </option>
-  </select>
-</div> 
-       <button
-          class="w-full bg-gray-200 hover:bg-gray-200 text-white py-2 rounded-lg shadow-md transition"
-          :disabled="cart.length === 2"
-        >
-         <span class="text-black">CASH</span>
-         
-        </button>
-      
 
-        <button
-          class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg shadow-md transition"
-          :disabled="cart.length === 0"
-        >
-          🧾 Print Bill
-        </button>
+        <!-- Action Buttons -->
+        <div class="space-y-2 pt-2">
+          <button
+            @click="processPayment"
+            :disabled="cart.length === 0 || (selectedPaymentMethod === 'cash' && amountPaid < totalAmount)"
+            :class="[
+              'w-full py-2 rounded-lg shadow-md transition font-medium',
+              cart.length === 0 || (selectedPaymentMethod === 'cash' && amountPaid < totalAmount)
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : getPaymentButtonClass()
+            ]"
+          >
+            {{ getPaymentButtonText() }}
+          </button>
+
+          <button
+            @click="clearCart"
+            v-if="cart.length > 0"
+            class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg shadow-md transition"
+          >
+            🗑️ Clear Cart
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -209,6 +325,12 @@ const items = ref([
 const searchQuery = ref('')
 const selectedCategory = ref('')
 const cart = ref([])
+const selectedPaymentMethod = ref('cash')
+const amountPaid = ref(0)
+const selectedSupplier = ref('HealthCorp')
+
+// Suppliers list
+const suppliers = computed(() => [...new Set(items.value.map(i => i.supplier))])
 
 // Categories
 const categories = computed(() => [...new Set(items.value.map(i => i.category))])
@@ -246,6 +368,40 @@ function removeFromCart(id) {
   cart.value = cart.value.filter(c => c.id !== id)
 }
 
+// Clear cart
+function clearCart() {
+  cart.value = []
+  amountPaid.value = 0
+  selectedPaymentMethod.value = 'cash'
+}
+
+// Process payment
+function processPayment() {
+  if (cart.value.length === 0) return
+  
+  if (selectedPaymentMethod.value === 'cash' && amountPaid.value < totalAmount.value) {
+    alert('Amount paid is less than total amount!')
+    return
+  }
+
+  // Here you would typically send the payment data to your backend
+  const paymentData = {
+    items: cart.value,
+    totalAmount: totalAmount.value,
+    paymentMethod: selectedPaymentMethod.value,
+    amountPaid: amountPaid.value,
+    change: selectedPaymentMethod.value === 'cash' ? (amountPaid.value - totalAmount.value) : 0,
+    supplier: selectedPaymentMethod.value === 'credit' ? selectedSupplier.value : null,
+    timestamp: new Date().toISOString()
+  }
+
+  console.log('Processing payment:', paymentData)
+  alert(`Payment processed via ${selectedPaymentMethod.value.toUpperCase()}! Total: Rs. ${totalAmount.value}`)
+  
+  // Clear cart after successful payment
+  clearCart()
+}
+
 // Computed totals
 const totalAmount = computed(() => cart.value.reduce((sum, i) => sum + i.price * i.qty, 0))
 const categorySummary = computed(() => {
@@ -267,5 +423,45 @@ function buttonClass(cat) {
       ? 'bg-blue-600 text-white'
       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
   ]
+}
+
+// Payment method button classes
+function paymentMethodClass(method) {
+  return [
+    'py-2 rounded-lg text-sm font-medium transition-all',
+    selectedPaymentMethod.value === method
+      ? getPaymentMethodActiveClass(method)
+      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+  ]
+}
+
+function getPaymentMethodActiveClass(method) {
+  const classes = {
+    cash: 'bg-green-600 text-white hover:bg-green-700',
+    card: 'bg-blue-600 text-white hover:bg-blue-700',
+    credit: 'bg-orange-600 text-white hover:bg-orange-700',
+    upi: 'bg-purple-600 text-white hover:bg-purple-700'
+  }
+  return classes[method] || 'bg-blue-600 text-white'
+}
+
+function getPaymentButtonClass() {
+  const classes = {
+    cash: 'bg-green-600 hover:bg-green-700 text-white',
+    card: 'bg-blue-600 hover:bg-blue-700 text-white',
+    credit: 'bg-orange-600 hover:bg-orange-700 text-white',
+    upi: 'bg-purple-600 hover:bg-purple-700 text-white'
+  }
+  return classes[selectedPaymentMethod.value] || 'bg-green-600 hover:bg-green-700 text-white'
+}
+
+function getPaymentButtonText() {
+  const texts = {
+    cash: `💵 Pay Rs. ${totalAmount.value}`,
+    card: `💳 Pay with Card`,
+    credit: `📝 Confirm Credit Sale`,
+    upi: `📱 Pay with UPI`
+  }
+  return texts[selectedPaymentMethod.value] || `Pay Rs. ${totalAmount.value}`
 }
 </script>
