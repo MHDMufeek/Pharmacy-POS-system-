@@ -5,11 +5,24 @@
     ]"
     :style="{ width: sidebarOpen ? '280px' : '80px' }"
   >
-    <!-- Logo -->
+    <!-- Logo as Dashboard Button -->
     <div class="flex items-center gap-4 p-6 border-b border-slate-700/50 bg-slate-800/50 backdrop-blur-sm">
-      <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 text-white rounded-xl flex items-center justify-center font-bold shadow-lg text-lg">
-        M
-      </div>
+      <router-link 
+        to="/dashboard" 
+        custom
+        v-slot="{ navigate, isActive }"
+      >
+        <button
+          @click="navigate"
+          :class="[
+            'w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 text-white rounded-xl flex items-center justify-center font-bold shadow-lg text-lg transition-all duration-200 hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900',
+            isActive ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-slate-900' : ''
+          ]"
+          :title="sidebarOpen ? 'Go to Dashboard' : 'Dashboard'"
+        >
+          M
+        </button>
+      </router-link>
       <div v-show="sidebarOpen" class="flex flex-col">
         <h1 class="text-xl font-bold tracking-tight text-white">Medicite</h1>
         <p class="text-xs text-slate-400 font-medium">Healthcare Management</p>
@@ -155,3 +168,37 @@ function getRoutePath(menuTitle, subItem) {
   return routeMap[menuTitle]?.[subItem] || '/';
 }
 </script>
+
+<style scoped>
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollbar-track-slate-800::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+.scrollbar-thumb-slate-600::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 2px;
+}
+
+.scrollbar-thumb-slate-600::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>
