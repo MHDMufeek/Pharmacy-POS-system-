@@ -133,6 +133,12 @@ const menus = [
     icon: "analytics",
     items: ["Drugs Movement", "Inventory Summary"],
   },
+   {
+    title: "Expenses",
+    icon: "",
+    items: ["", ""],
+  },
+
 ];
 
 function toggleMenu(index) {
