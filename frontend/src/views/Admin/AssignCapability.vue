@@ -46,6 +46,11 @@
       <div v-if="errorMessage" class="alert alert-error">
         {{ errorMessage }}
       </div>
+
+      <!-- Loading State -->
+      <div v-if="isLoading" class="alert alert-info">
+        Loading...
+      </div>
       
       <!-- User Selection -->
       <div class="form-group">
@@ -54,6 +59,7 @@
           class="form-input" 
           v-model="assignForm.selectedUser" 
           :class="{ 'border-red-500': formErrors.selectedUser }"
+          :disabled="isLoading"
           required
         >
           <option value="">Select a user</option>
@@ -80,15 +86,33 @@
             </label>
             <div class="space-y-2 mt-2">
               <label class="capability-item">
-                <input type="checkbox" v-model="assignForm.capabilities" value="item-sales" class="checkbox-input" />
+                <input 
+                  type="checkbox" 
+                  v-model="assignForm.capabilities" 
+                  value="item-sales" 
+                  class="checkbox-input" 
+                  :disabled="isLoading"
+                />
                 <span>Item Sales</span>
               </label>
               <label class="capability-item">
-                <input type="checkbox" v-model="assignForm.capabilities" value="item-details" class="checkbox-input" />
+                <input 
+                  type="checkbox" 
+                  v-model="assignForm.capabilities" 
+                  value="item-details" 
+                  class="checkbox-input" 
+                  :disabled="isLoading"
+                />
                 <span>Item Details</span>
               </label>
               <label class="capability-item">
-                <input type="checkbox" v-model="assignForm.capabilities" value="stock-update" class="checkbox-input" />
+                <input 
+                  type="checkbox" 
+                  v-model="assignForm.capabilities" 
+                  value="stock-update" 
+                  class="checkbox-input" 
+                  :disabled="isLoading"
+                />
                 <span>Stock Update</span>
               </label>
             </div>
@@ -101,11 +125,23 @@
             </label>
             <div class="space-y-2 mt-2">
               <label class="capability-item">
-                <input type="checkbox" v-model="assignForm.capabilities" value="supplier-details" class="checkbox-input" />
+                <input 
+                  type="checkbox" 
+                  v-model="assignForm.capabilities" 
+                  value="supplier-details" 
+                  class="checkbox-input" 
+                  :disabled="isLoading"
+                />
                 <span>Supplier Details</span>
               </label>
               <label class="capability-item">
-                <input type="checkbox" v-model="assignForm.capabilities" value="supply-invoice" class="checkbox-input" />
+                <input 
+                  type="checkbox" 
+                  v-model="assignForm.capabilities" 
+                  value="supply-invoice" 
+                  class="checkbox-input" 
+                  :disabled="isLoading"
+                />
                 <span>Supply Invoice</span>
               </label>
             </div>
@@ -118,11 +154,23 @@
             </label>
             <div class="space-y-2 mt-2">
               <label class="capability-item">
-                <input type="checkbox" v-model="assignForm.capabilities" value="customer-return-refund" class="checkbox-input" />
+                <input 
+                  type="checkbox" 
+                  v-model="assignForm.capabilities" 
+                  value="customer-return-refund" 
+                  class="checkbox-input" 
+                  :disabled="isLoading"
+                />
                 <span>Customer Return / Refund</span>
               </label>
               <label class="capability-item">
-                <input type="checkbox" v-model="assignForm.capabilities" value="creditors" class="checkbox-input" />
+                <input 
+                  type="checkbox" 
+                  v-model="assignForm.capabilities" 
+                  value="creditors" 
+                  class="checkbox-input" 
+                  :disabled="isLoading"
+                />
                 <span>Creditors</span>
               </label>
             </div>
@@ -135,11 +183,23 @@
             </label>
             <div class="space-y-2 mt-2">
               <label class="capability-item">
-                <input type="checkbox" v-model="assignForm.capabilities" value="drug-movement" class="checkbox-input" />
+                <input 
+                  type="checkbox" 
+                  v-model="assignForm.capabilities" 
+                  value="drug-movement" 
+                  class="checkbox-input" 
+                  :disabled="isLoading"
+                />
                 <span>Drug Movement</span>
               </label>
               <label class="capability-item">
-                <input type="checkbox" v-model="assignForm.capabilities" value="inventory-summary" class="checkbox-input" />
+                <input 
+                  type="checkbox" 
+                  v-model="assignForm.capabilities" 
+                  value="inventory-summary" 
+                  class="checkbox-input" 
+                  :disabled="isLoading"
+                />
                 <span>Inventory Summary</span>
               </label>
             </div>
@@ -153,11 +213,23 @@
         <label class="form-label">Assignment Duration <span class="text-red-500">*</span></label>
         <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-2 sm:space-y-0 mt-2">
           <label class="duration-option">
-            <input type="radio" v-model="assignForm.duration" value="temporary" class="radio-input">
+            <input 
+              type="radio" 
+              v-model="assignForm.duration" 
+              value="temporary" 
+              class="radio-input"
+              :disabled="isLoading"
+            >
             <span>Temporary (Until logout)</span>
           </label>
           <label class="duration-option">
-            <input type="radio" v-model="assignForm.duration" value="scheduled" class="radio-input">
+            <input 
+              type="radio" 
+              v-model="assignForm.duration" 
+              value="scheduled" 
+              class="radio-input"
+              :disabled="isLoading"
+            >
             <span>Scheduled</span>
           </label>
         </div>
@@ -172,6 +244,7 @@
             class="form-input" 
             :class="{ 'border-red-500': formErrors.startTime }"
             v-model="assignForm.startTime" 
+            :disabled="isLoading"
             required
           >
           <span v-if="formErrors.startTime" class="text-red-500 text-sm">{{ formErrors.startTime }}</span>
@@ -184,6 +257,7 @@
             class="form-input" 
             :class="{ 'border-red-500': formErrors.endTime }"
             v-model="assignForm.endTime" 
+            :disabled="isLoading"
             required
           >
           <span v-if="formErrors.endTime" class="text-red-500 text-sm">{{ formErrors.endTime }}</span>
@@ -197,6 +271,7 @@
           class="form-input" 
           :class="{ 'border-red-500': formErrors.reason }"
           v-model="assignForm.reason" 
+          :disabled="isLoading"
           required
           placeholder="Explain why capabilities are being assigned..."
           rows="3"
@@ -211,6 +286,7 @@
           class="form-input" 
           v-model="assignForm.permissionLevel" 
           :class="{ 'border-red-500': formErrors.permissionLevel }"
+          :disabled="isLoading"
           required
         >
           <option value="">Select permission level</option>
@@ -228,47 +304,72 @@
       
       <!-- Action Buttons -->
       <div class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4 mt-6">
-        <button type="button" class="btn btn-secondary order-2 sm:order-1" @click="goBack">
+        <button 
+          type="button" 
+          class="btn btn-secondary order-2 sm:order-1" 
+          @click="goBack"
+          :disabled="isLoading"
+        >
           Cancel
         </button>
-        <button type="button" class="btn btn-primary order-1 sm:order-2" @click="assignCapabilities">
-          Assign Capabilities
+        <button 
+          type="button" 
+          class="btn btn-primary order-1 sm:order-2" 
+          @click="assignCapabilities"
+          :disabled="isLoading"
+        >
+          <span v-if="isLoading">Assigning...</span>
+          <span v-else>Assign Capabilities</span>
         </button>
       </div>
       
       <!-- Active Assignments -->
       <div v-if="activeAssignments.length > 0" class="mt-8">
-        <h3 class="section-title">Active Capability Assignments</h3>
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="section-title">Active Capability Assignments</h3>
+          <button 
+            @click="fetchActiveAssignments" 
+            class="btn btn-secondary text-sm py-2 px-4"
+            :disabled="isLoading"
+          >
+            Refresh
+          </button>
+        </div>
         <div class="assignments-container">
           <div v-for="assignment in activeAssignments" :key="assignment.id" class="assignment-card">
             <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center">
               <div class="flex-1">
-                <p class="assignment-user">User: {{ assignment.userName }}</p>
+                <p class="assignment-user">User: {{ assignment.user_name }}</p>
                 <p class="assignment-detail">
                   <span class="detail-label">Capabilities:</span> 
                   {{ formatCapabilities(assignment.capabilities) }}
                 </p>
                 <p class="assignment-detail">
                   <span class="detail-label">Permission Level:</span> 
-                  <span class="capitalize">{{ assignment.permissionLevel }}</span>
+                  <span class="capitalize">{{ assignment.permission_level }}</span>
                 </p>
                 <p class="assignment-detail">
                   <span class="detail-label">Assigned:</span> 
-                  {{ formatDate(assignment.startTime) }}
+                  {{ formatDate(assignment.created_at) }}
                 </p>
-                <p v-if="assignment.endTime" class="assignment-detail">
+                <p v-if="assignment.end_time" class="assignment-detail">
                   <span class="detail-label">Expires:</span> 
-                  {{ formatDate(assignment.endTime) }}
+                  {{ formatDate(assignment.end_time) }}
                 </p>
                 <p class="assignment-detail">
                   <span class="detail-label">Reason:</span> 
                   {{ assignment.reason }}
+                </p>
+                <p class="assignment-detail">
+                  <span class="detail-label">Status:</span> 
+                  <span :class="getStatusClass(assignment.status)">{{ assignment.status }}</span>
                 </p>
               </div>
               <div class="mt-3 sm:mt-0 sm:ml-4">
                 <button 
                   @click="removeAssignment(assignment.id)"
                   class="btn btn-danger text-sm py-2 px-4"
+                  :disabled="isLoading"
                 >
                   Remove
                 </button>
@@ -281,42 +382,36 @@
       <!-- No Active Assignments -->
       <div v-else class="mt-8 text-center py-8 no-assignments">
         <p>No active capability assignments</p>
+        <button 
+          @click="fetchActiveAssignments" 
+          class="btn btn-secondary mt-4"
+          :disabled="isLoading"
+        >
+          Refresh
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, reactive, watch } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
 
 const emit = defineEmits(['go-back']);
 
+// State
 const successMessage = ref('');
 const errorMessage = ref('');
+const isLoading = ref(false);
 const formErrors = reactive({});
-const currentTheme = ref('auto'); // 'light', 'dark', or 'auto'
+const currentTheme = ref('auto');
 
-// Sample user data
-const userList = ref([
-  { id: 1, name: 'John Doe', role: 'Pharmacist' },
-  { id: 2, name: 'Jane Smith', role: 'Sales Manager' },
-  { id: 3, name: 'Mike Johnson', role: 'Inventory Clerk' },
-  { id: 4, name: 'Sarah Wilson', role: 'Cashier' }
-]);
+// Data
+const userList = ref([]);
+const activeAssignments = ref([]);
 
-const activeAssignments = ref([
-  {
-    id: 1,
-    userName: 'Mike Johnson',
-    capabilities: ['stock-update', 'inventory-summary'],
-    permissionLevel: 'assist',
-    reason: 'Temporary inventory management support',
-    startTime: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-    endTime: new Date(Date.now() + 6 * 60 * 60 * 1000) // 6 hours from start
-  }
-]);
-
-const assignForm = ref({
+// Form - using reactive instead of ref for object
+const assignForm = reactive({
   selectedUser: '',
   capabilities: [],
   duration: 'temporary',
@@ -326,15 +421,23 @@ const assignForm = ref({
   permissionLevel: ''
 });
 
-// Theme management
+// API base URL
+const API_BASE = 'http://localhost:3000/api';
+
+// Debug logging
+console.log('Component mounted - initial state:', {
+  userList: userList.value,
+  activeAssignments: activeAssignments.value,
+  assignForm: assignForm
+});
+
+// Theme functions (keep your existing theme code)
 function getSystemTheme() {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 function applyTheme(theme) {
   const root = document.documentElement;
-  
-  // Remove all theme classes
   root.classList.remove('light-theme', 'dark-theme', 'auto-theme');
   
   if (theme === 'auto') {
@@ -346,7 +449,6 @@ function applyTheme(theme) {
     currentTheme.value = theme;
   }
   
-  // Save to localStorage
   localStorage.setItem('preferred-theme', theme);
 }
 
@@ -354,7 +456,6 @@ function toggleTheme(theme) {
   applyTheme(theme);
 }
 
-// Watch for system theme changes
 function setupThemeListener() {
   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
   mediaQuery.addEventListener('change', (e) => {
@@ -364,61 +465,198 @@ function setupThemeListener() {
   });
 }
 
-onMounted(() => {
-  initializeForm();
-  
-  // Initialize theme
-  const savedTheme = localStorage.getItem('preferred-theme') || 'auto';
-  applyTheme(savedTheme);
-  setupThemeListener();
-});
+// API Methods with better error handling
+async function fetchUsers() {
+  try {
+    console.log('Starting fetchUsers...');
+    isLoading.value = true;
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      errorMessage.value = 'No authentication token found. Please login again.';
+      console.error('No token found in localStorage');
+      return;
+    }
 
-function initializeForm() {
-  const now = new Date();
-  assignForm.value.startTime = now.toISOString().slice(0, 16);
-  const endTime = new Date(now.getTime() + 60 * 60 * 1000); // 1 hour from now
-  assignForm.value.endTime = endTime.toISOString().slice(0, 16);
+    console.log('Making API request to:', `${API_BASE}/capabilities/users`);
+    
+    const response = await fetch(`${API_BASE}/capabilities/users`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    console.log('API Response status:', response.status);
+    
+    if (response.ok) {
+      const data = await response.json();
+      userList.value = data;
+      console.log('Users fetched successfully:', data);
+      successMessage.value = `Loaded ${data.length} users`;
+    } else if (response.status === 401) {
+      errorMessage.value = 'Authentication failed. Please login again.';
+      console.error('Authentication failed - 401 status');
+    } else {
+      errorMessage.value = `Failed to fetch users: ${response.status} ${response.statusText}`;
+      console.error('API error:', response.status, response.statusText);
+    }
+  } catch (error) {
+    console.error('Network error fetching users:', error);
+    errorMessage.value = `Network error: ${error.message}. Please check if:
+    1. The server is running on http://localhost:3000
+    2. The /api/capabilities/users endpoint exists
+    3. Your CORS settings are configured properly`;
+  } finally {
+    isLoading.value = false;
+  }
 }
 
+async function fetchActiveAssignments() {
+  try {
+    console.log('Starting fetchActiveAssignments...');
+    isLoading.value = true;
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      errorMessage.value = 'No authentication token found';
+      return;
+    }
+
+    const response = await fetch(`${API_BASE}/capabilities/assignments`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    console.log('Assignments response status:', response.status);
+    
+    if (response.ok) {
+      const data = await response.json();
+      activeAssignments.value = data;
+      console.log('Assignments fetched:', data);
+    } else if (response.status === 401) {
+      errorMessage.value = 'Authentication failed. Please login again.';
+    } else {
+      errorMessage.value = `Failed to fetch assignments: ${response.status}`;
+    }
+  } catch (error) {
+    console.error('Error fetching assignments:', error);
+    errorMessage.value = `Network error fetching assignments: ${error.message}`;
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+async function assignCapabilities() {
+  console.log('Starting assignCapabilities...', assignForm);
+  
+  successMessage.value = '';
+  errorMessage.value = '';
+  // Clear form errors
+  Object.keys(formErrors).forEach(key => delete formErrors[key]);
+
+  if (!validateForm()) {
+    errorMessage.value = "Please fix the errors in the form";
+    console.log('Form validation failed', formErrors);
+    return;
+  }
+
+  try {
+    isLoading.value = true;
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      errorMessage.value = 'No authentication token found';
+      return;
+    }
+
+    // Prepare data for API
+    const assignmentData = {
+      selectedUser: assignForm.selectedUser,
+      capabilities: assignForm.capabilities,
+      duration: assignForm.duration,
+      startTime: assignForm.duration === 'scheduled' ? assignForm.startTime : null,
+      endTime: assignForm.duration === 'scheduled' ? assignForm.endTime : null,
+      reason: assignForm.reason,
+      permissionLevel: assignForm.permissionLevel
+    };
+
+    console.log('Sending assignment data:', assignmentData);
+
+    const response = await fetch(`${API_BASE}/capabilities/assign`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(assignmentData)
+    });
+
+    const data = await response.json();
+    console.log('Assignment response:', data);
+
+    if (response.ok) {
+      successMessage.value = data.message || 'Capabilities assigned successfully!';
+      await fetchActiveAssignments();
+      resetForm();
+      
+      setTimeout(() => {
+        successMessage.value = '';
+      }, 5000);
+    } else {
+      errorMessage.value = data.error || `Failed to assign capabilities: ${response.status}`;
+    }
+  } catch (error) {
+    console.error('Error assigning capabilities:', error);
+    errorMessage.value = `Network error: ${error.message}. Please try again.`;
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+// Fix the validateForm function
 function validateForm() {
   // Clear previous errors
   Object.keys(formErrors).forEach(key => delete formErrors[key]);
   
   let isValid = true;
+  console.log('Validating form:', assignForm);
 
-  if (!assignForm.value.selectedUser) {
+  if (!assignForm.selectedUser) {
     formErrors.selectedUser = "Please select a user";
     isValid = false;
   }
 
-  if (assignForm.value.capabilities.length === 0) {
+  if (assignForm.capabilities.length === 0) {
     formErrors.capabilities = "Please select at least one capability";
     isValid = false;
   }
 
-  if (!assignForm.value.reason.trim()) {
+  if (!assignForm.reason.trim()) {
     formErrors.reason = "Please provide a reason for assignment";
     isValid = false;
   }
 
-  if (!assignForm.value.permissionLevel) {
+  if (!assignForm.permissionLevel) {
     formErrors.permissionLevel = "Please select a permission level";
     isValid = false;
   }
 
-  if (assignForm.value.duration === 'scheduled') {
-    if (!assignForm.value.startTime) {
+  if (assignForm.duration === 'scheduled') {
+    if (!assignForm.startTime) {
       formErrors.startTime = "Please provide a start time";
       isValid = false;
     }
-    if (!assignForm.value.endTime) {
+    if (!assignForm.endTime) {
       formErrors.endTime = "Please provide an end time";
       isValid = false;
     }
     
-    if (assignForm.value.startTime && assignForm.value.endTime) {
-      const start = new Date(assignForm.value.startTime);
-      const end = new Date(assignForm.value.endTime);
+    if (assignForm.startTime && assignForm.endTime) {
+      const start = new Date(assignForm.startTime);
+      const end = new Date(assignForm.endTime);
       
       if (end <= start) {
         formErrors.endTime = "End time must be after start time";
@@ -432,70 +670,73 @@ function validateForm() {
     }
   }
 
+  console.log('Validation result:', isValid, 'Errors:', formErrors);
   return isValid;
 }
 
-function assignCapabilities() {
-  successMessage.value = '';
-  errorMessage.value = '';
-
-  if (!validateForm()) {
-    errorMessage.value = "Please fix the errors in the form";
+// Keep the rest of your functions as they are (removeAssignment, formatDate, etc.)
+async function removeAssignment(assignmentId) {
+  if (!confirm('Are you sure you want to remove this assignment?')) {
     return;
   }
 
-  const selectedUser = userList.value.find(user => user.id == assignForm.value.selectedUser);
+  try {
+    isLoading.value = true;
+    const token = localStorage.getItem('token');
+    if (!token) {
+      errorMessage.value = 'No authentication token found';
+      return;
+    }
 
-  const newAssignment = {
-    id: Date.now(),
-    userName: selectedUser.name,
-    capabilities: [...assignForm.value.capabilities],
-    permissionLevel: assignForm.value.permissionLevel,
-    reason: assignForm.value.reason,
-    startTime: new Date(),
-    endTime: assignForm.value.duration === 'scheduled' ? new Date(assignForm.value.endTime) : null
-  };
+    const response = await fetch(`${API_BASE}/capabilities/assignments/${assignmentId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
 
-  activeAssignments.value.push(newAssignment);
-
-  successMessage.value = `Capabilities successfully assigned to ${selectedUser.name}`;
-  
-  // Auto-hide success message after 5 seconds
-  setTimeout(() => {
-    successMessage.value = '';
-  }, 5000);
-
-  resetForm();
+    if (response.ok) {
+      successMessage.value = "Assignment removed successfully";
+      await fetchActiveAssignments();
+      
+      setTimeout(() => {
+        successMessage.value = '';
+      }, 3000);
+    } else {
+      const data = await response.json();
+      errorMessage.value = data.error || "Failed to remove assignment";
+    }
+  } catch (error) {
+    console.error('Error removing assignment:', error);
+    errorMessage.value = "Error removing assignment";
+  } finally {
+    isLoading.value = false;
+  }
 }
 
-function removeAssignment(assignmentId) {
-  activeAssignments.value = activeAssignments.value.filter(a => a.id !== assignmentId);
-  successMessage.value = "Capability assignment removed successfully";
-  
-  // Auto-hide success message after 3 seconds
-  setTimeout(() => {
-    successMessage.value = '';
-  }, 3000);
+function initializeForm() {
+  const now = new Date();
+  assignForm.startTime = now.toISOString().slice(0, 16);
+  const endTime = new Date(now.getTime() + 60 * 60 * 1000);
+  assignForm.endTime = endTime.toISOString().slice(0, 16);
+  console.log('Form initialized with dates');
 }
 
 function resetForm() {
-  assignForm.value = {
-    selectedUser: '',
-    capabilities: [],
-    duration: 'temporary',
-    startTime: '',
-    endTime: '',
-    reason: '',
-    permissionLevel: ''
-  };
+  assignForm.selectedUser = '';
+  assignForm.capabilities = [];
+  assignForm.duration = 'temporary';
+  assignForm.reason = '';
+  assignForm.permissionLevel = '';
   initializeForm();
   
-  // Clear form errors
   Object.keys(formErrors).forEach(key => delete formErrors[key]);
+  console.log('Form reset');
 }
 
-function formatDate(date) {
-  return new Date(date).toLocaleString('en-US', {
+function formatDate(dateString) {
+  if (!dateString) return 'N/A';
+  return new Date(dateString).toLocaleString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -505,6 +746,15 @@ function formatDate(date) {
 }
 
 function formatCapabilities(capabilities) {
+  if (typeof capabilities === 'string') {
+    try {
+      capabilities = JSON.parse(capabilities);
+    } catch (e) {
+      console.error('Error parsing capabilities:', e);
+      return capabilities;
+    }
+  }
+
   const capabilityLabels = {
     'item-sales': 'Item Sales',
     'item-details': 'Item Details',
@@ -520,12 +770,92 @@ function formatCapabilities(capabilities) {
   return capabilities.map(cap => capabilityLabels[cap] || cap).join(', ');
 }
 
+function getStatusClass(status) {
+  switch (status) {
+    case 'active':
+      return 'text-green-600 font-semibold';
+    case 'inactive':
+      return 'text-red-600 font-semibold';
+    case 'expired':
+      return 'text-orange-600 font-semibold';
+    default:
+      return 'text-gray-600';
+  }
+}
+
 function goBack() {
   emit('go-back');
 }
+
+onMounted(() => {
+  console.log('AssignCapability component mounted');
+  
+  initializeForm();
+  
+  // Initialize theme
+  const savedTheme = localStorage.getItem('preferred-theme') || 'auto';
+  applyTheme(savedTheme);
+  setupThemeListener();
+
+  // Fetch initial data
+  console.log('Fetching initial data...');
+  fetchUsers();
+  fetchActiveAssignments();
+});
 </script>
 
 <style scoped>
+/* Add loading state styles */
+.alert-info {
+  background-color: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #93c5fd;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  margin-bottom: 1.5rem;
+}
+
+.dark-theme .alert-info {
+  background-color: #1e3a8a;
+  color: #dbeafe;
+  border-color: #3b82f6;
+}
+
+/* Disabled state styles */
+button:disabled,
+select:disabled,
+input:disabled,
+textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Status badges */
+.text-green-600 {
+  color: #059669;
+}
+
+.text-red-600 {
+  color: #dc2626;
+}
+
+.text-orange-600 {
+  color: #ea580c;
+}
+
+.dark-theme .text-green-600 {
+  color: #34d399;
+}
+
+.dark-theme .text-red-600 {
+  color: #f87171;
+}
+
+.dark-theme .text-orange-600 {
+  color: #fb923c;
+}
+
+/* Keep all your existing styles below */
 /* Header Actions */
 .header-actions {
   display: flex;
@@ -681,7 +1011,7 @@ select.form-input {
   color: white;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
   background-color: #1e3a8a;
   transform: translateY(-1px);
 }
@@ -691,7 +1021,7 @@ select.form-input {
   color: white;
 }
 
-.btn-secondary:hover {
+.btn-secondary:hover:not(:disabled) {
   background-color: #4b5563;
   transform: translateY(-1px);
 }
@@ -701,7 +1031,7 @@ select.form-input {
   color: white;
 }
 
-.btn-danger:hover {
+.btn-danger:hover:not(:disabled) {
   background-color: #b91c1c;
   transform: translateY(-1px);
 }
@@ -908,7 +1238,7 @@ select.form-input {
   background-color: #2563eb;
 }
 
-.dark-theme .btn-primary:hover {
+.dark-theme .btn-primary:hover:not(:disabled) {
   background-color: #1d4ed8;
 }
 
@@ -916,7 +1246,7 @@ select.form-input {
   background-color: #4b5563;
 }
 
-.dark-theme .btn-secondary:hover {
+.dark-theme .btn-secondary:hover:not(:disabled) {
   background-color: #374151;
 }
 
@@ -924,7 +1254,7 @@ select.form-input {
   background-color: #dc2626;
 }
 
-.dark-theme .btn-danger:hover {
+.dark-theme .btn-danger:hover:not(:disabled) {
   background-color: #b91c1c;
 }
 
@@ -1070,7 +1400,7 @@ select.form-input {
     background-color: #2563eb;
   }
 
-  .auto-theme .btn-primary:hover {
+  .auto-theme .btn-primary:hover:not(:disabled) {
     background-color: #1d4ed8;
   }
 
@@ -1078,7 +1408,7 @@ select.form-input {
     background-color: #4b5563;
   }
 
-  .auto-theme .btn-secondary:hover {
+  .auto-theme .btn-secondary:hover:not(:disabled) {
     background-color: #374151;
   }
 
@@ -1086,7 +1416,7 @@ select.form-input {
     background-color: #dc2626;
   }
 
-  .auto-theme .btn-danger:hover {
+  .auto-theme .btn-danger:hover:not(:disabled) {
     background-color: #b91c1c;
   }
 

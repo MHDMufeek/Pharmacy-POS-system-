@@ -133,6 +133,11 @@ const menus = [
     icon: "analytics",
     items: ["Drugs Movement", "Inventory Summary"],
   },
+  {
+    title: "Expenses",
+    icon: "receipt", // Add this icon
+    items: ["View Expenses"],
+  },
 ];
 
 function toggleMenu(index) {
@@ -162,7 +167,12 @@ function getRoutePath(menuTitle, subItem) {
     'Reports': {
       'Drugs Movement': '/reports/drug-movement',
       'Inventory Summary': '/reports/inventory-summary'
+    },
+     'Expenses': {
+      'View Expenses': '/expenses/view'
     }
+    
+    
   };
   
   return routeMap[menuTitle]?.[subItem] || '/';

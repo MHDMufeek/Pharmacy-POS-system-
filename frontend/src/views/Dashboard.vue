@@ -116,6 +116,11 @@ const menus = [
     icon: "analytics",
     items: ["Drugs Movement", "Inventory Summary"],
   },
+     {
+    title: "Expenses",
+    icon: "receipt", // Add this icon
+    items: ["View Expenses"],
+  },
 ];
 
 function navigateToFirstItem(menu) {
@@ -124,7 +129,10 @@ function navigateToFirstItem(menu) {
     'Item': '/item/sales',
     'Supplier': '/supplier/details',
     'Sales': '/sales/return-refund',
-    'Reports': '/reports/drug-movement'
+    'Reports': '/reports/drug-movement',
+    'Expenses': '/Expenses/ViewExpenses'
+    
+    
   };
   
   router.push(routeMap[menu.title]);
