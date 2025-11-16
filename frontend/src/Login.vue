@@ -44,7 +44,7 @@
       <form @submit.prevent="handleLogin" class="space-y-4">
         <!-- Username Input -->
         <div>
-          <label class="block mb-1 font-medium">Username</label>
+          <label class="block mb-1 font-medium">Username or Email</label>
           <input
             v-model="username"
             type="text"
@@ -74,7 +74,6 @@
               @click="togglePassword"
               class="absolute right-3 top-2 text-sm"
               :class="isDark ? 'text-gray-400' : 'text-gray-500'"
-              :disabled="isLoading"
             >
               {{ showPassword ? '🙈' : '👁️' }}
             </button>
@@ -91,20 +90,6 @@
           <span v-if="isLoading">Logging in...</span>
           <span v-else>Login</span>
         </button>
-
-        <!-- Demo Credentials -->
-        <div
-          class="mt-6 p-4 rounded-lg"
-          :class="isDark ? 'bg-gray-700' : 'bg-gray-100'"
-        >
-          <h3 class="font-semibold mb-2 text-sm">Demo Credentials:</h3>
-          <div class="text-xs space-y-1">
-            <p><strong>Admin:</strong> admin / 1234</p>
-            <p><strong>Pharmacist:</strong> pharmacist1 / 1234</p>
-            <p><strong>Store Manager:</strong> manager1 / 1234</p>
-            <p><strong>Inventory Clerk:</strong> clerk1 / 1234</p>
-          </div>
-        </div>
       </form>
     </div>
   </div>
@@ -132,25 +117,19 @@ export default {
       this.isDark = !this.isDark;
       localStorage.setItem("preferred-theme", this.isDark ? "dark" : "light");
     },
+
     async handleLogin() {
       this.errorMessage = "";
       this.successMessage = "";
       this.isLoading = true;
 
-      if (!this.username.trim() || !this.password.trim()) {
-        this.errorMessage = "Please enter both username and password";
-        this.isLoading = false;
-        return;
-      }
-
       try {
-        const response = await fetch("http://localhost:3000/api/auth/login", {
+  const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api';
+  const response = await fetch(`${API_BASE}/auth/login`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            username: this.username,
+            email: this.username,
             password: this.password,
           }),
         });
@@ -158,56 +137,23 @@ export default {
         const data = await response.json();
 
         if (response.ok) {
-          // Store auth data
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("user", JSON.stringify(data.user));
-          localStorage.setItem("capabilities", JSON.stringify(data.capabilities));
-          localStorage.setItem("permissionLevel", data.permissionLevel);
+          // Store token and user info
+          if (data.token) localStorage.setItem('token', data.token);
+          if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
 
           this.successMessage = "Login successful 🎉 Redirecting...";
-
-          // Redirect
-          this.redirectBasedOnCapabilities(data.capabilities);
+          setTimeout(() => {
+            this.$router.push("/dashboard");
+          }, 1000);
         } else {
-          this.errorMessage = data.message || data.error || "Login failed. Please check your credentials.";
+          this.errorMessage = data.message || "Invalid username or password";
         }
-      } catch (error) {
-        console.error("Login error:", error);
-        this.errorMessage = "Network error. Please check if the server is running.";
+      } catch (err) {
+        console.error("Login error:", err);
+        this.errorMessage = "Server not responding. Please try again later.";
       } finally {
         this.isLoading = false;
       }
-    },
-
-    redirectBasedOnCapabilities(capabilities) {
-      const redirect = (path) => setTimeout(() => this.$router.push(path), 1000);
-
-      if (!capabilities || capabilities.length === 0) return redirect("/no-access");
-
-      // Item
-      if (capabilities.includes("item-sales")) return redirect("/item/sales");
-      if (capabilities.includes("item-details")) return redirect("/item/details");
-      if (capabilities.includes("stock-update")) return redirect("/item/stock-update");
-
-      // Supplier
-      if (capabilities.includes("supplier-details")) return redirect("/supplier/details");
-      if (capabilities.includes("supply-invoice")) return redirect("/supplier/invoice");
-
-      // Sales
-      if (capabilities.includes("customer-return-refund")) return redirect("/sales/return-refund");
-      if (capabilities.includes("creditors")) return redirect("/sales/creditors");
-
-      // Reports
-      if (capabilities.includes("drug-movement")) return redirect("/reports/drug-movement");
-      if (capabilities.includes("inventory-summary")) return redirect("/reports/inventory-summary");
-
-      // Admin
-      if (capabilities.includes("change-password")) return redirect("/admin/change-password");
-      if (capabilities.includes("create-user")) return redirect("/admin/create-user");
-      if (capabilities.includes("assist-capability")) return redirect("/admin/assist-capability");
-
-      // Fallback
-      return redirect("/dashboard");
     },
 
     loadThemePreference() {
@@ -221,12 +167,7 @@ export default {
   },
   mounted() {
     this.loadThemePreference();
-
-    // Clear old auth
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("capabilities");
-    localStorage.removeItem("permissionLevel");
+    localStorage.removeItem("user"); // Clear previous user
   },
 };
 </script>

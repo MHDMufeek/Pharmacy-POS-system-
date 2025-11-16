@@ -1,4 +1,4 @@
-<template>
+                        ````````````````````````  <template>
   <div class="page-container" :class="{ 'dark': isDarkMode }">
     <div class="theme-toggle-container">
       <button @click="toggleTheme" class="theme-toggle-btn">

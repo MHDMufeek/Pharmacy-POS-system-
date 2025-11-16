@@ -135,9 +135,12 @@ const menus = [
   },
    {
     title: "Expenses",
-    icon: "",
-    items: ["", ""],
+    icon: "receipt", // Add this icon
+    items: ["View Expenses"],
   },
+   
+    
+  
 
 ];
 
@@ -150,7 +153,7 @@ function getRoutePath(menuTitle, subItem) {
     'Administrator': {
       'Change Password': '/admin/change-password',
       'Create User Account': '/admin/create-user',
-      'Assign Capability': '/admin/assist'
+      'Assign Capability': '/admin/assign-capability'
     },
     'Item': {
       'Item Sales': '/item/sales',
@@ -168,7 +171,14 @@ function getRoutePath(menuTitle, subItem) {
     'Reports': {
       'Drugs Movement': '/reports/drug-movement',
       'Inventory Summary': '/reports/inventory-summary'
+    },
+    
+     'Expenses': {
+      'View Expenses': '/expenses/view'
     }
+    
+   
+
   };
   
   return routeMap[menuTitle]?.[subItem] || '/';

@@ -1,0 +1,18 @@
+# Auto-detect text files and normalize to LF in the repo
+* text=auto
+
+# Explicitly ensure common text files are stored with LF endings
+*.js     text eol=lf
+*.json   text eol=lf
+*.css    text eol=lf
+*.html   text eol=lf
+*.md     text eol=lf
+*.sh     text eol=lf
+
+# Binary files (no EOL conversion)
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.ico    binary
+*.pdf    binary

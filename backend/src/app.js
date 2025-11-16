@@ -1,0 +1,36 @@
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
+
+const authRoutes = require('./routes/auth');
+const capabilityRoutes = require('./routes/capabilities');
+const itemsRoutes = require('./routes/items');
+const salesRoutes = require('./routes/sales');
+const reportsRoutes = require('./routes/reports');
+const suppliersRoutes = require('./routes/suppliers');
+const errorHandler = require('./middleware/errorHandler');
+
+function createApp() {
+  const app = express();
+  app.use(helmet());
+  app.use(cors());
+  app.use(express.json({ limit: '10mb' }));
+  app.use(morgan('dev'));
+
+  app.use('/api/auth', authRoutes);
+  app.use('/api/capabilities', capabilityRoutes);
+  app.use('/api/items', itemsRoutes);
+  app.use('/api/sales', salesRoutes);
+  app.use('/api/reports', reportsRoutes);
+  app.use('/api/suppliers', suppliersRoutes);
+
+  app.get('/health', (req, res) => res.json({ ok: true }));
+
+  // centralized error handler (must be after routes)
+  app.use(errorHandler);
+
+  return app;
+}
+
+module.exports = createApp;

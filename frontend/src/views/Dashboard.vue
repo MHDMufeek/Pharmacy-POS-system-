@@ -130,9 +130,11 @@ function navigateToFirstItem(menu) {
     'Supplier': '/supplier/details',
     'Sales': '/sales/return-refund',
     'Reports': '/reports/drug-movement',
-    'Expenses':''
+    'Expenses': '/expenses/view'  // Updated this line
   };
   
-  router.push(routeMap[menu.title]);
+  if (routeMap[menu.title]) {
+    router.push(routeMap[menu.title]);
+  }
 }
 </script>

@@ -1,68 +1,87 @@
 pharmacy-pos-system/          <-- ROOT of the project
 │
-├── backend/                  <-- Node.js + MongoDB backend
-│   ├── src/
-│   │   ├── models/           <-- Mongoose schemas (User.js, Product.js, Sales.js)
-│   │   ├── routes/           <-- Express routes (auth.js, product.js, sales.js)
-│   │   ├── controllers/      <-- Business logic for each route
-│   │   ├── middleware/       <-- Auth middleware, error handler, etc.
-│   │   ├── config/           <-- DB connection config (db.js)
-│   │   └── server.js         <-- Entry point (starts Express server)
-│   │
-│   ├── package.json          <-- Dependencies: express, mongoose, cors, dotenv, etc.
-│   ├── package-lock.json     <-- Auto-generated when running npm install
-│   ├── .gitignore            <-- Ignores node_modules, .env, logs, etc.
-│   └── node_modules/         <-- Backend dependencies (auto-created)
+├── backend/                  <-- Node.js + Express backend (MongoDB)
+│   ├── package.json          <-- Backend package.json (dependencies & scripts)
+│   ├── .env.example         <-- Example environment variables (MONGO_URI, PORT, JWT_SECRET)
+│   ├── README.md            <-- Backend quick start and endpoints summary
+│   └── src/
+│       ├── index.js         <-- Entry: connects to MongoDB, starts server and seeds admin
+│       ├── app.js           <-- Express app factory (creates and configures the app)
+│       ├── config.js        <-- Loads env and exposes MONGO_URI, PORT, JWT_SECRET
+│       ├── utils/
+│       │   └── seedAdmin.js <-- Seeds initial admin user if missing
+│       ├── middleware/
+│       │   ├── auth.js      <-- JWT auth middleware (authMiddleware, requireRole)
+│       │   ├── asyncHandler.js <-- helper to wrap async handlers
+│       │   └── errorHandler.js <-- centralized error handler
+│       ├── models/          <-- Mongoose models
+│       │   ├── User.js
+│       │   ├── Item.js
+│       │   ├── Sale.js
+│       │   └── Supplier.js
+│       ├── routes/          <-- Express routers mounted under /api/*
+│       │   ├── auth.js         <-- POST /api/auth/register, POST /api/auth/login
+│       │   ├── capabilities.js  <-- admin/user capability endpoints
+│       │   ├── items.js         <-- CRUD for items (/api/items)
+│       │   ├── sales.js         <-- create sale, list sales (/api/sales)
+│       │   ├── reports.js       <-- reports endpoints (/api/reports/*)
+│       │   └── suppliers.js     <-- CRUD for suppliers (/api/suppliers)
+│       └── tests/            <-- Jest + Supertest integration tests (uses mongodb-memory-server)
+│           ├── items.test.js
+│           └── sales.test.js
 │
-├── frontend/                 <-- Vue.js + Tailwind frontend (your current folder)
-│   ├── public/               <-- Static assets
-│   ├── src/
-│   │   ├── assets/           <-- Images, CSS, logos
-│   │   ├── components/       <-- Vue components
-│   │   ├── views/            <-- Full pages (Dashboard, Sales, Inventory, etc.)
-│   │   ├── router/           <-- Vue Router setup
-│   │   ├── store/            <-- Pinia or Vuex state management (optional)
-│   │   ├── App.vue           <-- Main Vue component
-│   │   └── main.js           <-- Entry file
-│   │
-│   ├── package.json          <-- Dependencies: vue, tailwind, vite, axios, etc.
-│   ├── package-lock.json     <-- Auto-generated when running npm install
-│   ├── postcss.config.js     <-- Tailwind CSS setup (kept in frontend root)
-│   ├── tailwind.config.js    <-- Tailwind configuration
-│   ├── vite.config.js        <-- Vite build config
-│   ├── .gitignore            <-- Ignores node_modules, dist, etc.
-│   └── node_modules/         <-- Frontend dependencies (auto-created)
+├── frontend/                 <-- Vue 3 + Vite + Tailwind frontend
+│   ├── .env                  <-- Vite env (VITE_API_BASE=http://localhost:3000/api)
+│   ├── package.json
+│   ├── index.html
+│   ├── postcss.config.js
+│   ├── tailwind.config.js
+│   ├── vite.config.js
+│   └── src/
+│       ├── main.js           <-- Vue app mount
+│       ├── App.vue
+│       ├── style.css
+│       ├── assets/
+│       │   └── main.css
+│       ├── components/
+│       │   ├── Navbar.vue
+│       │   └── Sidebar.vue
+│       ├── router/
+│       │   └── index.js      <-- Vue Router configuration (routes -> views)
+│       └── views/            <-- Views used by the UI
+│           ├── Dashboard.vue
+│           ├── NoAccess.vue
+│           ├── Login.vue
+│           ├── Admin/
+│           │   ├── AssignCapability.vue
+│           │   ├── ChangePassword.vue
+│           │   └── CreateUserAccount.vue
+│           ├── Item/
+│           │   ├── ItemSales.vue
+│           │   ├── ItemDetails.vue
+│           │   ├── StockUpdate.vue
+│           │   └── SalesBill.vue
+│           ├── Supplier/
+│           │   ├── SupplierDetails.vue
+│           │   └── SupplierInvoice.vue
+│           ├── Sales/
+│           │   ├── CustomerReturnRefund.vue
+│           │   └── Creditors.vue
+│           ├── Reports/
+│           │   ├── DrugMovement.vue
+│           │   └── InventorySummary.vue
+│           └── Expenses/
+│               └── ViewExpenses.vue
 │
-├── .gitignore                <-- (optional root-level) If you keep a single git repo
-├── README.md                 <-- Documentation
-└── structure.txt             <-- Optional (your exported folder structure)
+├── .gitignore                <-- Root .gitignore (may exist at frontend/backend roots too)
+├── README.md                 <-- Project README (root may contain high-level docs)
+└── strcture.txt              <-- This file (up-to-date outline of project)
 
 
+Notes and highlights
+- Backend uses Mongoose (MongoDB). Default dev MONGO_URI in `.env.example` points to local MongoDB.
+- Auth is JWT-based; login returns { token, user } and the frontend stores the token in localStorage.
+- Tests use `mongodb-memory-server` (no local DB required for tests).
+- Frontend uses Vite; API base is centralized via `import.meta.env.VITE_API_BASE` (see `frontend/.env`).
 
-
-
-src/
-├── App.vue
-├── components/
-│   ├── Sidebar.vue
-│   ├── Navbar.vue
-│   └── DashboardCards.vue   (optional: the quick stats/cards)
-├── views/
-│   ├── Dashboard.vue
-│   ├── Admin/
-│   │   ├── ChangePassword.vue
-│   │   ├── CreateUserAccount.vue
-│   │   └── AssistCapability.vue
-│   ├── Item/
-│   │   ├── ItemSales.vue
-│   │   ├── ItemDetails.vue
-│   │   └── StockUpdate.vue
-│   ├── Supplier/
-│   │   ├── SupplierDetails.vue
-│   │   └── SupplierInvoice.vue
-│   ├── Sales/
-│   │   ├── CustomerReturnRefund.vue
-│   │   └── Creditors.vue
-│   └── Reports/
-│       ├── DrugMovement.vue
-│       └── InventorySummary.vue
+```
