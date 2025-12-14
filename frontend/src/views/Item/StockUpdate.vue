@@ -3,62 +3,20 @@
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold text-blue-900">Stock Update</h1>
-      <button 
-        @click="$emit('go-back')" 
-        class="flex items-center text-blue-600 hover:text-blue-800"
-      >
-        <span class="material-icons mr-1">arrow_back</span> Back
-      </button>
-    </div>
-
-   <!-- Filters --> 
-    <div class="bg-white p-4 rounded-lg shadow mb-6">
-      <div class="grid md:grid-cols-4 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Item</label>
-          <input 
-            type="text"
-            v-model="filters.item"
-            class="w-full border rounded-lg px-3 py-2 text-sm outline-none"
-            placeholder="Search by name..."
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-          <select 
-            v-model="filters.category"
-            class="w-full border rounded-lg px-3 py-2 text-sm outline-none"
-          >
-            <option value="">All Categories</option>
-            <option v-for="cat in categories" :key="cat">{{ cat }}</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Stock Status</label>
-          <select 
-            v-model="filters.status"
-            class="w-full border rounded-lg px-3 py-2 text-sm outline-none"
-          >
-            <option value="">All</option>
-            <option value="low">Low Stock</option>
-            <option value="adequate">Adequate</option>
-            <option value="good">Good</option>
-          </select>
-        </div>
-        <div class="flex items-end">
-          <button 
-            class="bg-blue-600 text-white px-4 py-2 rounded-lg mr-2"
-            @click="applyFilters"
-          >
-            Apply
-          </button>
-          <button 
-            class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg"
-            @click="resetFilters"
-          >
-            Reset
-          </button>
-        </div>
+      <div class="flex gap-2">
+        <button 
+          @click="showAddItemModal = true"
+          class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors"
+        >
+          <span class="material-icons text-sm mr-1">add</span>
+          Add New Item
+        </button>
+        <button 
+          @click="$emit('go-back')" 
+          class="flex items-center text-blue-600 hover:text-blue-800 px-4 py-2"
+        >
+          <span class="material-icons mr-1">arrow_back</span> Back
+        </button>
       </div>
     </div>
 
@@ -67,12 +25,12 @@
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Item</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Min Level</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+            <th class="px-6 py-3 text-left text-xl font-medium text-gray-500 uppercase">Item</th>
+            <th class="px-6 py-3 text-left text-xl font-medium text-gray-500 uppercase">Category</th>
+            <th class="px-6 py-3 text-left text-xl font-medium text-gray-500 uppercase">Stock</th>
+            <th class="px-6 py-3 text-left text-xl font-medium text-gray-500 uppercase">Min Level</th>
+            <th class="px-6 py-3 text-left text-xl font-medium text-gray-500 uppercase">Status</th>
+            <th class="px-6 py-3 text-left text-xl font-medium text-gray-500 uppercase">Actions</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
@@ -97,44 +55,360 @@
               <button 
                 class="text-blue-600 hover:text-blue-800 mr-3"
                 @click="editStock(item)"
+                title="Edit Stock"
               >
                 <span class="material-icons text-sm">edit</span>
               </button>
               <button 
-                class="text-green-600 hover:text-green-800"
+                class="text-green-600 hover:text-green-800 mr-3"
                 @click="restockItem(item)"
+                title="Quick Restock"
               >
                 <span class="material-icons text-sm">add</span>
+              </button>
+              <button 
+                class="text-purple-600 hover:text-purple-800"
+                @click="showItemHistory(item)"
+                title="View History"
+              >
+                <span class="material-icons text-sm">visibility</span>
               </button>
             </td>
           </tr>
         </tbody>
       </table>
 
-      <!-- Pagination Controls -->
-      <div class="flex justify-between items-center p-4 bg-gray-50 border-t">
+      <!-- Empty State -->
+      <div v-if="stockItems.length === 0" class="text-center py-12">
+        <div class="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+          <span class="material-icons text-gray-400 text-2xl">inventory_2</span>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">No items found</h3>
+        <p class="text-gray-500 mb-4">Add your first item to get started</p>
         <button 
-          @click="prevPage" 
-          :disabled="currentPage === 1"
-          class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg disabled:opacity-50"
+          @click="showAddItemModal = true"
+          class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg inline-flex items-center"
         >
-          Previous
+          <span class="material-icons text-sm mr-1">add</span>
+          Add First Item
         </button>
-        <span class="text-sm text-gray-600">
-          Page {{ currentPage }} of {{ totalPages }}
-        </span>
-        <button 
-          @click="nextPage" 
-          :disabled="currentPage === totalPages"
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50"
-        >
-          Next
-        </button>
+      </div>
+
+      <!-- Pagination -->
+      <div v-if="stockItems.length > itemsPerPage" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+        <div class="flex-1 flex justify-between sm:justify-end items-center">
+          <div class="sm:block hidden">
+            <p class="text-sm text-gray-700">
+              Showing 
+              <span class="font-medium">{{ ((currentPage - 1) * itemsPerPage) + 1 }}</span> 
+              to 
+              <span class="font-medium">{{ Math.min(currentPage * itemsPerPage, stockItems.length) }}</span> 
+              of
+              <span class="font-medium">{{ stockItems.length }}</span> 
+              results
+            </p>
+          </div>
+          <div class="ml-4">
+            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+              <button 
+                @click="prevPage"
+                :disabled="currentPage === 1"
+                :class="[
+                  'relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 text-sm font-medium',
+                  currentPage === 1 
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                    : 'bg-white text-gray-500 hover:bg-gray-50'
+                ]"
+              >
+                <span class="sr-only">Previous</span>
+                <span class="material-icons text-base">chevron_left</span>
+              </button>
+              
+              <!-- Page numbers -->
+              <button 
+                v-for="page in visiblePages"
+                :key="page"
+                @click="goToPage(page)"
+                :class="[
+                  'relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium',
+                  page === currentPage 
+                    ? 'bg-blue-50 text-blue-600 hover:bg-blue-100' 
+                    : 'bg-white text-gray-500 hover:bg-gray-50'
+                ]"
+              >
+                {{ page }}
+              </button>
+              
+              <button 
+                @click="nextPage"
+                :disabled="currentPage === totalPages"
+                :class="[
+                  'relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 text-sm font-medium',
+                  currentPage === totalPages 
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                    : 'bg-white text-gray-500 hover:bg-gray-50'
+                ]"
+              >
+                <span class="sr-only">Next</span>
+                <span class="material-icons text-base">chevron_right</span>
+              </button>
+            </nav>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Modal -->
-    <div v-if="showModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+    <!-- Add Item Modal -->
+    <div v-if="showAddItemModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        <div class="sticky top-0 bg-white z-10 flex items-center justify-between p-6 border-b">
+          <div>
+            <h2 class="text-xl font-bold text-gray-900">Add New Inventory Item</h2>
+            <p class="text-sm text-gray-600 mt-1">Complete all required fields</p>
+          </div>
+          <button 
+            @click="showAddItemModal = false"
+            class="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg"
+          >
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+
+        <form @submit.prevent="addNewItem" class="p-6 space-y-6">
+          <!-- Basic Information -->
+          <div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Basic Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Item Name <span class="text-red-500">*</span>
+                </label>
+                <input
+                  v-model="newItem.name"
+                  type="text"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="e.g., Paracetamol 500mg"
+                >
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Category <span class="text-red-500">*</span>
+                </label>
+                <select
+                  v-model="newItem.category"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">Select Category</option>
+                  <option v-for="category in categories" :key="category" :value="category">
+                    {{ category }}
+                  </option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Manufacturer
+                </label>
+                <input
+                  v-model="newItem.manufacturer"
+                  type="text"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="e.g., PharmaCorp"
+                >
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Item Code
+                </label>
+                <div class="flex items-center">
+                  <input
+                    v-model="newItem.code"
+                    type="text"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="e.g., MED-001"
+                  >
+                  <button 
+                    type="button"
+                    @click="generateItemCode"
+                    class="ml-2 px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg"
+                  >
+                    Generate
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stock & Pricing -->
+          <div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Stock & Pricing</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Initial Stock <span class="text-red-500">*</span>
+                  </label>
+                  <div class="flex items-center">
+                    <input
+                      v-model.number="newItem.currentStock"
+                      type="number"
+                      min="0"
+                      required
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="0"
+                    >
+                    <span class="ml-2 text-gray-600">units</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Minimum Level <span class="text-red-500">*</span>
+                  </label>
+                  <div class="flex items-center">
+                    <input
+                      v-model.number="newItem.minLevel"
+                      type="number"
+                      min="1"
+                      required
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="10"
+                    >
+                    <span class="ml-2 text-gray-600">units</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Maximum Level
+                  </label>
+                  <div class="flex items-center">
+                    <input
+                      v-model.number="newItem.maxLevel"
+                      type="number"
+                      min="0"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="1000"
+                    >
+                    <span class="ml-2 text-gray-600">units</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Cost Price <span class="text-red-500">*</span>
+                  </label>
+                  <div class="flex items-center">
+                    <span class="mr-2">$</span>
+                    <input
+                      v-model.number="newItem.costPrice"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      required
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="0.00"
+                    >
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Selling Price <span class="text-red-500">*</span>
+                  </label>
+                  <div class="flex items-center">
+                    <span class="mr-2">$</span>
+                    <input
+                      v-model.number="newItem.sellingPrice"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      required
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="0.00"
+                    >
+                  </div>
+                </div>
+
+                <div v-if="newItem.costPrice > 0 && newItem.sellingPrice > 0" class="bg-green-50 p-3 rounded-lg">
+                  <div class="flex justify-between text-sm">
+                    <span>Profit per unit:</span>
+                    <span class="font-medium text-green-600">
+                      ${{ (newItem.sellingPrice - newItem.costPrice).toFixed(2) }}
+                    </span>
+                  </div>
+                  <div class="flex justify-between text-sm mt-1">
+                    <span>Profit margin:</span>
+                    <span class="font-medium" :class="profitMargin >= 30 ? 'text-green-600' : 'text-yellow-600'">
+                      {{ profitMargin.toFixed(1) }}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Supplier Information -->
+          <div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Supplier Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Supplier
+                </label>
+                <select
+                  v-model="newItem.supplier"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">Select Supplier</option>
+                  <option v-for="supplier in suppliers" :key="supplier" :value="supplier">
+                    {{ supplier }}
+                  </option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Expiry Date
+                </label>
+                <input
+                  v-model="newItem.expiryDate"
+                  type="date"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="flex justify-end gap-3 pt-6 border-t">
+            <button
+              type="button"
+              @click="showAddItemModal = false"
+              class="px-6 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center"
+            >
+              <span class="material-icons text-sm mr-2">save</span>
+              Save Item
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Update Stock Modal -->
+    <div v-if="showUpdateModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg shadow-lg p-6 w-96">
         <h3 class="text-lg font-semibold mb-4">Update Stock</h3>
         <p class="mb-2 text-sm text-gray-700">Item: {{ selectedItem.name }}</p>
@@ -151,8 +425,126 @@
           class="w-full border rounded-lg px-3 py-2 text-sm mb-4"
         />
         <div class="flex justify-end gap-2">
-          <button class="px-4 py-2 bg-gray-200 rounded-lg" @click="showModal = false">Cancel</button>
+          <button class="px-4 py-2 bg-gray-200 rounded-lg" @click="showUpdateModal = false">Cancel</button>
           <button class="px-4 py-2 bg-blue-600 text-white rounded-lg" @click="updateStock">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Item History Modal -->
+    <div v-if="showHistoryModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[80vh] overflow-hidden">
+        <div class="sticky top-0 bg-white z-10 flex items-center justify-between p-6 border-b">
+          <div>
+            <h2 class="text-xl font-bold text-gray-900">Stock History</h2>
+            <p class="text-sm text-gray-600 mt-1">{{ selectedItem.name }} ({{ selectedItem.category }})</p>
+            <p class="text-xs text-gray-500 mt-1">Current Stock: {{ selectedItem.currentStock }} units</p>
+          </div>
+          <button 
+            @click="showHistoryModal = false"
+            class="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg"
+          >
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        
+        <div class="p-6">
+          <!-- History Summary -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-blue-50 p-4 rounded-lg">
+              <div class="flex items-center">
+                <div class="bg-blue-100 p-2 rounded-lg mr-3">
+                  <span class="material-icons text-blue-600">trending_up</span>
+                </div>
+                <div>
+                  <p class="text-gray-500 text-xs">Total Added</p>
+                  <p class="text-lg font-bold text-blue-600">{{ getTotalAdded }} units</p>
+                </div>
+              </div>
+            </div>
+            <div class="bg-red-50 p-4 rounded-lg">
+              <div class="flex items-center">
+                <div class="bg-red-100 p-2 rounded-lg mr-3">
+                  <span class="material-icons text-red-600">trending_down</span>
+                </div>
+                <div>
+                  <p class="text-gray-500 text-xs">Total Used</p>
+                  <p class="text-lg font-bold text-red-600">{{ getTotalUsed }} units</p>
+                </div>
+              </div>
+            </div>
+            <div class="bg-green-50 p-4 rounded-lg">
+              <div class="flex items-center">
+                <div class="bg-green-100 p-2 rounded-lg mr-3">
+                  <span class="material-icons text-green-600">history</span>
+                </div>
+                <div>
+                  <p class="text-gray-500 text-xs">Total Transactions</p>
+                  <p class="text-lg font-bold text-green-600">{{ itemHistory.length }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- History Table -->
+          <div class="overflow-y-auto max-h-[40vh]">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50 sticky top-0">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Previous Stock</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">New Stock</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performed By</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr v-for="(history, index) in itemHistory" :key="index">
+                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ formatDate(history.date) }}</td>
+                  <td class="px-4 py-3 whitespace-nowrap">
+                    <span :class="[
+                      'px-2 py-1 text-xs rounded-full font-medium',
+                      history.type === 'Added' ? 'bg-green-100 text-green-800' :
+                      history.type === 'Restocked' ? 'bg-blue-100 text-blue-800' :
+                      'bg-red-100 text-red-800'
+                    ]">
+                      {{ history.type }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                    <span :class="history.quantity > 0 ? 'text-green-600' : 'text-red-600'">
+                      {{ history.quantity > 0 ? '+' + history.quantity : history.quantity }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ history.previousStock }}</td>
+                  <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{{ history.newStock }}</td>
+                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ history.performedBy }}</td>
+                </tr>
+              </tbody>
+            </table>
+            
+            <!-- Empty History State -->
+            <div v-if="itemHistory.length === 0" class="text-center py-8">
+              <div class="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                <span class="material-icons text-gray-400">history</span>
+              </div>
+              <h3 class="text-md font-medium text-gray-900 mb-1">No history available</h3>
+              <p class="text-gray-500 text-sm">No stock updates have been recorded for this item yet.</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div class="bg-gray-50 px-6 py-4 border-t">
+          <div class="flex justify-end">
+            <button
+              @click="showHistoryModal = false"
+              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -173,36 +565,107 @@ const stockItems = ref([
   { id: 8, name: "Loratadine 10mg", category: "Allergy", currentStock: 35, minLevel: 15 },
   { id: 9, name: "Prednisolone 5mg", category: "Steroids", currentStock: 45, minLevel: 30 },
   { id: 10, name: "Omeprazole 20mg", category: "Acidity", currentStock: 25, minLevel: 10 },
+  { id: 11, name: "Aspirin 100mg", category: "Pain Relief", currentStock: 90, minLevel: 30 },
+  { id: 12, name: "Cough Syrup", category: "Cold & Cough", currentStock: 40, minLevel: 20 },
 ]);
 
-const categories = ref(["Pain Relief", "Antibiotics", "Supplements", "Diabetes", "Allergy", "Steroids", "Acidity"]);
+const categories = ref(["Pain Relief", "Antibiotics", "Supplements", "Diabetes", "Allergy", "Steroids", "Acidity", "Cold & Cough"]);
+const suppliers = ref(["PharmaCorp", "MediLife", "HealthPlus", "Global Pharma", "BioMed"]);
 
-const filters = ref({ item: "", category: "", status: "" });
+// Add New Item Modal
+const showAddItemModal = ref(false);
+const newItem = ref({
+  name: "",
+  category: "",
+  manufacturer: "",
+  code: "",
+  currentStock: 0,
+  minLevel: 10,
+  maxLevel: "",
+  costPrice: 0,
+  sellingPrice: 0,
+  supplier: "",
+  expiryDate: ""
+});
+
+// Update Stock Modal
+const showUpdateModal = ref(false);
+const selectedItem = ref({});
+const adjustmentType = ref("add");
+const adjustmentQuantity = ref(0);
+
+// History Modal
+const showHistoryModal = ref(false);
+const itemHistory = ref([]);
+
+// Sample history data for demonstration
+const stockHistory = ref({
+  1: [
+    { date: new Date('2024-01-15'), type: 'Added', quantity: 100, previousStock: 50, newStock: 150, performedBy: 'Admin' },
+    { date: new Date('2024-01-10'), type: 'Used', quantity: -20, previousStock: 170, newStock: 150, performedBy: 'Nurse Sarah' },
+    { date: new Date('2024-01-05'), type: 'Restocked', quantity: 50, previousStock: 120, newStock: 170, performedBy: 'Manager' },
+    { date: new Date('2023-12-28'), type: 'Added', quantity: 70, previousStock: 50, newStock: 120, performedBy: 'Admin' },
+  ],
+  2: [
+    { date: new Date('2024-01-14'), type: 'Restocked', quantity: 30, previousStock: 45, newStock: 75, performedBy: 'Manager' },
+    { date: new Date('2024-01-08'), type: 'Used', quantity: -15, previousStock: 60, newStock: 45, performedBy: 'Doctor John' },
+  ],
+  3: [
+    { date: new Date('2024-01-12'), type: 'Added', quantity: 50, previousStock: 0, newStock: 50, performedBy: 'Admin' },
+    { date: new Date('2024-01-05'), type: 'Used', quantity: -30, previousStock: 50, newStock: 20, performedBy: 'Nurse Lisa' },
+  ]
+});
 
 // Pagination
 const currentPage = ref(1);
 const itemsPerPage = 5;
 
-const filteredItems = computed(() => {
-  return stockItems.value.filter(item => {
-    const matchesName = filters.value.item 
-      ? item.name.toLowerCase().includes(filters.value.item.toLowerCase())
-      : true;
-    const matchesCategory = filters.value.category 
-      ? item.category === filters.value.category
-      : true;
-    const matchesStatus = filters.value.status
-      ? getStockStatus(item).toLowerCase() === filters.value.status
-      : true;
-    return matchesName && matchesCategory && matchesStatus;
-  });
-});
-
-const totalPages = computed(() => Math.ceil(filteredItems.value.length / itemsPerPage));
+const totalPages = computed(() => Math.ceil(stockItems.value.length / itemsPerPage));
 
 const paginatedItems = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
-  return filteredItems.value.slice(start, start + itemsPerPage);
+  return stockItems.value.slice(start, start + itemsPerPage);
+});
+
+const visiblePages = computed(() => {
+  const pages = [];
+  const maxVisible = 3;
+  
+  if (totalPages.value <= maxVisible) {
+    for (let i = 1; i <= totalPages.value; i++) {
+      pages.push(i);
+    }
+  } else {
+    let start = Math.max(1, currentPage.value - 1);
+    let end = Math.min(totalPages.value, start + maxVisible - 1);
+    
+    if (end - start + 1 < maxVisible) {
+      start = Math.max(1, end - maxVisible + 1);
+    }
+    
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+  }
+  
+  return pages;
+});
+
+const profitMargin = computed(() => {
+  if (newItem.value.costPrice <= 0) return 0;
+  return ((newItem.value.sellingPrice - newItem.value.costPrice) / newItem.value.costPrice) * 100;
+});
+
+const getTotalAdded = computed(() => {
+  return itemHistory.value
+    .filter(h => h.quantity > 0)
+    .reduce((sum, h) => sum + h.quantity, 0);
+});
+
+const getTotalUsed = computed(() => {
+  return Math.abs(itemHistory.value
+    .filter(h => h.quantity < 0)
+    .reduce((sum, h) => sum + h.quantity, 0));
 });
 
 function nextPage() {
@@ -213,35 +676,102 @@ function prevPage() {
   if (currentPage.value > 1) currentPage.value--;
 }
 
+function goToPage(page) {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+  }
+}
+
 function getStockStatus(item) {
   if (item.currentStock <= item.minLevel) return "Low";
   if (item.currentStock <= item.minLevel * 2) return "Adequate";
   return "Good";
 }
 
-function applyFilters() {
-  currentPage.value = 1;
-}
-function resetFilters() {
-  filters.value = { item: "", category: "", status: "" };
-  currentPage.value = 1;
+function generateItemCode() {
+  const randomNum = Math.floor(Math.random() * 1000);
+  newItem.value.code = `MED-${String(randomNum).padStart(3, '0')}`;
 }
 
-const showModal = ref(false);
-const selectedItem = ref({});
-const adjustmentType = ref("add");
-const adjustmentQuantity = ref(0);
+function formatDate(date) {
+  return new Date(date).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+function addNewItem() {
+  if (!newItem.value.name || !newItem.value.category) {
+    alert("Please fill in all required fields");
+    return;
+  }
+
+  const newId = stockItems.value.length > 0 ? Math.max(...stockItems.value.map(item => item.id)) + 1 : 1;
+  
+  const itemToAdd = {
+    id: newId,
+    name: newItem.value.name,
+    category: newItem.value.category,
+    currentStock: Number(newItem.value.currentStock) || 0,
+    minLevel: Number(newItem.value.minLevel) || 10
+  };
+
+  stockItems.value.push(itemToAdd);
+  
+  // Add initial history entry
+  stockHistory.value[newId] = [{
+    date: new Date(),
+    type: 'Added',
+    quantity: Number(newItem.value.currentStock) || 0,
+    previousStock: 0,
+    newStock: Number(newItem.value.currentStock) || 0,
+    performedBy: 'Admin'
+  }];
+  
+  // Reset to page 1 if needed
+  const totalItems = stockItems.value.length;
+  if (totalItems > itemsPerPage) {
+    currentPage.value = Math.ceil(totalItems / itemsPerPage);
+  }
+  
+  // Reset form
+  newItem.value = {
+    name: "",
+    category: "",
+    manufacturer: "",
+    code: "",
+    currentStock: 0,
+    minLevel: 10,
+    maxLevel: "",
+    costPrice: 0,
+    sellingPrice: 0,
+    supplier: "",
+    expiryDate: ""
+  };
+  
+  showAddItemModal.value = false;
+  alert("Item added successfully!");
+}
 
 function editStock(item) {
   selectedItem.value = { ...item };
-  showModal.value = true;
+  showUpdateModal.value = true;
 }
 
 function restockItem(item) {
   selectedItem.value = { ...item };
   adjustmentType.value = "add";
   adjustmentQuantity.value = 10;
-  showModal.value = true;
+  showUpdateModal.value = true;
+}
+
+function showItemHistory(item) {
+  selectedItem.value = { ...item };
+  itemHistory.value = stockHistory.value[item.id] || [];
+  showHistoryModal.value = true;
 }
 
 function updateStock() {
@@ -249,11 +779,36 @@ function updateStock() {
   if (index === -1) return;
 
   let quantity = Number(adjustmentQuantity.value);
-  if (adjustmentType.value === "add") stockItems.value[index].currentStock += quantity;
-  if (adjustmentType.value === "subtract") stockItems.value[index].currentStock -= quantity;
-  if (adjustmentType.value === "set") stockItems.value[index].currentStock = quantity;
+  const previousStock = stockItems.value[index].currentStock;
+  let newStock = previousStock;
+  
+  if (adjustmentType.value === "add") {
+    newStock = stockItems.value[index].currentStock + quantity;
+    stockItems.value[index].currentStock = newStock;
+  } else if (adjustmentType.value === "subtract") {
+    newStock = stockItems.value[index].currentStock - quantity;
+    stockItems.value[index].currentStock = Math.max(0, newStock);
+  } else if (adjustmentType.value === "set") {
+    newStock = quantity;
+    stockItems.value[index].currentStock = Math.max(0, quantity);
+  }
 
-  showModal.value = false;
+  // Add to history
+  const historyEntry = {
+    date: new Date(),
+    type: adjustmentType.value === 'add' ? 'Restocked' : 'Used',
+    quantity: adjustmentType.value === 'add' ? quantity : -quantity,
+    previousStock: previousStock,
+    newStock: stockItems.value[index].currentStock,
+    performedBy: 'Admin'
+  };
+
+  if (!stockHistory.value[selectedItem.value.id]) {
+    stockHistory.value[selectedItem.value.id] = [];
+  }
+  stockHistory.value[selectedItem.value.id].unshift(historyEntry);
+
+  showUpdateModal.value = false;
   adjustmentQuantity.value = 0;
 }
 </script>
