@@ -61,6 +61,14 @@
             <span class="material-icons-round text-white text-lg">person</span>
           </div>
         </div>
+        <!-- Logout -->
+        <button
+          @click="logout"
+          class="ml-2 px-3 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors text-sm"
+          title="Logout"
+        >
+          <span class="material-icons-round text-red-600 text-base">logout</span>
+        </button>
       </div>
     </div>
   </header>
@@ -68,7 +76,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const props = defineProps({
   sidebarOpen: Boolean
@@ -77,8 +85,19 @@ const props = defineProps({
 const emit = defineEmits(['toggle-sidebar']);
 
 const route = useRoute();
+const router = useRouter();
 
 const currentRouteName = computed(() => {
   return route.name;
 });
+
+function logout() {
+  try {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  } catch (e) {
+    // ignore
+  }
+  router.push({ name: 'Login' });
+}
 </script>
