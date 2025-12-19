@@ -53,18 +53,11 @@
             </td>
             <td class="px-6 py-4">
               <button 
-                class="text-blue-600 hover:text-blue-800 mr-3"
-                @click="editStock(item)"
-                title="Edit Stock"
+                class="text-yellow-600 hover:text-yellow-800 mr-3"
+                @click="adjustStock(item)"
+                title="Adjust Stock"
               >
-                <span class="material-icons text-sm">edit</span>
-              </button>
-              <button 
-                class="text-green-600 hover:text-green-800 mr-3"
-                @click="restockItem(item)"
-                title="Quick Restock"
-              >
-                <span class="material-icons text-sm">add</span>
+                <span class="material-icons text-sm">swap_vert</span>
               </button>
               <button 
                 class="text-purple-600 hover:text-purple-800"
@@ -72,6 +65,13 @@
                 title="View History"
               >
                 <span class="material-icons text-sm">visibility</span>
+              </button>
+              <button 
+                class="text-red-600 hover:text-red-800 ml-3"
+                @click="confirmDeleteItem(item)"
+                title="Delete Item"
+              >
+                <span class="material-icons text-sm">delete</span>
               </button>
             </td>
           </tr>
@@ -495,7 +495,7 @@
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Previous Stock</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">New Stock</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">New Stock</th>
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performed By</th>
                 </tr>
               </thead>
@@ -518,7 +518,7 @@
                     </span>
                   </td>
                   <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ history.previousStock }}</td>
-                  <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{{ history.newStock }}</td>
+                  <td class="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{{ history.newStock }}</td>
                   <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ history.performedBy }}</td>
                 </tr>
               </tbody>
@@ -552,22 +552,20 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
+import axios from 'axios';
 
-const stockItems = ref([
-  { id: 1, name: "Paracetamol 500mg", category: "Pain Relief", currentStock: 150, minLevel: 50 },
-  { id: 2, name: "Amoxicillin 250mg", category: "Antibiotics", currentStock: 75, minLevel: 30 },
-  { id: 3, name: "Vitamin C 1000mg", category: "Supplements", currentStock: 20, minLevel: 40 },
-  { id: 4, name: "Ibuprofen 400mg", category: "Pain Relief", currentStock: 15, minLevel: 25 },
-  { id: 5, name: "Metformin 500mg", category: "Diabetes", currentStock: 120, minLevel: 35 },
-  { id: 6, name: "Azithromycin 500mg", category: "Antibiotics", currentStock: 80, minLevel: 40 },
-  { id: 7, name: "Cetrizine 10mg", category: "Allergy", currentStock: 55, minLevel: 20 },
-  { id: 8, name: "Loratadine 10mg", category: "Allergy", currentStock: 35, minLevel: 15 },
-  { id: 9, name: "Prednisolone 5mg", category: "Steroids", currentStock: 45, minLevel: 30 },
-  { id: 10, name: "Omeprazole 20mg", category: "Acidity", currentStock: 25, minLevel: 10 },
-  { id: 11, name: "Aspirin 100mg", category: "Pain Relief", currentStock: 90, minLevel: 30 },
-  { id: 12, name: "Cough Syrup", category: "Cold & Cough", currentStock: 40, minLevel: 20 },
-]);
+const api = axios.create({ baseURL: 'http://localhost:3000/api' });
+api.interceptors.request.use(cfg => {
+  const t = localStorage.getItem('token');
+  if (t) {
+    cfg.headers = cfg.headers || {};
+    cfg.headers.Authorization = `Bearer ${t}`;
+  }
+  return cfg;
+});
+
+const stockItems = ref([]);
 
 const categories = ref(["Pain Relief", "Antibiotics", "Supplements", "Diabetes", "Allergy", "Steroids", "Acidity", "Cold & Cough"]);
 const suppliers = ref(["PharmaCorp", "MediLife", "HealthPlus", "Global Pharma", "BioMed"]);
@@ -708,64 +706,94 @@ function addNewItem() {
     alert("Please fill in all required fields");
     return;
   }
+  // send to backend
+  (async () => {
+    try {
+      const payload = {
+        name: newItem.value.name,
+        category: newItem.value.category,
+        price: newItem.value.sellingPrice || 0,
+        cost: newItem.value.costPrice || 0,
+        stock: Number(newItem.value.currentStock) || 0,
+        metadata: { minLevel: Number(newItem.value.minLevel) || 10 }
+      };
+      const res = await api.post('/items', payload);
+      const created = res.data;
+      // normalize for local view
+      const display = {
+        id: created._id,
+        _id: created._id,
+        name: created.name,
+        category: created.category,
+        currentStock: created.stock ?? created.currentStock ?? 0,
+        minLevel: (created.metadata && created.metadata.minLevel) || created.minLevel || 0,
+        ...created
+      };
+      stockItems.value.unshift(display);
+      stockHistory.value[display.id] = [{ date: new Date(), type: 'Added', quantity: display.currentStock, previousStock: 0, newStock: display.currentStock, performedBy: 'You' }];
+      newItem.value = { name: "", category: "", manufacturer: "", code: "", currentStock: 0, minLevel: 10, maxLevel: "", costPrice: 0, sellingPrice: 0, supplier: "", expiryDate: "" };
+      showAddItemModal.value = false;
+      alert('Item added to database');
+    } catch (e) {
+      console.error('Create item failed', e);
+      alert(e.response?.data?.message || 'Failed to create item');
+    }
+  })();
+}
 
-  const newId = stockItems.value.length > 0 ? Math.max(...stockItems.value.map(item => item.id)) + 1 : 1;
-  
-  const itemToAdd = {
-    id: newId,
-    name: newItem.value.name,
-    category: newItem.value.category,
-    currentStock: Number(newItem.value.currentStock) || 0,
-    minLevel: Number(newItem.value.minLevel) || 10
-  };
-
-  stockItems.value.push(itemToAdd);
-  
-  // Add initial history entry
-  stockHistory.value[newId] = [{
-    date: new Date(),
-    type: 'Added',
-    quantity: Number(newItem.value.currentStock) || 0,
-    previousStock: 0,
-    newStock: Number(newItem.value.currentStock) || 0,
-    performedBy: 'Admin'
-  }];
-  
-  // Reset to page 1 if needed
-  const totalItems = stockItems.value.length;
-  if (totalItems > itemsPerPage) {
-    currentPage.value = Math.ceil(totalItems / itemsPerPage);
+async function loadItems() {
+  try {
+    const res = await api.get('/items');
+    const items = (res.data && res.data.data) || [];
+    stockItems.value = items.map(it => ({
+      id: it._id,
+      _id: it._id,
+      name: it.name,
+      category: it.category,
+      currentStock: it.stock ?? it.currentStock ?? 0,
+      minLevel: (it.metadata && it.metadata.minLevel) || it.minLevel || 0,
+      ...it
+    }));
+  } catch (e) {
+    console.error('Failed to load items', e);
   }
-  
-  // Reset form
-  newItem.value = {
-    name: "",
-    category: "",
-    manufacturer: "",
-    code: "",
-    currentStock: 0,
-    minLevel: 10,
-    maxLevel: "",
-    costPrice: 0,
-    sellingPrice: 0,
-    supplier: "",
-    expiryDate: ""
-  };
-  
-  showAddItemModal.value = false;
-  alert("Item added successfully!");
 }
 
-function editStock(item) {
-  selectedItem.value = { ...item };
-  showUpdateModal.value = true;
-}
+onMounted(loadItems);
 
-function restockItem(item) {
+function adjustStock(item) {
   selectedItem.value = { ...item };
   adjustmentType.value = "add";
-  adjustmentQuantity.value = 10;
+  adjustmentQuantity.value = 0;
   showUpdateModal.value = true;
+}
+
+function confirmDeleteItem(item) {
+  selectedItem.value = { ...item };
+  if (confirm(`Are you sure you want to delete "${item.name}"? This action cannot be undone.`)) {
+    deleteItem();
+  }
+}
+
+async function deleteItem() {
+  const id = selectedItem.value._id || selectedItem.value.id;
+  if (!id) return;
+  try {
+    await api.delete(`/items/${id}`);
+    const index = stockItems.value.findIndex(i => (i._id || i.id) === id);
+    if (index !== -1) stockItems.value.splice(index, 1);
+
+    // Also remove from history cache
+    if (stockHistory.value[id]) delete stockHistory.value[id];
+
+    // Reset pagination if needed
+    if (paginatedItems.value.length === 0 && currentPage.value > 1) currentPage.value--;
+
+    alert('Item deleted successfully');
+  } catch (e) {
+    console.error('Delete failed', e);
+    alert(e.response?.data?.message || 'Failed to delete item (check auth)');
+  }
 }
 
 function showItemHistory(item) {
