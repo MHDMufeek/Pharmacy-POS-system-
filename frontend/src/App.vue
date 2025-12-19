@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen w-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 overflow-hidden">
+  <div class="flex h-screen w-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 overflow-hidden dark:from-slate-900 dark:via-gray-900 dark:to-blue-950">
     <!-- Sidebar -->
     <Sidebar 
       :sidebarOpen="sidebarOpen" 
@@ -18,7 +18,7 @@
       />
 
       <!-- Router View -->
-      <main class="flex-1 p-8 overflow-y-auto bg-gradient-to-br from-gray-50/50 to-blue-50/30 animate-fade-in">
+      <main class="flex-1 p-8 overflow-y-auto bg-gradient-to-br from-gray-50/50 to-blue-50/30 animate-fade-in dark:from-gray-800/60 dark:to-blue-900/30">
         <router-view />
       </main>
     </div>

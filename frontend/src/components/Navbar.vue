@@ -1,5 +1,5 @@
 <template>
-  <header class="bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-200/50 px-8 py-5 sticky top-0 w-full z-40">
+  <header class="bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-200/50 px-8 py-5 sticky top-0 w-full z-40 dark:bg-gray-900/70 dark:border-gray-700">
     <div class="flex items-center justify-between">
       <!-- Left Section -->
       <div class="flex items-center gap-4">
@@ -15,10 +15,10 @@
 
         <!-- Page Title with Breadcrumb -->
         <div class="flex flex-col">
-          <h1 class="text-2xl font-bold text-slate-800 tracking-tight">
+          <h1 class="text-2xl font-bold text-slate-800 tracking-tight dark:text-slate-100">
             {{ currentRouteName || 'Dashboard' }}
           </h1>
-          <p class="text-sm text-slate-500 font-medium">
+          <p class="text-sm text-slate-500 font-medium dark:text-slate-400">
             {{ currentRouteName ? 'Management Panel' : 'Welcome back to your dashboard' }}
           </p>
         </div>
@@ -47,8 +47,19 @@
         </button>
 
         <!-- Settings -->
-        <button class="p-2 rounded-xl hover:bg-gray-100 transition-all duration-200 group">
-          <span class="material-icons-round text-slate-600 group-hover:text-slate-800">settings</span>
+        <button class="p-2 rounded-xl hover:bg-gray-100 transition-all duration-200 group dark:hover:bg-gray-800">
+          <span class="material-icons-round text-slate-600 group-hover:text-slate-800 dark:text-slate-200">settings</span>
+        </button>
+
+        <!-- Theme Toggle -->
+        <button
+          @click="toggleTheme"
+          :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+          class="p-2 rounded-xl hover:bg-gray-100 transition-all duration-200 group dark:hover:bg-gray-800"
+        >
+          <span class="material-icons-round text-slate-600 group-hover:text-slate-800 dark:text-slate-200">
+            {{ isDark ? 'light_mode' : 'dark_mode' }}
+          </span>
         </button>
 
         <!-- User Profile -->
@@ -75,8 +86,13 @@
 </template>
 
 <script setup>
+<<<<<<< HEAD
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+=======
+import { computed, ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+>>>>>>> a92d9fb28ee034d4c012467f350c4627a3f8671f
 
 const props = defineProps({
   sidebarOpen: Boolean
@@ -91,6 +107,7 @@ const currentRouteName = computed(() => {
   return route.name;
 });
 
+<<<<<<< HEAD
 function logout() {
   try {
     localStorage.removeItem('token');
@@ -99,5 +116,18 @@ function logout() {
     // ignore
   }
   router.push({ name: 'Login' });
+=======
+// Theme state
+const isDark = ref(false)
+onMounted(() => {
+  isDark.value = document.documentElement.classList.contains('dark')
+})
+
+function toggleTheme() {
+  isDark.value = !isDark.value
+  if (isDark.value) document.documentElement.classList.add('dark')
+  else document.documentElement.classList.remove('dark')
+  try { localStorage.setItem('theme', isDark.value ? 'dark' : 'light') } catch (e) {}
+>>>>>>> a92d9fb28ee034d4c012467f350c4627a3f8671f
 }
 </script>
