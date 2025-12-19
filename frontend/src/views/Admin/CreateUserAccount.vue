@@ -158,17 +158,21 @@ const userForm = ref({
 // Theme functionality
 function toggleTheme() {
   isDarkMode.value = !isDarkMode.value;
-  localStorage.setItem('darkMode', isDarkMode.value);
+  if (isDarkMode.value) document.documentElement.classList.add('dark')
+  else document.documentElement.classList.remove('dark')
+  localStorage.setItem('theme', isDarkMode.value ? 'dark' : 'light');
 }
 
 function loadTheme() {
-  const savedTheme = localStorage.getItem('darkMode');
+  const savedTheme = localStorage.getItem('theme');
   if (savedTheme !== null) {
-    isDarkMode.value = savedTheme === 'true';
+    isDarkMode.value = savedTheme === 'dark';
   } else {
     // Check system preference
     isDarkMode.value = window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
+  if (isDarkMode.value) document.documentElement.classList.add('dark')
+  else document.documentElement.classList.remove('dark')
 }
 
 onMounted(() => {
