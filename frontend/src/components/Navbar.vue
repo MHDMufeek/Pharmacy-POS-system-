@@ -86,13 +86,8 @@
 </template>
 
 <script setup>
-<<<<<<< HEAD
-import { computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-=======
 import { computed, ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
->>>>>>> a92d9fb28ee034d4c012467f350c4627a3f8671f
+import { useRoute, useRouter } from 'vue-router';
 
 const props = defineProps({
   sidebarOpen: Boolean
@@ -103,11 +98,9 @@ const emit = defineEmits(['toggle-sidebar']);
 const route = useRoute();
 const router = useRouter();
 
-const currentRouteName = computed(() => {
-  return route.name;
-});
+const currentRouteName = computed(() => route.name);
 
-<<<<<<< HEAD
+// Logout function
 function logout() {
   try {
     localStorage.removeItem('token');
@@ -116,18 +109,18 @@ function logout() {
     // ignore
   }
   router.push({ name: 'Login' });
-=======
+}
+
 // Theme state
-const isDark = ref(false)
+const isDark = ref(false);
 onMounted(() => {
-  isDark.value = document.documentElement.classList.contains('dark')
-})
+  isDark.value = document.documentElement.classList.contains('dark');
+});
 
 function toggleTheme() {
-  isDark.value = !isDark.value
-  if (isDark.value) document.documentElement.classList.add('dark')
-  else document.documentElement.classList.remove('dark')
-  try { localStorage.setItem('theme', isDark.value ? 'dark' : 'light') } catch (e) {}
->>>>>>> a92d9fb28ee034d4c012467f350c4627a3f8671f
+  isDark.value = !isDark.value;
+  if (isDark.value) document.documentElement.classList.add('dark');
+  else document.documentElement.classList.remove('dark');
+  try { localStorage.setItem('theme', isDark.value ? 'dark' : 'light'); } catch (e) {}
 }
 </script>
