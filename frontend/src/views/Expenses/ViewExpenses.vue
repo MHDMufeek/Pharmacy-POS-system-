@@ -323,6 +323,9 @@ export default {
       'Other'
     ])
 
+    // API base
+    const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api';
+
     // Computed Properties
     const filteredExpenses = computed(() => {
       let filtered = expenses.value
@@ -392,9 +395,20 @@ export default {
       showAddForm.value = true
     }
 
-    function deleteExpense(id) {
-      if (confirm('Are you sure you want to delete this expense?')) {
-        expenses.value = expenses.value.filter(expense => expense.id !== id)
+    async function deleteExpense(id) {
+      if (!confirm('Are you sure you want to delete this expense?')) return
+      const token = localStorage.getItem('token')
+      try {
+        const res = await fetch(`${API_BASE}/expenses/${id}`, {
+          method: 'DELETE',
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        })
+        if (!res.ok) throw new Error('Delete failed')
+        await loadExpenses()
+      } catch (err) {
+        console.error(err)
+        // fallback to local
+        expenses.value = expenses.value.filter(expense => (expense._id || expense.id) !== id)
         saveToLocalStorage()
       }
     }
@@ -411,73 +425,74 @@ export default {
       }
     }
 
-    function saveExpense() {
-      if (editingExpense.value) {
-        // Update existing expense
-        const index = expenses.value.findIndex(e => e.id === editingExpense.value.id)
-        if (index !== -1) {
-          expenses.value[index] = {
-            ...expenseForm.value,
-            id: editingExpense.value.id,
-            amount: parseFloat(expenseForm.value.amount)
+    async function saveExpense() {
+      const token = localStorage.getItem('token')
+      try {
+        const payload = {
+          name: expenseForm.value.name,
+          category: expenseForm.value.category,
+          amount: parseFloat(expenseForm.value.amount),
+          date: expenseForm.value.date,
+          description: expenseForm.value.description
+        }
+
+        if (editingExpense.value) {
+          const id = editingExpense.value._id || editingExpense.value.id
+          const res = await fetch(`${API_BASE}/expenses/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+            body: JSON.stringify(payload)
+          })
+          if (!res.ok) throw new Error('Update failed')
+        } else {
+          const res = await fetch(`${API_BASE}/expenses`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+            body: JSON.stringify(payload)
+          })
+          if (!res.ok) throw new Error('Create failed')
+        }
+
+        await loadExpenses()
+        closeModal()
+      } catch (err) {
+        console.error(err)
+        // fallback to local
+        if (editingExpense.value) {
+          const index = expenses.value.findIndex(e => (e._id || e.id) === (editingExpense.value._id || editingExpense.value.id))
+          if (index !== -1) {
+            expenses.value[index] = { ...expenseForm.value, id: editingExpense.value.id || editingExpense.value._id, amount: parseFloat(expenseForm.value.amount) }
           }
+        } else {
+          const newExpense = { ...expenseForm.value, id: Date.now(), amount: parseFloat(expenseForm.value.amount) }
+          expenses.value.unshift(newExpense)
         }
-      } else {
-        // Add new expense
-        const newExpense = {
-          ...expenseForm.value,
-          id: Date.now(),
-          amount: parseFloat(expenseForm.value.amount)
-        }
-        expenses.value.unshift(newExpense)
+        saveToLocalStorage()
+        closeModal()
       }
-      
-      saveToLocalStorage()
-      closeModal()
     }
 
-    function loadExpenses() {
-      // Load from localStorage or use sample data
-      const saved = localStorage.getItem('expenses')
-      if (saved) {
-        expenses.value = JSON.parse(saved)
-      } else {
-        // Sample data
-        expenses.value = [
-          {
-            id: 1,
-            name: 'Electricity Bill',
-            category: 'Utilities',
-            amount: 8500,
-            date: new Date('2024-01-15').toISOString(),
-            description: 'Monthly electricity bill for main store'
-          },
-          {
-            id: 2,
-            name: 'Shop Rent',
-            category: 'Rent',
-            amount: 20000,
-            date: new Date('2024-01-10').toISOString(),
-            description: 'Monthly rental payment'
-          },
-          {
-            id: 3,
-            name: 'Employee Salaries',
-            category: 'Salaries',
-            amount: 45000,
-            date: new Date('2024-01-01').toISOString(),
-            description: 'January salaries for staff'
-          },
-          {
-            id: 4,
-            name: 'Medical Supplies',
-            category: 'Supplies',
-            amount: 15000,
-            date: new Date('2024-01-20').toISOString(),
-            description: 'Purchase of medical consumables'
+    async function loadExpenses() {
+      try {
+        const token = localStorage.getItem('token')
+        const res = await fetch(`${API_BASE}/expenses`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+        if (!res.ok) {
+          // fallback to local
+          const saved = localStorage.getItem('expenses')
+          if (saved) {
+            expenses.value = JSON.parse(saved)
+            return
           }
-        ]
-        saveToLocalStorage()
+          expenses.value = []
+          return
+        }
+
+        const body = await res.json()
+        expenses.value = (body && body.data) ? body.data.map(e => ({ ...e, date: e.date })) : []
+      } catch (err) {
+        console.error(err)
+        const saved = localStorage.getItem('expenses')
+        if (saved) expenses.value = JSON.parse(saved)
       }
     }
 
