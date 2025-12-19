@@ -124,10 +124,11 @@
                 <span class="material-icons">payment</span>
               </button>
               
-              <!-- ⋮ More Options -->
+              <!-- Delete -->
               <button 
-                class="text-gray-600 hover:text-gray-900"
-                title="More Options"
+                class="text-gray-600 hover:text-gray-900 cursor-pointer"
+                title="Delete Creditor"
+                @click="deleteCreditor(creditor)"
               >
                 <span class="material-icons bg-red-100 rounded-s">delete</span>
               </button>
@@ -570,7 +571,19 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
+import axios from 'axios';
+
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api';
+const api = axios.create({ baseURL: API_BASE });
+api.interceptors.request.use(cfg => {
+  const t = localStorage.getItem('token');
+  if (t) {
+    cfg.headers = cfg.headers || {};
+    cfg.headers.Authorization = `Bearer ${t}`;
+  }
+  return cfg;
+});
 
 const searchQuery = ref("");
 const statusFilter = ref("");
@@ -578,6 +591,7 @@ const showHistory = ref(false);
 const showCreditorDetails = ref(false);
 const showAddCreditorModal = ref(false);
 const selectedCreditor = ref(null);
+const showPassword = ref(false);
 
 // New creditor form data
 const newCreditor = ref({
@@ -594,89 +608,51 @@ const newCreditor = ref({
   notes: ""
 });
 
-// Enhanced sample data with more details
-const creditors = ref([
-  {
-    id: 1,
-    name: "MedSupply Co.",
-    contact: "John Smith",
-    email: "john@medsupply.com",
-    phone: "+1 (555) 123-4567",
-    amount: 2500,
-    dueDate: "2023-06-15",
-    status: "Active",
-    accountNumber: "ACC-001",
-    creditLimit: 10000,
-    terms: "Net 30",
-    notes: "Primary medical supplies vendor. Regular deliveries every Tuesday.",
-    history: [
-      { date: "2023-04-10", amount: 1000, status: "Paid", reference: "INV-001" },
-      { date: "2023-05-10", amount: 1500, status: "Pending", reference: "INV-002" }
-    ]
-  },
-  {
-    id: 2,
-    name: "Pharma Distributors",
-    contact: "Sarah Johnson",
-    email: "sarah@pharmadist.com",
-    phone: "+1 (555) 987-6543",
-    amount: 4200,
-    dueDate: "2023-05-20",
-    status: "Overdue",
-    accountNumber: "ACC-002",
-    creditLimit: 15000,
-    terms: "Net 45",
-    notes: "Specialized pharmaceutical products. Bulk orders only.",
-    history: [
-      { date: "2023-03-01", amount: 2000, status: "Paid", reference: "INV-045" },
-      { date: "2023-04-01", amount: 2200, status: "Overdue", reference: "INV-067" }
-    ]
-  },
-  {
-    id: 3,
-    name: "Lab Equipment Inc.",
-    contact: "Mike Wilson",
-    email: "mike@labeq.com",
-    phone: "+1 (555) 456-7890",
-    amount: 1850,
-    dueDate: "2023-07-01",
-    status: "Active",
-    accountNumber: "ACC-003",
-    creditLimit: 20000,
-    terms: "Net 60",
-    notes: "Laboratory equipment and maintenance services.",
-    history: [
-      { date: "2023-05-15", amount: 3200, status: "Paid", reference: "INV-089" },
-      { date: "2023-06-01", amount: 1850, status: "Pending", reference: "INV-101" }
-    ]
-  }
-]);
+// Data comes from backend
+const creditors = ref([]);
 
 const filteredCreditors = computed(() => {
   let filtered = creditors.value;
 
-  // Filter by search query
   if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase();
-    filtered = filtered.filter(
-      (c) =>
-        c.name.toLowerCase().includes(query) ||
-        c.contact.toLowerCase().includes(query) ||
-        c.status.toLowerCase().includes(query)
-    );
+    const q = searchQuery.value.toLowerCase();
+    filtered = filtered.filter(c => (c.name || '').toLowerCase().includes(q) || (c.contact || '').toLowerCase().includes(q) || (c.status || '').toLowerCase().includes(q));
   }
-
-  // Filter by status
-  if (statusFilter.value) {
-    filtered = filtered.filter(c => c.status === statusFilter.value);
-  }
-
+  if (statusFilter.value) filtered = filtered.filter(c => c.status === statusFilter.value);
   return filtered;
 });
 
 function formatDate(dateString) {
-  const options = { year: "numeric", month: "short", day: "numeric" };
-  return new Date(dateString).toLocaleDateString(undefined, options);
+  if (!dateString) return '—';
+  const d = new Date(dateString);
+  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+async function loadCreditors() {
+  try {
+    const res = await api.get('/creditors');
+    creditors.value = res.data && res.data.data ? res.data.data : res.data || [];
+  } catch (err) {
+    console.error('Failed to load creditors', err);
+    creditors.value = [];
+  }
+}
+
+async function openCreditorDetails(creditor) {
+  try {
+    if (creditor._id || creditor.id) {
+      const id = creditor._id || creditor.id;
+      const res = await api.get(`/creditors/${id}`);
+      selectedCreditor.value = res.data || res.data.data || res.data;
+    } else {
+      selectedCreditor.value = creditor;
+    }
+    showCreditorDetails.value = true;
+  } catch (err) {
+    console.error('Failed to fetch creditor', err);
+    selectedCreditor.value = creditor;
+    showCreditorDetails.value = true;
+  }
 }
 
 function openHistory(creditor) {
@@ -684,65 +660,53 @@ function openHistory(creditor) {
   showHistory.value = true;
 }
 
-function openCreditorDetails(creditor) {
-  selectedCreditor.value = creditor;
-  showCreditorDetails.value = true;
-}
-
 function openAddCreditorForm() {
-  // Reset form
-  newCreditor.value = {
-    name: "",
-    contact: "",
-    email: "",
-    phone: "",
-    amount: 0,
-    dueDate: "",
-    status: "",
-    accountNumber: "",
-    creditLimit: 0,
-    terms: "",
-    notes: ""
-  };
+  newCreditor.value = { name: '', contact: '', email: '', phone: '', amount: 0, dueDate: '', status: '', accountNumber: '', creditLimit: 0, terms: '', notes: '' };
   showAddCreditorModal.value = true;
 }
 
-function closeAddCreditorForm() {
-  showAddCreditorModal.value = false;
+function closeAddCreditorForm() { showAddCreditorModal.value = false; }
+
+async function submitCreditorForm() {
+  try {
+    const res = await api.post('/creditors', newCreditor.value);
+    const created = res.data || res.data.data || res.data;
+    if (created) creditors.value.push(created);
+    showAddCreditorModal.value = false;
+    newCreditor.value = { name: '', contact: '', email: '', phone: '', amount: 0, dueDate: '', status: '', accountNumber: '', creditLimit: 0, terms: '', notes: '' };
+    alert('Creditor added successfully');
+  } catch (err) {
+    console.error('Create creditor failed', err);
+    // Fallback: add locally so UI still works when backend is unavailable
+    const newId = (creditors.value.length ? Math.max(...creditors.value.map(c => c.id || 0)) : 0) + 1;
+    const local = { id: newId, ...newCreditor.value, history: [] };
+    creditors.value.push(local);
+    showAddCreditorModal.value = false;
+    newCreditor.value = { name: '', contact: '', email: '', phone: '', amount: 0, dueDate: '', status: '', accountNumber: '', creditLimit: 0, terms: '', notes: '' };
+    alert('Creditor added locally (backend unavailable)');
+  }
 }
 
-function submitCreditorForm() {
-  // Generate a simple ID (in real app, this would come from backend)
-  const newId = Math.max(...creditors.value.map(c => c.id), 0) + 1;
-  
-  // Add the new creditor
-  creditors.value.push({
-    id: newId,
-    ...newCreditor.value,
-    history: [] // Initialize empty history
-  });
-
-  // Close modal and show success message
-  showAddCreditorModal.value = false;
-  
-  // Reset form
-  newCreditor.value = {
-    name: "",
-    contact: "",
-    email: "",
-    phone: "",
-    amount: 0,
-    dueDate: "",
-    status: "",
-    accountNumber: "",
-    creditLimit: 0,
-    terms: "",
-    notes: ""
-  };
-
-  // You can add a success notification here
-  alert("Creditor added successfully!");
+async function deleteCreditor(creditor) {
+  if (!confirm(`Delete creditor ${creditor.name}?`)) return;
+  try {
+    const id = creditor._id || creditor.id;
+    if (!id) {
+      creditors.value = creditors.value.filter(c => c !== creditor);
+      return;
+    }
+    await api.delete(`/creditors/${id}`);
+    creditors.value = creditors.value.filter(c => (c._id || c.id) !== id);
+    alert('Deleted');
+  } catch (err) {
+    console.error('Delete failed', err);
+    alert('Failed to delete creditor');
+  }
 }
+
+onMounted(() => {
+  loadCreditors();
+});
 </script>
 
 <style scoped>

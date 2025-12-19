@@ -802,53 +802,9 @@
     notes: ''
   })
   
-  // Enhanced sample data
-  const suppliers = ref([
-    { 
-      id: 'SUP001', 
-      name: 'Pharma Distributors Inc.', 
-      contactPerson: 'John Smith',
-      email: 'john@pharmadist.com',
-      phone: '+1 (555) 123-4567',
-      address: '123 Medical Ave',
-      city: 'New York',
-      state: 'NY',
-      zipCode: '10001',
-      country: 'USA'
-    },
-    { 
-      id: 'SUP002', 
-      name: 'MediSupply Co.', 
-      contactPerson: 'Sarah Johnson',
-      email: 'sarah@medisupply.com',
-      phone: '+1 (555) 987-6543',
-      address: '456 Health St',
-      city: 'Los Angeles',
-      state: 'CA',
-      zipCode: '90210',
-      country: 'USA'
-    },
-    { 
-      id: 'SUP003', 
-      name: 'Global Pharma Ltd.', 
-      contactPerson: 'Mike Wilson',
-      email: 'mike@globalpharma.com',
-      phone: '+1 (555) 456-7890',
-      address: '789 Pharma Blvd',
-      city: 'Chicago',
-      state: 'IL',
-      zipCode: '60007',
-      country: 'USA'
-    }
-  ])
-  
-  const invoices = ref([
-    { id: '1001', supplierId: 'SUP001', date: '2024-01-15', dueDate: '2024-02-15', status: 'pending', totalAmount: 1250.75 },
-    { id: '1002', supplierId: 'SUP002', date: '2024-01-10', dueDate: '2024-02-10', status: 'paid', totalAmount: 845.50 },
-    { id: '1003', supplierId: 'SUP001', date: '2024-01-05', dueDate: '2024-02-05', status: 'overdue', totalAmount: 2100.25 },
-    { id: '1004', supplierId: 'SUP002', date: '2023-12-20', dueDate: '2024-01-20', status: 'paid', totalAmount: 567.80 },
-    { id: '1005', supplierId: 'SUP001', date: '2023-12-15', dueDate: '2024-01-15', status: 'paid', totalAmount: 890.45 }
-  ])
+  // Data will be fetched from the API in production
+  const suppliers = ref([])
+  const invoices = ref([])
   
   onMounted(() => {
     loadInvoices()
