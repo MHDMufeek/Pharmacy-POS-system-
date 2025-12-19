@@ -22,16 +22,30 @@
       <div
         v-for="(menu, index) in menus"
         :key="'card-' + index"
-        class="group bg-white/80 backdrop-blur-sm hover:bg-white shadow-lg hover:shadow-2xl rounded-2xl p-8 text-center cursor-pointer transition-all duration-300 hover:scale-105 border border-gray-200/50 hover:border-blue-200"
+        class="group relative overflow-hidden bg-white/80 backdrop-blur-sm hover:bg-white shadow-lg hover:shadow-2xl rounded-2xl p-8 text-center cursor-pointer transition-transform duration-300 transform-gpu hover:-translate-y-1 hover:scale-105 border border-gray-200/50 hover:border-blue-200/40 hover:ring-4 hover:ring-blue-200/20"
         @click="navigateToFirstItem(menu)"
       >
-        <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
-          <span class="material-icons-round text-2xl text-white">{{ menu.icon }}</span>
+        <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-110 group-hover:-rotate-6">
+          <span class="material-icons-round text-2xl text-white transition-transform duration-300">{{ menu.icon }}</span>
         </div>
         <h3 class="text-lg font-bold text-slate-800 mb-2 group-hover:text-blue-600 transition-colors duration-200">
           {{ menu.title }}
         </h3>
         <p class="text-sm text-slate-500 font-medium">{{ menu.items.length }} features</p>
+
+        <!-- Hover preview: shows full feature list on hover (clickable) -->
+        <ul class="mt-3 text-sm text-slate-500 space-y-1 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+          <li
+            v-for="(it, i2) in menu.items"
+            :key="'preview-'+i2"
+            class="truncate cursor-pointer hover:bg-blue-50 rounded px-2 py-1"
+            @click.stop="goToFeature(menu.title, it)"
+          >
+            {{ it || '—' }}
+          </li>
+        </ul>
+        <!-- Decorative glowing accent -->
+        <div class="pointer-events-none absolute -right-10 -top-10 w-36 h-36 bg-gradient-to-br from-blue-200/20 to-transparent rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-400"></div>
       </div>
     </div>
 
@@ -130,11 +144,55 @@ function navigateToFirstItem(menu) {
     'Supplier': '/supplier/details',
     'Sales': '/sales/return-refund',
     'Reports': '/reports/drug-movement',
-    'Expenses': '/expenses/view'  // Updated this line
+    'Expenses': '/expenses/view'
   };
   
   if (routeMap[menu.title]) {
     router.push(routeMap[menu.title]);
+  }
+}
+
+const featureRouteMap = {
+  Administrator: {
+    'Change Password': '/admin/change-password',
+    'Create User Account': '/admin/create-user',
+    'Assign Capability': '/admin/assign-capability',
+  },
+  Item: {
+    'Item Sales': '/item/sales',
+    'Item Details': '/item/details',
+    'Stock Update': '/item/stock-update',
+  },
+  Supplier: {
+    'Supplier Details': '/supplier/details',
+    'Supplier Invoice': '/supplier/invoice',
+  },
+  Sales: {
+    'Customer Return / Refund': '/sales/return-refund',
+    'Creditors': '/sales/creditors',
+  },
+  Reports: {
+    'Drugs Movement': '/reports/drug-movement',
+    'Inventory Summary': '/reports/inventory-summary',
+  },
+  Expenses: {
+    '': '/expenses/view',
+  },
+};
+
+function goToFeature(menuTitle, feature) {
+  if (!feature) {
+    // fallback to menu-level route
+    navigateToFirstItem({ title: menuTitle });
+    return;
+  }
+
+  const route = featureRouteMap[menuTitle] && featureRouteMap[menuTitle][feature];
+  if (route) {
+    router.push(route);
+  } else {
+    // fallback: try menu-level route
+    navigateToFirstItem({ title: menuTitle });
   }
 }
 </script>
