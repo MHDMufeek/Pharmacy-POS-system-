@@ -1,5 +1,14 @@
 <template>
   <div>
+    <!-- Fixed logout button (top-right) -->
+    <button
+      @click="logout"
+      class="fixed top-4 right-4 z-50 bg-white/90 hover:bg-white px-3 py-2 rounded-full shadow-md text-sm flex items-center gap-2"
+      title="Log out"
+    >
+      <span class="material-icons text-gray-700">logout</span>
+    </button>
+
     <!-- Welcome Section -->
     <div class="mb-8">
       <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-3xl p-8 text-white shadow-2xl">
@@ -194,5 +203,15 @@ function goToFeature(menuTitle, feature) {
     // fallback: try menu-level route
     navigateToFirstItem({ title: menuTitle });
   }
+}
+
+function logout() {
+  try {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  } catch (e) {
+    // ignore
+  }
+  router.push({ name: 'Login' });
 }
 </script>
