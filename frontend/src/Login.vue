@@ -115,7 +115,9 @@ export default {
     },
     toggleTheme() {
       this.isDark = !this.isDark;
-      localStorage.setItem("preferred-theme", this.isDark ? "dark" : "light");
+      if (this.isDark) document.documentElement.classList.add('dark')
+      else document.documentElement.classList.remove('dark')
+      localStorage.setItem('theme', this.isDark ? 'dark' : 'light');
     },
 
     async handleLogin() {
@@ -157,12 +159,14 @@ export default {
     },
 
     loadThemePreference() {
-      const savedTheme = localStorage.getItem("preferred-theme");
+      const savedTheme = localStorage.getItem('theme');
       if (savedTheme) {
-        this.isDark = savedTheme === "dark";
+        this.isDark = savedTheme === 'dark';
       } else {
-        this.isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        this.isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       }
+      if (this.isDark) document.documentElement.classList.add('dark')
+      else document.documentElement.classList.remove('dark')
     },
   },
   mounted() {
