@@ -51,7 +51,7 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">Total Amount</p>
-              <p class="text-2xl font-bold text-gray-900 mt-1">Rs.{{ totalAmount.toFixed(2) }}</p>
+              <p class="text-2xl font-bold text-gray-900 mt-1">${{ totalAmount.toFixed(2) }}</p>
             </div>
             <div class="bg-purple-100 p-3 rounded-full">
               <span class="material-icons text-purple-600">payments</span>
@@ -219,7 +219,7 @@
                       {{ formatDate(invoice.dueDate) }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      Rs.{{ invoice.totalAmount.toFixed(2) }}
+                      ${{ invoice.totalAmount.toFixed(2) }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span :class="['px-2 inline-flex text-xs leading-5 font-semibold rounded-full', 
@@ -263,7 +263,7 @@
                     <span class="font-medium">Total Invoices:</span> {{ filteredInvoices.length }}
                   </div>
                   <div>
-                    <span class="font-medium">Total Amount:</span> Rs.{{ totalAmount.toFixed(2) }}
+                    <span class="font-medium">Total Amount:</span> ${{ totalAmount.toFixed(2) }}
                   </div>
                   <div>
                     <span class="font-medium">Pending:</span> {{ pendingCount }}
@@ -363,7 +363,7 @@
                     </div>
                     <div class="text-right">
                       <div class="text-sm font-medium text-gray-900">{{ supplier.invoiceCount }} invoices</div>
-                      <div class="text-xs text-gray-500">Rs.{{ supplier.totalAmount.toFixed(2) }}</div>
+                      <div class="text-xs text-gray-500">${{ supplier.totalAmount.toFixed(2) }}</div>
                     </div>
                   </div>
                 </div>
@@ -379,7 +379,7 @@
                   <div class="text-sm text-gray-600">This Month</div>
                 </div>
                 <div class="text-center p-4 bg-green-50 rounded-lg">
-                  <div class="text-2xl font-bold text-green-600">Rs.{{ currentMonthAmount.toFixed(2) }}</div>
+                  <div class="text-2xl font-bold text-green-600">${{ currentMonthAmount.toFixed(2) }}</div>
                   <div class="text-sm text-gray-600">Month Amount</div>
                 </div>
                 <div class="text-center p-4 bg-orange-50 rounded-lg">
@@ -387,7 +387,7 @@
                   <div class="text-sm text-gray-600">Last Month</div>
                 </div>
                 <div class="text-center p-4 bg-purple-50 rounded-lg">
-                  <div class="text-2xl font-bold text-purple-600">Rs.{{ lastMonthAmount.toFixed(2) }}</div>
+                  <div class="text-2xl font-bold text-purple-600">${{ lastMonthAmount.toFixed(2) }}</div>
                   <div class="text-sm text-gray-600">Last Month Amount</div>
                 </div>
               </div>
@@ -482,7 +482,7 @@
                 <div class="col-span-2">
                   <input 
                     type="text" 
-                    :value="'Rs. ' + (item.total || 0).toFixed(2)" 
+                    :value="'$' + (item.total || 0).toFixed(2)" 
                     disabled
                     class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
                   >
@@ -501,19 +501,19 @@
                 <div class="w-64">
                   <div class="flex justify-between mb-2">
                     <span class="text-sm text-gray-600">Subtotal:</span>
-                    <span class="font-medium">Rs.{{ currentInvoice.subtotal.toFixed(2) }}</span>
+                    <span class="font-medium">${{ currentInvoice.subtotal.toFixed(2) }}</span>
                   </div>
                   <div class="flex justify-between mb-2">
                     <span class="text-sm text-gray-600">Tax (10%):</span>
-                    <span class="font-medium">Rs.{{ currentInvoice.tax.toFixed(2) }}</span>
+                    <span class="font-medium">${{ currentInvoice.tax.toFixed(2) }}</span>
                   </div>
                   <div class="flex justify-between mb-2">
                     <span class="text-sm text-gray-600">Discount:</span>
-                    <span class="font-medium">-Rs.{{ currentInvoice.discount.toFixed(2) }}</span>
+                    <span class="font-medium">-${{ currentInvoice.discount.toFixed(2) }}</span>
                   </div>
                   <div class="flex justify-between border-t pt-2">
                     <span class="text-lg font-bold text-gray-800">Total:</span>
-                    <span class="text-lg font-bold text-blue-600">Rs.{{ currentInvoice.totalAmount.toFixed(2) }}</span>
+                    <span class="text-lg font-bold text-blue-600">${{ currentInvoice.totalAmount.toFixed(2) }}</span>
                   </div>
                 </div>
               </div>
@@ -787,7 +787,6 @@
     notes: ''
   })
   
-<<<<<<< HEAD
   // Enhanced sample data
   const suppliers = ref([
     { 
@@ -831,11 +830,6 @@
   const invoices = ref([
     
   ])
-=======
-  // Data will be fetched from the API in production
-  const suppliers = ref([])
-  const invoices = ref([])
->>>>>>> 8ea66c4217f46738d11244cfb2a3d3f79e90bdf4
   
   onMounted(() => {
     loadInvoices()
