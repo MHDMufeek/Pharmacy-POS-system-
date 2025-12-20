@@ -5,7 +5,7 @@
       <h1 class="text-2xl font-bold text-blue-900">Item Details</h1>
       <div class="flex gap-2">
         <button 
-          @click="$emit('go-back')" 
+          @click="goBack" 
           class="flex items-center text-gray-600 hover:text-gray-800 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
         >
           <span class="material-icons mr-1">arrow_back</span> Back
@@ -63,7 +63,7 @@
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <tr v-for="item in paginatedItems" :key="item.id">
+          <tr v-for="item in paginatedItems" :key="item.id" class="cursor-pointer hover:bg-gray-50" @click="showItemDetails(item)">
             <td class="px-6 py-4">
               <div class="flex items-center">
                 <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -240,11 +240,11 @@
           </div>
           <div class="flex justify-between">
             <span class="text-gray-600">Cost Price:</span>
-            <span class="font-medium">${{ selectedItem.costPrice?.toFixed(2) || '0.00' }}</span>
+            <span class="font-medium">Rs.{{ selectedItem.costPrice?.toFixed(2) || '0.00' }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-gray-600">Selling Price:</span>
-            <span class="font-medium">${{ selectedItem.sellingPrice?.toFixed(2) || '0.00' }}</span>
+            <span class="font-medium">Rs.{{ selectedItem.sellingPrice?.toFixed(2) || '0.00' }}</span>
           </div>
           <div v-if="selectedItem.supplier" class="flex justify-between">
             <span class="text-gray-600">Supplier:</span>
@@ -261,42 +261,131 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import axios from 'axios';
+import { useRouter } from 'vue-router';
 
-const api = axios.create({ baseURL: 'http://localhost:3000/api' });
-api.interceptors.request.use(cfg => {
-  const t = localStorage.getItem('token');
-  if (t) {
-    cfg.headers = cfg.headers || {};
-    cfg.headers.Authorization = `Bearer ${t}`;
+// Sample data - THIS IS WHAT DISPLAYS IN THE TABLE
+const stockItems = ref([
+  { 
+    id: 1, 
+    name: "Paracetamol 500mg", 
+    category: "Pain Relief", 
+    currentStock: 150, 
+    minLevel: 50,
+    maxLevel: 500,
+    costPrice: 2.50,
+    sellingPrice: 5.99,
+    supplier: "PharmaCorp",
+    code: "MED-001"
+  },
+  { 
+    id: 2, 
+    name: "Amoxicillin 250mg", 
+    category: "Antibiotics", 
+    currentStock: 75, 
+    minLevel: 30,
+    maxLevel: 200,
+    costPrice: 4.80,
+    sellingPrice: 12.50,
+    supplier: "MediLife",
+    code: "MED-002"
+  },
+  { 
+    id: 3, 
+    name: "Vitamin C 1000mg", 
+    category: "Supplements", 
+    currentStock: 20, 
+    minLevel: 40,
+    maxLevel: 300,
+    costPrice: 1.20,
+    sellingPrice: 8.75,
+    supplier: "HealthPharma",
+    code: "MED-003"
+  },
+  { 
+    id: 4, 
+    name: "Ibuprofen 400mg", 
+    category: "Pain Relief", 
+    currentStock: 15, 
+    minLevel: 25,
+    maxLevel: 200,
+    costPrice: 1.80,
+    sellingPrice: 6.25,
+    supplier: "BioMed",
+    code: "MED-004"
+  },
+  { 
+    id: 5, 
+    name: "Metformin 500mg", 
+    category: "Diabetes", 
+    currentStock: 120, 
+    minLevel: 35,
+    maxLevel: 400,
+    costPrice: 3.50,
+    sellingPrice: 15.30,
+    supplier: "Global Pharma",
+    code: "MED-005"
+  },
+  { 
+    id: 6, 
+    name: "Azithromycin 500mg", 
+    category: "Antibiotics", 
+    currentStock: 80, 
+    minLevel: 40,
+    maxLevel: 250,
+    costPrice: 5.20,
+    sellingPrice: 18.50,
+    supplier: "MediPlus",
+    code: "MED-006"
+  },
+  { 
+    id: 7, 
+    name: "Cetrizine 10mg", 
+    category: "Allergy", 
+    currentStock: 55, 
+    minLevel: 20,
+    maxLevel: 150,
+    costPrice: 0.80,
+    sellingPrice: 4.50,
+    supplier: "PharmaCorp",
+    code: "MED-007"
+  },
+  { 
+    id: 8, 
+    name: "Omeprazole 20mg", 
+    category: "Acidity", 
+    currentStock: 25, 
+    minLevel: 10,
+    maxLevel: 100,
+    costPrice: 2.10,
+    sellingPrice: 10.50,
+    supplier: "MediLife",
+    code: "MED-008"
+  },
+  { 
+    id: 9, 
+    name: "Prednisolone 5mg", 
+    category: "Steroids", 
+    currentStock: 45, 
+    minLevel: 30,
+    maxLevel: 200,
+    costPrice: 1.50,
+    sellingPrice: 7.80,
+    supplier: "HealthPharma",
+    code: "MED-009"
+  },
+  { 
+    id: 10, 
+    name: "Levothyroxine 50mcg", 
+    category: "Hormones", 
+    currentStock: 35, 
+    minLevel: 15,
+    maxLevel: 150,
+    costPrice: 3.80,
+    sellingPrice: 13.20,
+    supplier: "BioMed",
+    code: "MED-010"
   }
-  return cfg;
-});
-
-const stockItems = ref([]);
-
-async function loadItems() {
-  try {
-    const res = await api.get('/items');
-    const items = (res.data && res.data.data) || [];
-    stockItems.value = items.map(it => ({
-      id: it._id || it.id,
-      _id: it._id,
-      name: it.name,
-      category: it.category,
-      currentStock: it.stock ?? it.currentStock ?? 0,
-      minLevel: (it.metadata && it.metadata.minLevel) || it.minLevel || 0,
-      maxLevel: it.maxLevel || it.maximumLevel || null,
-      costPrice: it.cost || it.costPrice || 0,
-      sellingPrice: it.price || it.sellingPrice || 0,
-      supplier: it.supplier || '',
-      code: it.code || it.itemCode || '',
-      ...it
-    }));
-  } catch (e) {
-    console.error('Failed to load items', e);
-  }
-} 
+]);
 
 const categories = ref(["Pain Relief", "Antibiotics", "Supplements", "Diabetes", "Allergy", "Steroids", "Acidity", "Hormones", "Vitamins", "First Aid"]);
 const suppliers = ref(["PharmaCorp", "MediLife", "HealthPharma", "BioMed", "Global Pharma", "MediPlus", "PharmaWorld"]);
@@ -309,6 +398,14 @@ const itemsPerPage = 5;
 const showAddItemModal = ref(false);
 const showUpdateModal = ref(false);
 const showDetailsModal = ref(false);
+
+const emit = defineEmits(['go-back']);
+const router = useRouter();
+
+function goBack() {
+  try { emit('go-back'); } catch (e) {}
+  try { router.back(); } catch (e) {}
+}
 
 // Form data for new item
 const newItem = ref({
@@ -498,8 +595,7 @@ function updateStock() {
 }
 
 // Initialize data
-onMounted(async () => {
-  await loadItems();
+onMounted(() => {
   console.log("Table should display", stockItems.value.length, "items");
 });
 </script>

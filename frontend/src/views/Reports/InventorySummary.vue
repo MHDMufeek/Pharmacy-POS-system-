@@ -114,8 +114,8 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ item.name }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.category }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.stock }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${{ item.price.toFixed(2) }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${{ (item.stock * item.price).toFixed(2) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Rs.{{ item.price.toFixed(2) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Rs.{{ (item.stock * item.price).toFixed(2) }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span :class="['px-2 py-1 text-xs rounded-full', 
                     item.status === 'In Stock' ? 'bg-green-100 text-green-800' : 

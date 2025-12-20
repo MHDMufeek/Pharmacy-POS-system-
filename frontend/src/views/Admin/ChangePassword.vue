@@ -1,12 +1,5 @@
 <template>
-  <div :class="['page-container', theme]">
-    <!-- Theme Toggle Button -->
-    <div class="theme-toggle" @click="toggleTheme">
-      <div :class="['icon', theme]">
-        <div class="sun-rays"></div>
-        <div class="moon"></div>
-      </div>
-    </div>
+  <div class="page-container">
 
     <div class="form-card">
       <div class="form-header">
@@ -161,7 +154,6 @@ const passwordForm = ref({
 })
 
 const selectedRole = ref('')
-const theme = ref('dark') // default dark
 
 // Computed properties
 const getPasswordStrengthClass = computed(() => {
@@ -187,9 +179,7 @@ const isFormInvalid = computed(() => {
          passwordForm.value.newPassword !== passwordForm.value.confirmPassword
 })
 
-function toggleTheme() {
-  theme.value = theme.value === 'dark' ? 'light' : 'dark'
-}
+// Theme is controlled globally via navbar; local toggle removed
 
 function changePassword() {
   successMessage.value = ''

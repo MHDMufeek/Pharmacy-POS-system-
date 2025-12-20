@@ -53,7 +53,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-600">Total Revenue</p>
-            <p class="text-2xl font-bold text-gray-900 mt-1">${{ totalRevenue.toFixed(2) }}</p>
+            <p class="text-2xl font-bold text-gray-900 mt-1">Rs.{{ totalRevenue.toFixed(2) }}</p>
           </div>
           <div class="bg-purple-100 p-3 rounded-full">
             <span class="material-icons text-purple-600">payments</span>
@@ -230,7 +230,7 @@
                   </div>
                   <div class="text-right">
                     <div class="text-sm font-medium text-gray-900">{{ drug.quantity }} sold</div>
-                    <div class="text-xs text-gray-500">${{ drug.revenue.toFixed(2) }}</div>
+                    <div class="text-xs text-gray-500">Rs.{{ drug.revenue.toFixed(2) }}</div>
                   </div>
                 </div>
               </div>
@@ -244,15 +244,15 @@
               <div class="space-y-2">
                 <div class="flex justify-between text-sm">
                   <span class="text-gray-600">Total Sales:</span>
-                  <span class="font-medium">${{ salesSummary.totalSales.toFixed(2) }}</span>
+                  <span class="font-medium">Rs.{{ salesSummary.totalSales.toFixed(2) }}</span>
                 </div>
                 <div class="flex justify-between text-sm">
                   <span class="text-gray-600">Total Purchases:</span>
-                  <span class="font-medium">${{ salesSummary.totalPurchases.toFixed(2) }}</span>
+                  <span class="font-medium">Rs.{{ salesSummary.totalPurchases.toFixed(2) }}</span>
                 </div>
                 <div class="flex justify-between text-sm">
                   <span class="text-gray-600">Net Profit:</span>
-                  <span class="font-medium text-green-600">${{ salesSummary.netProfit.toFixed(2) }}</span>
+                  <span class="font-medium text-green-600">Rs.{{ salesSummary.netProfit.toFixed(2) }}</span>
                 </div>
               </div>
             </div>
@@ -342,7 +342,7 @@
                     {{ transaction.quantity }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    ${{ transaction.amount.toFixed(2) }}
+                    Rs.{{ transaction.amount.toFixed(2) }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {{ formatDate(transaction.date) }}
@@ -437,7 +437,7 @@
                     <span class="text-sm text-gray-700">{{ category.name }}</span>
                   </div>
                   <div class="text-right">
-                    <span class="text-sm font-medium text-gray-900">${{ category.amount.toFixed(2) }}</span>
+                    <span class="text-sm font-medium text-gray-900">Rs.{{ category.amount.toFixed(2) }}</span>
                     <span class="text-xs text-gray-500 ml-2">({{ category.percentage }}%)</span>
                   </div>
                 </div>

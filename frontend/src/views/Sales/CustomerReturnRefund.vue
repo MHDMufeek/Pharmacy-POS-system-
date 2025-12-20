@@ -64,7 +64,7 @@
               <h3 class="text-gray-500">Refund Value</h3>
               <span class="material-icons text-green-500">payments</span>
             </div>
-            <p class="text-2xl font-bold mt-2">$4,832</p>
+            <p class="text-2xl font-bold mt-2">Rs.4,832</p>
             <p class="text-sm text-gray-500">This month</p>
           </div>
         </div>
@@ -90,7 +90,7 @@
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ returnItem.customer }}</td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ returnItem.date }}</td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ returnItem.items }} items</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${{ returnItem.amount }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rs.{{ returnItem.amount }}</td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <span :class="['px-2 py-1 text-xs rounded-full', statusClasses[returnItem.status]]">
                       {{ returnItem.status }}

@@ -8,8 +8,10 @@ const capabilityRoutes = require('./routes/capabilities');
 const itemsRoutes = require('./routes/items');
 const salesRoutes = require('./routes/sales');
 const reportsRoutes = require('./routes/reports');
+const notificationsRoutes = require('./routes/notifications');
 const suppliersRoutes = require('./routes/suppliers');
 const expensesRoutes = require('./routes/expenses');
+const creditorsRoutes = require('./routes/creditors');
 const errorHandler = require('./middleware/errorHandler');
 
 function createApp() {
@@ -24,7 +26,9 @@ function createApp() {
   app.use('/api/items', itemsRoutes);
   app.use('/api/sales', salesRoutes);
   app.use('/api/reports', reportsRoutes);
+  app.use('/api/notifications', notificationsRoutes);
   app.use('/api/suppliers', suppliersRoutes);
+  app.use('/api/creditors', creditorsRoutes);
   app.use('/api/expenses', expensesRoutes);
 
   app.get('/health', (req, res) => res.json({ ok: true }));
