@@ -6,13 +6,7 @@
           <h1 class="text-2xl font-bold text-blue-900">Supplier Management</h1>
           <p class="text-gray-600 mt-1">Manage your suppliers and invoices in one place</p>
         </div>
-        <button 
-          @click="$emit('go-back')" 
-          class="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
-        >
-          <span class="material-icons mr-1">arrow_back</span>
-          Back to Dashboard
-        </button>
+      
       </div>
 
       <!-- Stats Cards -->
@@ -57,7 +51,7 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">Total Amount</p>
-              <p class="text-2xl font-bold text-gray-900 mt-1">Rs.{{ totalAmount.toFixed(2) }}</p>
+              <p class="text-2xl font-bold text-gray-900 mt-1">${{ totalAmount.toFixed(2) }}</p>
             </div>
             <div class="bg-purple-100 p-3 rounded-full">
               <span class="material-icons text-purple-600">payments</span>
@@ -165,18 +159,9 @@
                   <span class="material-icons text-sm mr-1">add</span>
                   New Invoice
                 </button>
-                <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors" @click="showAddSupplierModal">
-                  <span class="material-icons text-sm mr-1">add_business</span>
-                  Add Supplier
-                </button>
-                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
-                  <span class="material-icons text-sm mr-1">file_download</span>
-                  Export
-                </button>
-                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
-                  <span class="material-icons text-sm mr-1">print</span>
-                  Print
-                </button>
+               
+               
+               
               </div>
               <div class="flex gap-2">
                 <div class="flex items-center bg-white border border-gray-300 rounded-lg px-3 py-2">
@@ -234,7 +219,7 @@
                       {{ formatDate(invoice.dueDate) }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      Rs.{{ invoice.totalAmount.toFixed(2) }}
+                      ${{ invoice.totalAmount.toFixed(2) }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span :class="['px-2 inline-flex text-xs leading-5 font-semibold rounded-full', 
@@ -278,7 +263,7 @@
                     <span class="font-medium">Total Invoices:</span> {{ filteredInvoices.length }}
                   </div>
                   <div>
-                    <span class="font-medium">Total Amount:</span> Rs.{{ totalAmount.toFixed(2) }}
+                    <span class="font-medium">Total Amount:</span> ${{ totalAmount.toFixed(2) }}
                   </div>
                   <div>
                     <span class="font-medium">Pending:</span> {{ pendingCount }}
@@ -378,7 +363,7 @@
                     </div>
                     <div class="text-right">
                       <div class="text-sm font-medium text-gray-900">{{ supplier.invoiceCount }} invoices</div>
-                      <div class="text-xs text-gray-500">Rs.{{ supplier.totalAmount.toFixed(2) }}</div>
+                      <div class="text-xs text-gray-500">${{ supplier.totalAmount.toFixed(2) }}</div>
                     </div>
                   </div>
                 </div>
@@ -394,7 +379,7 @@
                   <div class="text-sm text-gray-600">This Month</div>
                 </div>
                 <div class="text-center p-4 bg-green-50 rounded-lg">
-                  <div class="text-2xl font-bold text-green-600">Rs.{{ currentMonthAmount.toFixed(2) }}</div>
+                  <div class="text-2xl font-bold text-green-600">${{ currentMonthAmount.toFixed(2) }}</div>
                   <div class="text-sm text-gray-600">Month Amount</div>
                 </div>
                 <div class="text-center p-4 bg-orange-50 rounded-lg">
@@ -402,7 +387,7 @@
                   <div class="text-sm text-gray-600">Last Month</div>
                 </div>
                 <div class="text-center p-4 bg-purple-50 rounded-lg">
-                  <div class="text-2xl font-bold text-purple-600">Rs.{{ lastMonthAmount.toFixed(2) }}</div>
+                  <div class="text-2xl font-bold text-purple-600">${{ lastMonthAmount.toFixed(2) }}</div>
                   <div class="text-sm text-gray-600">Last Month Amount</div>
                 </div>
               </div>
@@ -412,7 +397,7 @@
       </div>
   
       <!-- Create/Edit Invoice Modal -->
-      <div v-if="showInvoiceModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div v-if="showInvoiceModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 p-4 text-black">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-screen overflow-y-auto">
           <div class="px-6 py-4 border-b">
             <h3 class="text-lg font-semibold text-gray-900">{{ isEditing ? 'Edit' : 'Create' }} Invoice</h3>
@@ -455,7 +440,7 @@
             </div>
 
             <!-- Invoice Items -->
-            <div class="mb-6">
+            <div class="mb-6 text-black">
               <div class="flex justify-between items-center mb-4">
                 <h4 class="font-medium text-gray-700">Invoice Items</h4>
                 <button type="button" @click="addInvoiceItem" class="text-blue-600 hover:text-blue-800 flex items-center">
@@ -497,7 +482,7 @@
                 <div class="col-span-2">
                   <input 
                     type="text" 
-                    :value="'Rs. ' + (item.total || 0).toFixed(2)" 
+                    :value="'$' + (item.total || 0).toFixed(2)" 
                     disabled
                     class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
                   >
@@ -516,19 +501,19 @@
                 <div class="w-64">
                   <div class="flex justify-between mb-2">
                     <span class="text-sm text-gray-600">Subtotal:</span>
-                    <span class="font-medium">Rs.{{ currentInvoice.subtotal.toFixed(2) }}</span>
+                    <span class="font-medium">${{ currentInvoice.subtotal.toFixed(2) }}</span>
                   </div>
                   <div class="flex justify-between mb-2">
                     <span class="text-sm text-gray-600">Tax (10%):</span>
-                    <span class="font-medium">Rs.{{ currentInvoice.tax.toFixed(2) }}</span>
+                    <span class="font-medium">${{ currentInvoice.tax.toFixed(2) }}</span>
                   </div>
                   <div class="flex justify-between mb-2">
                     <span class="text-sm text-gray-600">Discount:</span>
-                    <span class="font-medium">-Rs.{{ currentInvoice.discount.toFixed(2) }}</span>
+                    <span class="font-medium">-${{ currentInvoice.discount.toFixed(2) }}</span>
                   </div>
                   <div class="flex justify-between border-t pt-2">
                     <span class="text-lg font-bold text-gray-800">Total:</span>
-                    <span class="text-lg font-bold text-blue-600">Rs.{{ currentInvoice.totalAmount.toFixed(2) }}</span>
+                    <span class="text-lg font-bold text-blue-600">${{ currentInvoice.totalAmount.toFixed(2) }}</span>
                   </div>
                 </div>
               </div>
@@ -538,7 +523,7 @@
               <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
               <textarea 
                 v-model="currentInvoice.notes" 
-                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
+                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none text-black"
                 placeholder="Additional notes for this invoice"
                 rows="2"
               ></textarea>
@@ -802,9 +787,49 @@
     notes: ''
   })
   
-  // Data will be fetched from the API in production
-  const suppliers = ref([])
-  const invoices = ref([])
+  // Enhanced sample data
+  const suppliers = ref([
+    { 
+      id: 'SUP001', 
+      name: 'Pharma Distributors Inc.', 
+      contactPerson: 'John Smith',
+      email: 'john@pharmadist.com',
+      phone: '+1 (555) 123-4567',
+      address: '123 Medical Ave',
+      city: 'New York',
+      state: 'NY',
+      zipCode: '10001',
+      country: 'USA'
+    },
+    { 
+      id: 'SUP002', 
+      name: 'MediSupply Co.', 
+      contactPerson: 'Sarah Johnson',
+      email: 'sarah@medisupply.com',
+      phone: '+1 (555) 987-6543',
+      address: '456 Health St',
+      city: 'Los Angeles',
+      state: 'CA',
+      zipCode: '90210',
+      country: 'USA'
+    },
+    { 
+      id: 'SUP003', 
+      name: 'Global Pharma Ltd.', 
+      contactPerson: 'Mike Wilson',
+      email: 'mike@globalpharma.com',
+      phone: '+1 (555) 456-7890',
+      address: '789 Pharma Blvd',
+      city: 'Chicago',
+      state: 'IL',
+      zipCode: '60007',
+      country: 'USA'
+    }
+  ])
+  
+  const invoices = ref([
+    
+  ])
   
   onMounted(() => {
     loadInvoices()
