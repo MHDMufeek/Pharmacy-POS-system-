@@ -41,15 +41,29 @@
       <!-- Right Section -->
       <div class="flex items-center gap-4">
         <!-- Notifications -->
-        <button class="relative p-2 rounded-xl hover:bg-gray-100 transition-all duration-200 group">
-          <span class="material-icons-round text-slate-600 group-hover:text-slate-800">notifications</span>
-          <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>
-        </button>
+        <div class="relative">
+          <button @click="toggleNotif" class="relative p-2 rounded-xl hover:bg-gray-100 transition-all duration-200 group">
+            <span class="material-icons-round text-slate-600 group-hover:text-slate-800">notifications</span>
+            <span v-if="notifCount > 0" class="absolute -top-1 -right-1 min-w-[18px] h-4 px-1 text-xs flex items-center justify-center bg-red-500 rounded-full border-2 border-white text-white">{{ notifCount }}</span>
+          </button>
 
-        <!-- Settings -->
-        <button class="p-2 rounded-xl hover:bg-gray-100 transition-all duration-200 group dark:hover:bg-gray-800">
-          <span class="material-icons-round text-slate-600 group-hover:text-slate-800 dark:text-slate-200">settings</span>
-        </button>
+          <!-- Dropdown -->
+          <div v-if="showNotif" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+            <div class="p-3 border-b flex items-center justify-between">
+              <div class="font-medium">Notifications</div>
+              <button @click="fetchNotifications" class="text-sm text-blue-600">Refresh</button>
+            </div>
+            <div class="max-h-64 overflow-auto">
+              <div v-if="notifItems.length === 0" class="p-4 text-sm text-gray-500">No alerts</div>
+              <div v-for="(n, i) in notifItems" :key="n._id || i" class="p-3 hover:bg-gray-50 border-b last:border-b-0">
+                <div class="text-sm font-medium text-gray-900 dark:text-white">Low stock: {{ n.name }}</div>
+                <div class="text-xs text-gray-500">Category: {{ n.category || 'N/A' }} — Remaining stock: {{ n.stock }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        
 
         <!-- Theme Toggle -->
         <button
@@ -87,7 +101,7 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 const props = defineProps({
@@ -124,4 +138,43 @@ function toggleTheme() {
   else document.documentElement.classList.remove('dark');
   try { localStorage.setItem('theme', isDark.value ? 'dark' : 'light'); } catch (e) {}
 }
+
+// Notifications state
+const notifItems = ref([]);
+const showNotif = ref(false);
+const notifCount = computed(() => notifItems.value.length);
+
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api';
+
+async function fetchNotifications() {
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${API_BASE}/notifications/low-stock?lowStock=10&limit=10`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+    if (!res.ok) {
+      const text = await res.text();
+      console.error('Failed to fetch notifications', res.status, text);
+      return;
+    }
+    const body = await res.json();
+    notifItems.value = body.items || [];
+  } catch (err) {
+    console.error('Error fetching notifications', err);
+  }
+}
+
+function toggleNotif() {
+  showNotif.value = !showNotif.value;
+  if (showNotif.value) fetchNotifications();
+}
+
+onMounted(() => {
+  // initial load (no dropdown open)
+  fetchNotifications();
+  // listen for stock updates elsewhere in the app
+  window.addEventListener('low-stock-updated', fetchNotifications);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('low-stock-updated', fetchNotifications);
+});
 </script>

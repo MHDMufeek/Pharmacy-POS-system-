@@ -1,11 +1,5 @@
-                        ````````````````````````  <template>
-  <div class="page-container" :class="{ 'dark': isDarkMode }">
-    <div class="theme-toggle-container">
-      <button @click="toggleTheme" class="theme-toggle-btn">
-        <span class="material-icons">{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</span>
-        <span class="theme-text">{{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}</span>
-      </button>
-    </div>
+<template>
+  <div class="page-container">
     
     <h2 class="page-header">Create User Account</h2>
     
@@ -133,11 +127,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 
 const emit = defineEmits(['go-back']);
 
-const isDarkMode = ref(false);
 const successMessage = ref('');
 const errorMessage = ref('');
 const showPassword = ref(false);
@@ -155,29 +148,7 @@ const userForm = ref({
   status: 'active'
 });
 
-// Theme functionality
-function toggleTheme() {
-  isDarkMode.value = !isDarkMode.value;
-  if (isDarkMode.value) document.documentElement.classList.add('dark')
-  else document.documentElement.classList.remove('dark')
-  localStorage.setItem('theme', isDarkMode.value ? 'dark' : 'light');
-}
-
-function loadTheme() {
-  const savedTheme = localStorage.getItem('theme');
-  if (savedTheme !== null) {
-    isDarkMode.value = savedTheme === 'dark';
-  } else {
-    // Check system preference
-    isDarkMode.value = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  }
-  if (isDarkMode.value) document.documentElement.classList.add('dark')
-  else document.documentElement.classList.remove('dark')
-}
-
-onMounted(() => {
-  loadTheme();
-});
+// Theme is managed by the main navbar; local theme toggle removed
 
 function createUser() {
   successMessage.value = '';
@@ -198,8 +169,6 @@ function createUser() {
     errorMessage.value = "Please enter a valid email address";
     return;
   }
-
-  console.log("Creating user:", userForm.value);
 
   setTimeout(() => {
     successMessage.value = "User account created successfully!";

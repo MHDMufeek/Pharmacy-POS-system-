@@ -44,7 +44,7 @@
           </div>
           <div>
             <p class="text-gray-500 text-sm">Total Stock Value</p>
-            <p class="text-2xl font-bold text-black">${{ totalStockValue.toFixed(2) }}</p>
+            <p class="text-2xl font-bold text-black">Rs.{{ totalStockValue.toFixed(2) }}</p>
           </div>
         </div>
       </div>
@@ -240,11 +240,11 @@
           </div>
           <div class="flex justify-between">
             <span class="text-gray-600">Cost Price:</span>
-            <span class="font-medium">${{ selectedItem.costPrice?.toFixed(2) || '0.00' }}</span>
+            <span class="font-medium">Rs.{{ selectedItem.costPrice?.toFixed(2) || '0.00' }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-gray-600">Selling Price:</span>
-            <span class="font-medium">${{ selectedItem.sellingPrice?.toFixed(2) || '0.00' }}</span>
+            <span class="font-medium">Rs.{{ selectedItem.sellingPrice?.toFixed(2) || '0.00' }}</span>
           </div>
           <div v-if="selectedItem.supplier" class="flex justify-between">
             <span class="text-gray-600">Supplier:</span>

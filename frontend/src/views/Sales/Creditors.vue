@@ -86,7 +86,7 @@
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="text-gray-900">
-                ${{ creditor.amount.toLocaleString() }}
+                Rs.{{ creditor.amount.toLocaleString() }}
               </div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
@@ -255,7 +255,7 @@
                 <div class="form-group">
                   <label class="form-label">Amount Owed <span class="text-red-500">*</span></label>
                   <div class="relative">
-                    <span class="absolute left-3 top-2 text-gray-500">$</span>
+                    <span class="absolute left-3 top-2 text-gray-500">Rs.</span>
                     <input
                       type="number"
                       v-model="newCreditor.amount"
@@ -308,7 +308,7 @@
                 <div class="form-group">
                   <label class="form-label">Credit Limit</label>
                   <div class="relative">
-                    <span class="absolute left-3 top-2 text-gray-500">$</span>
+                    <span class="absolute left-3 top-2 text-gray-500">Rs.</span>
                     <input
                       type="number"
                       v-model="newCreditor.creditLimit"
@@ -415,7 +415,7 @@
               <div class="space-y-3">
                 <div class="flex justify-between">
                   <span class="text-gray-600 text-black">Amount Owed:</span>
-                  <span class="font-medium text-red-600">${{ selectedCreditor?.amount?.toLocaleString() }}</span>
+                  <span class="font-medium text-red-600">Rs.{{ selectedCreditor?.amount?.toLocaleString() }}</span>
                 </div>
                 <div class="flex justify-between">
                   <span class="text-gray-600 ">Due Date:</span>
@@ -455,7 +455,7 @@
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="flex justify-between">
                   <span class="text-gray-600">Credit Limit:</span>
-                  <span class="font-medium">${{ (selectedCreditor?.creditLimit || 0).toLocaleString() }}</span>
+                  <span class="font-medium">Rs.{{ (selectedCreditor?.creditLimit || 0).toLocaleString() }}</span>
                 </div>
                 <div class="flex justify-between">
                   <span class="text-gray-600">Terms:</span>
@@ -484,7 +484,7 @@
                     :key="index"
                   >
                     <td class="px-4 py-3 text-sm text-gray-900">{{ formatDate(history.date) }}</td>
-                    <td class="px-4 py-3 text-sm font-medium">${{ history.amount.toLocaleString() }}</td>
+                    <td class="px-4 py-3 text-sm font-medium">Rs.{{ history.amount.toLocaleString() }}</td>
                     <td class="px-4 py-3 text-sm">
                       <span
                         :class="{
@@ -560,7 +560,7 @@
               class="border-t"
             >
               <td class="px-4 py-2">{{ formatDate(h.date) }}</td>
-              <td class="px-4 py-2">${{ h.amount.toLocaleString() }}</td>
+              <td class="px-4 py-2">Rs.{{ h.amount.toLocaleString() }}</td>
               <td class="px-4 py-2">{{ h.status }}</td>
             </tr>
           </tbody>

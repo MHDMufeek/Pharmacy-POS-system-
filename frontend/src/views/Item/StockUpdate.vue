@@ -305,7 +305,7 @@
                     Cost Price <span class="text-red-500">*</span>
                   </label>
                   <div class="flex items-center">
-                    <span class="mr-2">$</span>
+                    <span class="mr-2">Rs.</span>
                     <input
                       v-model.number="newItem.costPrice"
                       type="number"
@@ -323,7 +323,7 @@
                     Selling Price <span class="text-red-500">*</span>
                   </label>
                   <div class="flex items-center">
-                    <span class="mr-2">$</span>
+                    <span class="mr-2">Rs.</span>
                     <input
                       v-model.number="newItem.sellingPrice"
                       type="number"
@@ -340,7 +340,7 @@
                   <div class="flex justify-between text-sm">
                     <span>Profit per unit:</span>
                     <span class="font-medium text-green-600">
-                      ${{ (newItem.sellingPrice - newItem.costPrice).toFixed(2) }}
+                      Rs.{{ (newItem.sellingPrice - newItem.costPrice).toFixed(2) }}
                     </span>
                   </div>
                   <div class="flex justify-between text-sm mt-1">
@@ -802,7 +802,7 @@ function showItemHistory(item) {
   showHistoryModal.value = true;
 }
 
-function updateStock() {
+async function updateStock() {
   const index = stockItems.value.findIndex(i => i.id === selectedItem.value.id);
   if (index === -1) return;
 
@@ -812,32 +812,46 @@ function updateStock() {
   
   if (adjustmentType.value === "add") {
     newStock = stockItems.value[index].currentStock + quantity;
-    stockItems.value[index].currentStock = newStock;
   } else if (adjustmentType.value === "subtract") {
     newStock = stockItems.value[index].currentStock - quantity;
-    stockItems.value[index].currentStock = Math.max(0, newStock);
+    newStock = Math.max(0, newStock);
   } else if (adjustmentType.value === "set") {
-    newStock = quantity;
-    stockItems.value[index].currentStock = Math.max(0, quantity);
+    newStock = Math.max(0, quantity);
   }
 
-  // Add to history
-  const historyEntry = {
-    date: new Date(),
-    type: adjustmentType.value === 'add' ? 'Restocked' : 'Used',
-    quantity: adjustmentType.value === 'add' ? quantity : -quantity,
-    previousStock: previousStock,
-    newStock: stockItems.value[index].currentStock,
-    performedBy: 'Admin'
-  };
+  const id = stockItems.value[index]._id || stockItems.value[index].id;
+  try {
+    const res = await api.put(`/items/${id}`, { stock: newStock });
+    // update local stock from server response when available
+    const updated = res.data || {};
+    stockItems.value[index].currentStock = updated.stock ?? updated.currentStock ?? newStock;
 
-  if (!stockHistory.value[selectedItem.value.id]) {
-    stockHistory.value[selectedItem.value.id] = [];
+    // Add to history
+    const historyEntry = {
+      date: new Date(),
+      type: adjustmentType.value === 'add' ? 'Restocked' : (adjustmentType.value === 'set' ? 'Set' : 'Used'),
+      quantity: adjustmentType.value === 'add' ? quantity : (adjustmentType.value === 'set' ? newStock - previousStock : -quantity),
+      previousStock: previousStock,
+      newStock: stockItems.value[index].currentStock,
+      performedBy: 'Admin'
+    };
+
+    if (!stockHistory.value[selectedItem.value.id]) {
+      stockHistory.value[selectedItem.value.id] = [];
+    }
+    stockHistory.value[selectedItem.value.id].unshift(historyEntry);
+
+    // Notify navbar and other listeners to refresh low-stock alerts
+    try { window.dispatchEvent(new CustomEvent('low-stock-updated', { detail: { id, newStock: stockItems.value[index].currentStock } })); } catch(e) {}
+
+    showUpdateModal.value = false;
+    adjustmentQuantity.value = 0;
+  } catch (e) {
+    console.error('Failed to persist stock update', e);
+    alert(e.response?.data?.message || 'Failed to update stock (check auth)');
+    // reload items to restore consistent state
+    await loadItems();
   }
-  stockHistory.value[selectedItem.value.id].unshift(historyEntry);
-
-  showUpdateModal.value = false;
-  adjustmentQuantity.value = 0;
 }
 </script>
 

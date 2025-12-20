@@ -121,9 +121,9 @@
               >
             </div>
             <div class="col-span-2">
-              <input 
+                <input 
                 type="text" 
-                :value="'$' + (item.total || 0).toFixed(2)" 
+                :value="'Rs. ' + (item.total || 0).toFixed(2)" 
                 disabled
                 class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
               >
@@ -150,7 +150,7 @@
             <div class="w-80">
               <div class="flex justify-between mb-2">
                 <span class="text-sm text-gray-600">Subtotal:</span>
-                <span class="font-medium">${{ salesBill.subtotal.toFixed(2) }}</span>
+                <span class="font-medium">Rs.{{ salesBill.subtotal.toFixed(2) }}</span>
               </div>
               <div class="flex justify-between mb-2">
                 <span class="text-sm text-gray-600">Discount:</span>
@@ -163,16 +163,16 @@
                     class="w-20 bg-gray-100 rounded-lg px-2 py-1 text-sm outline-none mr-2"
                     @input="calculateTotals"
                   >
-                  <span class="font-medium">-${{ salesBill.discount.toFixed(2) }}</span>
+                  <span class="font-medium">-Rs.{{ salesBill.discount.toFixed(2) }}</span>
                 </div>
               </div>
               <div class="flex justify-between mb-2">
                 <span class="text-sm text-gray-600">Tax ({{ salesBill.taxRate }}%):</span>
-                <span class="font-medium">${{ salesBill.tax.toFixed(2) }}</span>
+                <span class="font-medium">Rs.{{ salesBill.tax.toFixed(2) }}</span>
               </div>
               <div class="flex justify-between border-t pt-2">
                 <span class="text-lg font-bold text-gray-800">Total Amount:</span>
-                <span class="text-lg font-bold text-blue-600">${{ salesBill.totalAmount.toFixed(2) }}</span>
+                <span class="text-lg font-bold text-blue-600">Rs.{{ salesBill.totalAmount.toFixed(2) }}</span>
               </div>
             </div>
           </div>
@@ -245,7 +245,7 @@
                   {{ bill.items.length }} items
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  ${{ bill.totalAmount.toFixed(2) }}
+                  Rs.{{ bill.totalAmount.toFixed(2) }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span :class="['px-2 py-1 text-xs font-semibold rounded-full', 
@@ -429,7 +429,7 @@
     // Add to recent bills
     recentBills.value.unshift({ ...salesBill.value })
     
-    alert(`Payment processed successfully! Total: $${salesBill.value.totalAmount.toFixed(2)}`)
+    alert(`Payment processed successfully! Total: Rs.${salesBill.value.totalAmount.toFixed(2)}`)
     resetForm()
   }
   
