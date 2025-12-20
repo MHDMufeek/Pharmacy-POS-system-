@@ -13,6 +13,9 @@
       </div>
     </div>
 
+    <div v-if="loadingItems" class="text-sm text-gray-500 mb-4">Loading items...</div>
+    <div v-else-if="itemsError" class="text-sm text-red-600 mb-4">{{ itemsError }}</div>
+
     <!-- Quick Stats -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
       <div class="bg-white p-4 rounded-lg shadow">
@@ -103,7 +106,7 @@
       </table>
 
       <!-- Empty State -->
-      <div v-if="stockItems.length === 0" class="text-center py-12">
+      <div v-if="!loadingItems && stockItems.length === 0" class="text-center py-12">
         <div class="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
           <span class="material-icons text-gray-400 text-2xl">inventory_2</span>
         </div>
@@ -263,129 +266,50 @@
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from 'vue-router';
 
-// Sample data - THIS IS WHAT DISPLAYS IN THE TABLE
-const stockItems = ref([
-  { 
-    id: 1, 
-    name: "Paracetamol 500mg", 
-    category: "Pain Relief", 
-    currentStock: 150, 
-    minLevel: 50,
-    maxLevel: 500,
-    costPrice: 2.50,
-    sellingPrice: 5.99,
-    supplier: "PharmaCorp",
-    code: "MED-001"
-  },
-  { 
-    id: 2, 
-    name: "Amoxicillin 250mg", 
-    category: "Antibiotics", 
-    currentStock: 75, 
-    minLevel: 30,
-    maxLevel: 200,
-    costPrice: 4.80,
-    sellingPrice: 12.50,
-    supplier: "MediLife",
-    code: "MED-002"
-  },
-  { 
-    id: 3, 
-    name: "Vitamin C 1000mg", 
-    category: "Supplements", 
-    currentStock: 20, 
-    minLevel: 40,
-    maxLevel: 300,
-    costPrice: 1.20,
-    sellingPrice: 8.75,
-    supplier: "HealthPharma",
-    code: "MED-003"
-  },
-  { 
-    id: 4, 
-    name: "Ibuprofen 400mg", 
-    category: "Pain Relief", 
-    currentStock: 15, 
-    minLevel: 25,
-    maxLevel: 200,
-    costPrice: 1.80,
-    sellingPrice: 6.25,
-    supplier: "BioMed",
-    code: "MED-004"
-  },
-  { 
-    id: 5, 
-    name: "Metformin 500mg", 
-    category: "Diabetes", 
-    currentStock: 120, 
-    minLevel: 35,
-    maxLevel: 400,
-    costPrice: 3.50,
-    sellingPrice: 15.30,
-    supplier: "Global Pharma",
-    code: "MED-005"
-  },
-  { 
-    id: 6, 
-    name: "Azithromycin 500mg", 
-    category: "Antibiotics", 
-    currentStock: 80, 
-    minLevel: 40,
-    maxLevel: 250,
-    costPrice: 5.20,
-    sellingPrice: 18.50,
-    supplier: "MediPlus",
-    code: "MED-006"
-  },
-  { 
-    id: 7, 
-    name: "Cetrizine 10mg", 
-    category: "Allergy", 
-    currentStock: 55, 
-    minLevel: 20,
-    maxLevel: 150,
-    costPrice: 0.80,
-    sellingPrice: 4.50,
-    supplier: "PharmaCorp",
-    code: "MED-007"
-  },
-  { 
-    id: 8, 
-    name: "Omeprazole 20mg", 
-    category: "Acidity", 
-    currentStock: 25, 
-    minLevel: 10,
-    maxLevel: 100,
-    costPrice: 2.10,
-    sellingPrice: 10.50,
-    supplier: "MediLife",
-    code: "MED-008"
-  },
-  { 
-    id: 9, 
-    name: "Prednisolone 5mg", 
-    category: "Steroids", 
-    currentStock: 45, 
-    minLevel: 30,
-    maxLevel: 200,
-    costPrice: 1.50,
-    sellingPrice: 7.80,
-    supplier: "HealthPharma",
-    code: "MED-009"
-  },
-  { 
-    id: 10, 
-    name: "Levothyroxine 50mcg", 
-    category: "Hormones", 
-    currentStock: 35, 
-    minLevel: 15,
-    maxLevel: 150,
-    costPrice: 3.80,
-    sellingPrice: 13.20,
-    supplier: "BioMed",
-    code: "MED-010"
+// stock items (fetched from backend). Fallback to empty array for local dev
+const stockItems = ref([]);
+const loadingItems = ref(false);
+const itemsError = ref(null);
+
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api';
+
+async function fetchItems(page = 1, limit = 100) {
+  loadingItems.value = true;
+  itemsError.value = null;
+  try {
+    const token = localStorage.getItem('token');
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const res = await fetch(`${API_BASE}/items?page=${page}&limit=${limit}`, { headers });
+    if (!res.ok) {
+      if (res.status === 401) {
+        itemsError.value = 'Unauthorized - please login';
+      } else {
+        itemsError.value = `Failed to load items (${res.status})`;
+      }
+      console.error('Fetch items error', res.statusText);
+      return;
+    }
+    const body = await res.json();
+    const items = Array.isArray(body.data) ? body.data : (Array.isArray(body) ? body : (body.data || []));
+    stockItems.value = items.map(it => ({
+      id: it._id || it.id,
+      name: it.name,
+      category: it.category || '',
+      currentStock: it.stock ?? it.currentStock ?? 0,
+      minLevel: (it.metadata && it.metadata.minLevel) ?? it.minLevel ?? 10,
+      maxLevel: (it.metadata && it.metadata.maxLevel) ?? it.maxLevel ?? 1000,
+      costPrice: it.cost ?? it.costPrice ?? 0,
+      sellingPrice: it.price ?? it.sellingPrice ?? 0,
+      supplier: it.supplier || '',
+      code: it.sku || it.code || ''
+    }));
+  } catch (err) {
+    console.error('Error fetching items', err);
+    itemsError.value = 'Failed to load items';
+  } finally {
+    loadingItems.value = false;
   }
-]);
+}
 
 const categories = ref(["Pain Relief", "Antibiotics", "Supplements", "Diabetes", "Allergy", "Steroids", "Acidity", "Hormones", "Vitamins", "First Aid"]);
 const suppliers = ref(["PharmaCorp", "MediLife", "HealthPharma", "BioMed", "Global Pharma", "MediPlus", "PharmaWorld"]);
@@ -567,9 +491,36 @@ function quickRestock(item) {
   showUpdateModal.value = true;
 }
 
-function showItemDetails(item) {
+async function loadItemDetails(item) {
   selectedItem.value = { ...item };
-  showDetailsModal.value = true;
+  try {
+    const token = localStorage.getItem('token');
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const res = await fetch(`${API_BASE}/items/${item.id}`, { headers });
+    if (res.ok) {
+      const body = await res.json();
+      selectedItem.value = {
+        id: body._id || body.id,
+        name: body.name,
+        category: body.category || '',
+        currentStock: body.stock ?? body.currentStock ?? 0,
+        minLevel: (body.metadata && body.metadata.minLevel) ?? body.minLevel ?? 10,
+        maxLevel: (body.metadata && body.metadata.maxLevel) ?? body.maxLevel ?? 1000,
+        costPrice: body.cost ?? body.costPrice ?? 0,
+        sellingPrice: body.price ?? body.sellingPrice ?? 0,
+        supplier: body.supplier || '',
+        code: body.sku || body.code || ''
+      };
+    }
+  } catch (err) {
+    console.error('Failed to load item details', err);
+  } finally {
+    showDetailsModal.value = true;
+  }
+}
+
+function showItemDetails(item) {
+  loadItemDetails(item);
 }
 
 function updateStock() {
@@ -596,7 +547,7 @@ function updateStock() {
 
 // Initialize data
 onMounted(() => {
-  console.log("Table should display", stockItems.value.length, "items");
+  fetchItems();
 });
 </script>
 
