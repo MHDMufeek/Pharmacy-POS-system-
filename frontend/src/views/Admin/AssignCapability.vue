@@ -2,39 +2,7 @@
   <div class="page-container">
     <div class="header-actions">
       <h2 class="page-header">Assign Capability</h2>
-      <div class="theme-toggle-container">
-        <button @click="toggleTheme('light')" class="theme-btn light-btn" :class="{ active: currentTheme === 'light' }" title="Light Mode">
-          <svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
-            <path d="M12 2v2" />
-            <path d="M12 20v2" />
-            <path d="m4.93 4.93 1.41 1.41" />
-            <path d="m17.66 17.66 1.41 1.41" />
-            <path d="M2 12h2" />
-            <path d="M20 12h2" />
-            <path d="m6.34 17.66-1.41 1.41" />
-            <path d="m19.07 4.93-1.41 1.41" />
-          </svg>
-        </button>
-        <button @click="toggleTheme('dark')" class="theme-btn dark-btn" :class="{ active: currentTheme === 'dark' }" title="Dark Mode">
-          <svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-          </svg>
-        </button>
-        <button @click="toggleTheme('auto')" class="theme-btn auto-btn" :class="{ active: currentTheme === 'auto' }" title="Auto (System Preference)">
-          <svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <rect x="2" y="2" width="20" height="20" rx="5" />
-            <path d="M12 2v2" />
-            <path d="M12 20v2" />
-            <path d="m4.93 4.93 1.41 1.41" />
-            <path d="m17.66 17.66 1.41 1.41" />
-            <path d="M2 12h2" />
-            <path d="M20 12h2" />
-            <path d="m6.34 17.66-1.41 1.41" />
-            <path d="m19.07 4.93-1.41 1.41" />
-          </svg>
-        </button>
-      </div>
+      <!-- Theme controls removed; use main navbar theme toggle -->
     </div>
     
     <div class="form-container">
@@ -403,7 +371,6 @@ const successMessage = ref('');
 const errorMessage = ref('');
 const isLoading = ref(false);
 const formErrors = reactive({});
-const currentTheme = ref('auto');
 
 // Data from backend
 const userList = ref([]);
@@ -422,39 +389,7 @@ const assignForm = ref({
 // API base URL
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api';
 
-// Theme management
-function getSystemTheme() {
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-}
-
-function applyTheme(theme) {
-  const root = document.documentElement;
-  root.classList.remove('light-theme', 'dark-theme', 'auto-theme');
-  
-  if (theme === 'auto') {
-    const systemTheme = getSystemTheme();
-    root.classList.add('auto-theme', `${systemTheme}-theme`);
-    currentTheme.value = 'auto';
-  } else {
-    root.classList.add(`${theme}-theme`);
-    currentTheme.value = theme;
-  }
-  
-  localStorage.setItem('preferred-theme', theme);
-}
-
-function toggleTheme(theme) {
-  applyTheme(theme);
-}
-
-function setupThemeListener() {
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-  mediaQuery.addEventListener('change', (e) => {
-    if (currentTheme.value === 'auto') {
-      applyTheme('auto');
-    }
-  });
-}
+// Theme is managed by the main navbar; local theme functions removed
 
 // API Methods
 async function fetchUsers() {
@@ -748,11 +683,6 @@ function goBack() {
 
 onMounted(() => {
   initializeForm();
-  
-  // Initialize theme
-  const savedTheme = localStorage.getItem('preferred-theme') || 'auto';
-  applyTheme(savedTheme);
-  setupThemeListener();
 
   // Fetch initial data
   fetchUsers();

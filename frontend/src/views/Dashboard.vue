@@ -1,5 +1,11 @@
 <template>
   <div>
+<<<<<<< HEAD
+    <!-- Fixed logout button (top-right) -->
+=======
+>>>>>>> 0f63c88ace846826eb28036ac1a70111c6a48359
+    
+
     <!-- Welcome Section -->
     <div class="mb-8">
       <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-3xl p-8 text-white shadow-2xl">
@@ -55,7 +61,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Total Items</p>
-            <p class="text-3xl font-bold text-slate-800">2,847</p>
+            <p class="text-3xl font-bold text-slate-800">{{ totalItems.toLocaleString() }}</p>
           </div>
           <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
             <span class="material-icons-round text-green-600">inventory</span>
@@ -66,7 +72,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Active Users</p>
-            <p class="text-3xl font-bold text-slate-800">124</p>
+            <p class="text-3xl font-bold text-slate-800">{{ activeUsers }}</p>
           </div>
           <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
             <span class="material-icons-round text-blue-600">people</span>
@@ -77,7 +83,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Monthly Sales</p>
-            <p class="text-3xl font-bold text-slate-800">$45.2K</p>
+            <p class="text-3xl font-bold text-slate-800">{{ formatCurrency(monthlySales) }}</p>
           </div>
           <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
             <span class="material-icons-round text-purple-600">trending_up</span>
@@ -88,7 +94,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Low Stock</p>
-            <p class="text-3xl font-bold text-slate-800">18</p>
+            <p class="text-3xl font-bold text-slate-800">{{ lowStockCount }}</p>
           </div>
           <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
             <span class="material-icons-round text-red-600">warning</span>
@@ -101,8 +107,39 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
+import { onMounted, ref } from 'vue';
 
 const router = useRouter();
+
+const totalItems = ref(0);
+const activeUsers = ref(0);
+const monthlySales = ref(0);
+const lowStockCount = ref(0);
+
+function formatCurrency(v) {
+  const n = Number(v || 0);
+  return 'Rs.' + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+onMounted(async () => {
+  try {
+    const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api';
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${API_BASE}/reports/overview`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+    if (!res.ok) {
+      const text = await res.text();
+      console.error('Dashboard metrics fetch failed', res.status, text);
+      return;
+    }
+    const body = await res.json();
+    totalItems.value = body.totalItems || 0;
+    activeUsers.value = body.activeUsers || 0;
+    monthlySales.value = body.monthlySales || 0;
+    lowStockCount.value = body.lowStockCount || 0;
+  } catch (err) {
+    console.error('Failed to load dashboard metrics', err);
+  }
+});
 
 const menus = [
   {
@@ -194,5 +231,15 @@ function goToFeature(menuTitle, feature) {
     // fallback: try menu-level route
     navigateToFirstItem({ title: menuTitle });
   }
+}
+
+function logout() {
+  try {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  } catch (e) {
+    // ignore
+  }
+  router.push({ name: 'Login' });
 }
 </script>

@@ -5,7 +5,7 @@
       <h1 class="text-2xl font-bold text-blue-900">Item Details</h1>
       <div class="flex gap-2">
         <button 
-          @click="$emit('go-back')" 
+          @click="goBack" 
           class="flex items-center text-gray-600 hover:text-gray-800 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
         >
           <span class="material-icons mr-1">arrow_back</span> Back
@@ -44,7 +44,7 @@
           </div>
           <div>
             <p class="text-gray-500 text-sm">Total Stock Value</p>
-            <p class="text-2xl font-bold text-black">${{ totalStockValue.toFixed(2) }}</p>
+            <p class="text-2xl font-bold text-black">Rs.{{ totalStockValue.toFixed(2) }}</p>
           </div>
         </div>
       </div>
@@ -63,7 +63,7 @@
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <tr v-for="item in paginatedItems" :key="item.id">
+          <tr v-for="item in paginatedItems" :key="item.id" class="cursor-pointer hover:bg-gray-50" @click="showItemDetails(item)">
             <td class="px-6 py-4">
               <div class="flex items-center">
                 <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -240,11 +240,11 @@
           </div>
           <div class="flex justify-between">
             <span class="text-gray-600">Cost Price:</span>
-            <span class="font-medium">${{ selectedItem.costPrice?.toFixed(2) || '0.00' }}</span>
+            <span class="font-medium">Rs.{{ selectedItem.costPrice?.toFixed(2) || '0.00' }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-gray-600">Selling Price:</span>
-            <span class="font-medium">${{ selectedItem.sellingPrice?.toFixed(2) || '0.00' }}</span>
+            <span class="font-medium">Rs.{{ selectedItem.sellingPrice?.toFixed(2) || '0.00' }}</span>
           </div>
           <div v-if="selectedItem.supplier" class="flex justify-between">
             <span class="text-gray-600">Supplier:</span>
@@ -261,6 +261,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
+import { useRouter } from 'vue-router';
 
 // Sample data - THIS IS WHAT DISPLAYS IN THE TABLE
 const stockItems = ref([
@@ -397,6 +398,14 @@ const itemsPerPage = 5;
 const showAddItemModal = ref(false);
 const showUpdateModal = ref(false);
 const showDetailsModal = ref(false);
+
+const emit = defineEmits(['go-back']);
+const router = useRouter();
+
+function goBack() {
+  try { emit('go-back'); } catch (e) {}
+  try { router.back(); } catch (e) {}
+}
 
 // Form data for new item
 const newItem = ref({
