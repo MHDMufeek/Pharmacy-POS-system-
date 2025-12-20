@@ -1,13 +1,7 @@
 <template>
   <div>
     <!-- Fixed logout button (top-right) -->
-    <button
-      @click="logout"
-      class="fixed top-4 right-4 z-50 bg-white/90 hover:bg-white px-3 py-2 rounded-full shadow-md text-sm flex items-center gap-2"
-      title="Log out"
-    >
-      <span class="material-icons text-gray-700">logout</span>
-    </button>
+    
 
     <!-- Welcome Section -->
     <div class="mb-8">
