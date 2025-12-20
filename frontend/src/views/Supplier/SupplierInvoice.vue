@@ -6,13 +6,7 @@
           <h1 class="text-2xl font-bold text-blue-900">Supplier Management</h1>
           <p class="text-gray-600 mt-1">Manage your suppliers and invoices in one place</p>
         </div>
-        <button 
-          @click="$emit('go-back')" 
-          class="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
-        >
-          <span class="material-icons mr-1">arrow_back</span>
-          Back to Dashboard
-        </button>
+      
       </div>
 
       <!-- Stats Cards -->
@@ -165,18 +159,9 @@
                   <span class="material-icons text-sm mr-1">add</span>
                   New Invoice
                 </button>
-                <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors" @click="showAddSupplierModal">
-                  <span class="material-icons text-sm mr-1">add_business</span>
-                  Add Supplier
-                </button>
-                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
-                  <span class="material-icons text-sm mr-1">file_download</span>
-                  Export
-                </button>
-                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
-                  <span class="material-icons text-sm mr-1">print</span>
-                  Print
-                </button>
+               
+               
+               
               </div>
               <div class="flex gap-2">
                 <div class="flex items-center bg-white border border-gray-300 rounded-lg px-3 py-2">
@@ -412,7 +397,7 @@
       </div>
   
       <!-- Create/Edit Invoice Modal -->
-      <div v-if="showInvoiceModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div v-if="showInvoiceModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 p-4 text-black">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-screen overflow-y-auto">
           <div class="px-6 py-4 border-b">
             <h3 class="text-lg font-semibold text-gray-900">{{ isEditing ? 'Edit' : 'Create' }} Invoice</h3>
@@ -455,7 +440,7 @@
             </div>
 
             <!-- Invoice Items -->
-            <div class="mb-6">
+            <div class="mb-6 text-black">
               <div class="flex justify-between items-center mb-4">
                 <h4 class="font-medium text-gray-700">Invoice Items</h4>
                 <button type="button" @click="addInvoiceItem" class="text-blue-600 hover:text-blue-800 flex items-center">
@@ -538,7 +523,7 @@
               <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
               <textarea 
                 v-model="currentInvoice.notes" 
-                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
+                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none text-black"
                 placeholder="Additional notes for this invoice"
                 rows="2"
               ></textarea>
@@ -843,11 +828,7 @@
   ])
   
   const invoices = ref([
-    { id: '1001', supplierId: 'SUP001', date: '2024-01-15', dueDate: '2024-02-15', status: 'pending', totalAmount: 1250.75 },
-    { id: '1002', supplierId: 'SUP002', date: '2024-01-10', dueDate: '2024-02-10', status: 'paid', totalAmount: 845.50 },
-    { id: '1003', supplierId: 'SUP001', date: '2024-01-05', dueDate: '2024-02-05', status: 'overdue', totalAmount: 2100.25 },
-    { id: '1004', supplierId: 'SUP002', date: '2023-12-20', dueDate: '2024-01-20', status: 'paid', totalAmount: 567.80 },
-    { id: '1005', supplierId: 'SUP001', date: '2023-12-15', dueDate: '2024-01-15', status: 'paid', totalAmount: 890.45 }
+    
   ])
   
   onMounted(() => {
