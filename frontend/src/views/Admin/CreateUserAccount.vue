@@ -128,6 +128,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import axios from 'axios';
 
 const emit = defineEmits(['go-back']);
 
@@ -170,10 +171,31 @@ function createUser() {
     return;
   }
 
-  setTimeout(() => {
-    successMessage.value = "User account created successfully!";
-    resetForm();
-  }, 1000);
+  // prepare payload for backend (backend expects `name`, `email`, `password`)
+  const payload = {
+    name: `${userForm.value.firstName.trim()} ${userForm.value.lastName.trim()}`.trim(),
+    email: String(userForm.value.email).toLowerCase(),
+    password: userForm.value.password
+  };
+
+  const api = axios.create({ baseURL: 'http://localhost:3000/api' });
+
+  api
+    .post('/auth/register', payload)
+    .then((res) => {
+      successMessage.value = res.data && res.data.name ? `User ${res.data.name} created successfully` : 'User account created successfully!';
+      resetForm();
+    })
+    .catch((err) => {
+      // prefer server message when available
+      if (err.response && err.response.data && err.response.data.message) {
+        errorMessage.value = err.response.data.message;
+      } else if (err.response && err.response.data && err.response.data.errors) {
+        errorMessage.value = err.response.data.errors.map(e => e.msg || e.message).join('; ');
+      } else {
+        errorMessage.value = 'Failed to create user. Please try again.';
+      }
+    });
 }
 
 function resetForm() {
