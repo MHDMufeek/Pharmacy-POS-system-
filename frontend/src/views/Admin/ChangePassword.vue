@@ -30,7 +30,7 @@
               :type="showCurrentPassword ? 'text' : 'password'"
               class="form-input"
               v-model="passwordForm.currentPassword"
-              placeholder="••••••••"
+              placeholder=""
               required
             />
             <button type="button" class="password-toggle" @click="showCurrentPassword = !showCurrentPassword">
@@ -53,7 +53,7 @@
               :type="showNewPassword ? 'text' : 'password'"
               class="form-input"
               v-model="passwordForm.newPassword"
-              placeholder="••••••••"
+              placeholder=""
               required
             />
             <button type="button" class="password-toggle" @click="showNewPassword = !showNewPassword">
@@ -82,7 +82,7 @@
               :type="showConfirmPassword ? 'text' : 'password'"
               class="form-input"
               v-model="passwordForm.confirmPassword"
-              placeholder="••••••••"
+              placeholder=""
               required
             />
             <button type="button" class="password-toggle" @click="showConfirmPassword = !showConfirmPassword">
@@ -100,15 +100,13 @@
           </div>
         </div>
 
-        <!-- Role Selection -->
+        <!-- User Selection -->
         <div class="form-group">
-          <label class="form-label">Choose Role</label>
+          <label class="form-label">Select User</label>
           <div class="select-container">
-            <select v-model="selectedRole" class="form-input" required>
-              <option value="" disabled>Select Role</option>
-              <option value="admin">Admin</option>
-              <option value="editor">Pharmacist</option>
-              <option value="user">Store Manager</option>
+            <select v-model="selectedUser" class="form-input" required>
+              <option value="" disabled>Select User</option>
+              <option v-for="u in userList" :key="u._id || u.id" :value="u._id || u.id">{{ u.name }} - {{ u.role }}</option>
             </select>
             <svg class="select-arrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -137,7 +135,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 const emit = defineEmits(['go-back'])
 
@@ -153,8 +151,43 @@ const passwordForm = ref({
   confirmPassword: ''
 })
 
-const selectedRole = ref('')
+const selectedUser = ref('')
+const userList = ref([])
 
+// fetch users for selection
+async function fetchUsers() {
+  try {
+    const token = localStorage.getItem('token')
+    const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api'
+    const res = await fetch(`${API_BASE}/capabilities/users`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+    if (res.ok) {
+      userList.value = await res.json()
+      // if selectedUser not set, default to current user
+      if (!selectedUser.value) {
+        const raw = localStorage.getItem('user')
+        if (raw) {
+          try { selectedUser.value = JSON.parse(raw).id || JSON.parse(raw)._id || '' } catch (e) { }
+        }
+      }
+    }
+  } catch (e) {
+    // ignore
+  }
+}
+
+// Initialize selectedRole from currently authenticated user (stored in localStorage)
+onMounted(() => {
+  try {
+    const raw = localStorage.getItem('user')
+    if (raw) {
+      const u = JSON.parse(raw)
+      if (u && (u.id || u._id)) selectedUser.value = u.id || u._id
+    }
+  } catch (e) {
+    // ignore parse errors
+  }
+  fetchUsers()
+})
 // Computed properties
 const getPasswordStrengthClass = computed(() => {
   const password = passwordForm.value.newPassword
@@ -171,33 +204,99 @@ const getPasswordStrengthClass = computed(() => {
   return 'strong'
 })
 
+const isSelfChange = computed(() => {
+  try {
+    const raw = localStorage.getItem('user')
+    if (!raw) return false
+    const me = JSON.parse(raw)
+    const myId = me.id || me._id
+    return myId && selectedUser.value && (myId === selectedUser.value)
+  } catch (e) {
+    return false
+  }
+})
+
 const isFormInvalid = computed(() => {
   return !passwordForm.value.currentPassword || 
          !passwordForm.value.newPassword || 
          !passwordForm.value.confirmPassword || 
-         !selectedRole.value ||
+         !selectedUser.value ||
          passwordForm.value.newPassword !== passwordForm.value.confirmPassword
 })
 
 // Theme is controlled globally via navbar; local toggle removed
 
-function changePassword() {
+async function changePassword() {
   successMessage.value = ''
   errorMessage.value = ''
-
-  if (!selectedRole.value) { errorMessage.value = 'Please select a role'; return }
+  if (!selectedUser.value) { errorMessage.value = 'Please select a user'; return }
+  // If user is changing their own password, require current password
+  try {
+    const raw = localStorage.getItem('user')
+    if (raw) {
+      const me = JSON.parse(raw)
+      const myId = me.id || me._id
+      if (myId && myId === selectedUser.value && !passwordForm.value.currentPassword) {
+        errorMessage.value = 'Please enter your current password';
+        return
+      }
+    }
+  } catch (e) { /* ignore */ }
   if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) { errorMessage.value = "New passwords don't match"; return }
   if (passwordForm.value.newPassword.length < 8) { errorMessage.value = 'Password must be at least 8 characters long'; return }
+  // Call backend to update password
+  try {
+    const token = localStorage.getItem('token')
+    const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api'
+    const payload = { newPassword: passwordForm.value.newPassword }
+    // if the current user is changing their own password, include currentPassword for verification
+    try {
+      const raw = localStorage.getItem('user')
+      const me = raw ? JSON.parse(raw) : null
+      if (me && (me.id || me._id) === selectedUser.value) {
+        payload.currentPassword = passwordForm.value.currentPassword
+      }
+    } catch (e) { /* ignore */ }
 
-  setTimeout(() => {
-    successMessage.value = `Password changed successfully! Role set to "${selectedRole.value}".`
+    const res = await fetch(`${API_BASE}/users/${selectedUser.value}/password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify(payload)
+    })
+
+    const body = await res.json().catch(() => ({}))
+    if (!res.ok) {
+      errorMessage.value = body.message || body.error || `Failed to change password (${res.status})`
+      return
+    }
+
+    const user = userList.value.find(u => (u._id || u.id) === selectedUser.value)
+    const name = user ? user.name : selectedUser.value
+    successMessage.value = body.message || `Password changed successfully for ${name}.`
     resetForm()
-  }, 1000)
+  } catch (err) {
+    console.error('Error calling change password API', err)
+    errorMessage.value = 'Network error. Please try again.'
+  }
 }
 
 function resetForm() {
   passwordForm.value = { currentPassword: '', newPassword: '', confirmPassword: '' }
-  selectedRole.value = ''
+  // restore selectedRole to current user's role
+  try {
+    const raw = localStorage.getItem('user')
+    if (raw) {
+      const u = JSON.parse(raw)
+      selectedUser.value = u && (u.id || u._id) ? (u.id || u._id) : ''
+    } else {
+      selectedUser.value = ''
+    }
+  } catch (e) {
+    selectedUser.value = ''
+  }
   showCurrentPassword.value = false
   showNewPassword.value = false
   showConfirmPassword.value = false
