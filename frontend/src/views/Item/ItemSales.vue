@@ -44,15 +44,25 @@
       </div>
 
       <!-- Medicines Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div v-if="loading" class="text-center py-8">
+        <div class="text-gray-500">Loading items...</div>
+      </div>
+      <div v-else-if="error" class="text-center py-8">
+        <div class="text-red-500">{{ error }}</div>
+        <button @click="fetchItems" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded">Retry</button>
+      </div>
+      <div v-else-if="filteredItems.length === 0" class="text-center py-8">
+        <div class="text-gray-500">No items found</div>
+      </div>
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         <div
           v-for="item in filteredItems"
-          :key="item.id"
+          :key="item._id"
           class="bg-white rounded-lg shadow p-4 flex flex-col justify-between"
         >
           <!-- Medicine Image -->
           <img
-            :src="item.image"
+            :src="item.image || 'https://via.placeholder.com/100x80?text=No+Image'"
             :alt="item.name"
             class="w-full h-28 object-contain mb-3"
           />
@@ -60,12 +70,12 @@
           <!-- Medicine Info -->
           <div>
             <h3 class="font-semibold text-red-600">{{ item.name }}</h3>
-            <p class="text-sm text-gray-500">{{ item.note }}</p>
+            <p class="text-sm text-gray-500">{{ item.description || 'No description' }}</p>
             <p class="text-xs text-gray-400 mt-1">
-              Category: <span class="font-medium">{{ item.category }}</span>
+              Category: <span class="font-medium">{{ item.category || 'N/A' }}</span>
             </p>
             <p class="text-xs text-gray-400">
-              Supplier: <span class="font-medium">{{ item.supplier }}</span>
+              SKU: <span class="font-medium">{{ item.sku || 'N/A' }}</span>
             </p>
             <p class="text-xs text-gray-400">
               Stock: <span class="font-medium">{{ item.stock }}</span>
@@ -312,15 +322,15 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import axios from 'axios'
 
-const items = ref([
-  { id: 1, name: 'Adhesive Bandages', category: 'First Aid', price: 300, stock: 73, supplier: 'HealthCorp', note: 'Flexible bandages for cuts and scrapes.', image: 'https://via.placeholder.com/100x80?text=Bandage' },
-  { id: 2, name: 'Allergy Relief Tabs', category: 'Allergy', price: 899, stock: 25, supplier: 'MediLife', note: 'Relief from allergy symptoms like sneezing.', image: 'https://via.placeholder.com/100x80?text=Allergy' },
-  { id: 3, name: 'Amoxicillin 250mg', category: 'Antibiotics', price: 1200, stock: 19, supplier: 'PharmaPlus', note: 'Antibiotic for bacterial infections.', image: 'https://via.placeholder.com/100x80?text=Amoxicillin' },
-  { id: 4, name: 'Vitamin C', category: 'Vitamins', price: 500, stock: 40, supplier: 'NutriHealth', note: 'Boosts immune system and energy.', image: 'https://via.placeholder.com/100x80?text=Vitamin+C' },
-  { id: 5, name: 'Paracetamol', category: 'Pain Relief', price: 150, stock: 60, supplier: 'MediLife', note: 'Reduces fever and relieves pain.', image: 'https://via.placeholder.com/100x80?text=Paracetamol' }
-])
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api'
+const token = localStorage.getItem('token')
+
+const items = ref([])
+const loading = ref(false)
+const error = ref('')
 
 const searchQuery = ref('')
 const selectedCategory = ref('')
@@ -328,6 +338,28 @@ const cart = ref([])
 const selectedPaymentMethod = ref('cash')
 const amountPaid = ref(0)
 const selectedSupplier = ref('HealthCorp')
+
+// Fetch items from backend
+const fetchItems = async () => {
+  try {
+    loading.value = true
+    error.value = ''
+    const response = await axios.get(`${API_BASE}/items`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    items.value = response.data.data || []
+  } catch (err) {
+    error.value = 'Failed to load items'
+    console.error('Error fetching items:', err)
+  } finally {
+    loading.value = false
+  }
+}
+
+// Load items on component mount
+onMounted(() => {
+  fetchItems()
+})
 
 // Suppliers list
 const suppliers = computed(() => [...new Set(items.value.map(i => i.supplier))])
@@ -339,12 +371,12 @@ const categories = computed(() => [...new Set(items.value.map(i => i.category))]
 const filteredItems = computed(() => {
   const q = (searchQuery.value || '').trim().toLowerCase()
   return items.value.filter(i => {
-    const name = i.name.toLowerCase()
-    const note = i.note.toLowerCase()
-    const category = i.category.toLowerCase()
-    const supplier = i.supplier.toLowerCase()
-    const priceStr = String(i.price)
-    const matchesSearch = !q || name.includes(q) || note.includes(q) || category.includes(q) || supplier.includes(q) || priceStr.includes(q)
+    const name = (i.name || '').toLowerCase()
+    const description = (i.description || '').toLowerCase()
+    const category = (i.category || '').toLowerCase()
+    const sku = (i.sku || '').toLowerCase()
+    const priceStr = String(i.price || 0)
+    const matchesSearch = !q || name.includes(q) || description.includes(q) || category.includes(q) || sku.includes(q) || priceStr.includes(q)
     const matchesCategory = !selectedCategory.value || selectedCategory.value === '' || i.category === selectedCategory.value
     return matchesSearch && matchesCategory
   })
@@ -376,7 +408,7 @@ function clearCart() {
 }
 
 // Process payment
-function processPayment() {
+async function processPayment() {
   if (cart.value.length === 0) return
   
   if (selectedPaymentMethod.value === 'cash' && amountPaid.value < totalAmount.value) {
@@ -384,22 +416,34 @@ function processPayment() {
     return
   }
 
-  // Here you would typically send the payment data to your backend
-  const paymentData = {
-    items: cart.value,
-    totalAmount: totalAmount.value,
-    paymentMethod: selectedPaymentMethod.value,
-    amountPaid: amountPaid.value,
-    change: selectedPaymentMethod.value === 'cash' ? (amountPaid.value - totalAmount.value) : 0,
-    supplier: selectedPaymentMethod.value === 'credit' ? selectedSupplier.value : null,
-    timestamp: new Date().toISOString()
-  }
+  try {
+    // Prepare sale data for backend
+    const saleData = {
+      items: cart.value.map(item => ({
+        item: item._id || item.id, // Use _id for MongoDB items
+        qty: item.qty
+      })),
+      paymentMethod: selectedPaymentMethod.value,
+      customer: selectedPaymentMethod.value === 'credit' ? selectedSupplier.value : undefined
+    }
 
-  console.log('Processing payment:', paymentData)
-  alert(`Payment processed via ${selectedPaymentMethod.value.toUpperCase()}! Total: Rs. ${totalAmount.value}`)
-  
-  // Clear cart after successful payment
-  clearCart()
+    // Create sale in backend
+    const response = await axios.post(`${API_BASE}/sales`, saleData, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+
+    alert(`Payment processed via ${selectedPaymentMethod.value.toUpperCase()}! Total: Rs. ${totalAmount.value}`)
+    
+    // Clear cart after successful payment
+    clearCart()
+    
+    // Refresh items to show updated stock
+    await fetchItems()
+    
+  } catch (err) {
+    console.error('Payment processing failed:', err)
+    alert('Payment processing failed. Please try again.')
+  }
 }
 
 // Computed totals
