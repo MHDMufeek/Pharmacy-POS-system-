@@ -79,7 +79,7 @@
   <span class="text-lg">{{ showPassword ? '🙈' : '👁️' }}</span>
 </button>
             </div>
-            <p class="password-hint">Must be at least 8 characters with a mix of letters, numbers and symbols</p>
+            
           </div>
           
           <!-- Confirm Password -->
