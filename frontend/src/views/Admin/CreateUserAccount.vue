@@ -93,8 +93,8 @@
                 placeholder="Confirm password"
                 class="form-input"
               >
-             <button type="button" class="password-toggle" @click="showPassword = !showPassword">
-  <span class="text-lg">{{ showPassword ? '🙈' : '👁️' }}</span>
+             <button type="button" class="password-toggle" @click="showConfirmPassword = !showConfirmPassword">
+  <span class="text-lg">{{ showConfirmPassword ? '🙈' : '👁️' }}</span>
 </button>
             </div>
           </div>
@@ -160,10 +160,7 @@ function createUser() {
     return;
   }
 
-  if (userForm.value.password.length < 8) {
-    errorMessage.value = "Password must be at least 8 characters long";
-    return;
-  }
+  
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(userForm.value.email)) {

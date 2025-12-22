@@ -192,7 +192,7 @@ async function changePassword() {
     }
   } catch (e) { /* ignore */ }
   if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) { errorMessage.value = "New passwords don't match"; return }
-  if (passwordForm.value.newPassword.length < 8) { errorMessage.value = 'Password must be at least 8 characters long'; return }
+  
   // Call backend to update password
   try {
     const token = localStorage.getItem('token')

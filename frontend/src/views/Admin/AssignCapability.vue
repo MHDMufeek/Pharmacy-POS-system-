@@ -176,61 +176,7 @@
         </div>
       </div>
       
-      <!-- Duration -->
-      <div class="form-group">
-        <label class="form-label">Assignment Duration <span class="text-red-500">*</span></label>
-        <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-2 sm:space-y-0 mt-2">
-          <label class="duration-option">
-            <input 
-              type="radio" 
-              v-model="assignForm.duration" 
-              value="temporary" 
-              class="radio-input"
-              :disabled="isLoading"
-            >
-            <span>Temporary (Until logout)</span>
-          </label>
-          <label class="duration-option">
-            <input 
-              type="radio" 
-              v-model="assignForm.duration" 
-              value="scheduled" 
-              class="radio-input"
-              :disabled="isLoading"
-            >
-            <span>Scheduled</span>
-          </label>
-        </div>
-      </div>
-      
-      <!-- Scheduled Time -->
-      <div v-if="assignForm.duration === 'scheduled'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="form-group">
-          <label class="form-label">Start Date & Time <span class="text-red-500">*</span></label>
-          <input 
-            type="datetime-local" 
-            class="form-input" 
-            :class="{ 'border-red-500': formErrors.startTime }"
-            v-model="assignForm.startTime" 
-            :disabled="isLoading"
-            required
-          >
-          <span v-if="formErrors.startTime" class="text-red-500 text-sm">{{ formErrors.startTime }}</span>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">End Date & Time <span class="text-red-500">*</span></label>
-          <input 
-            type="datetime-local" 
-            class="form-input" 
-            :class="{ 'border-red-500': formErrors.endTime }"
-            v-model="assignForm.endTime" 
-            :disabled="isLoading"
-            required
-          >
-          <span v-if="formErrors.endTime" class="text-red-500 text-sm">{{ formErrors.endTime }}</span>
-        </div>
-      </div>
+      <!-- Duration and scheduling removed per UI change -->
       
       <!-- Reason -->
       <div class="form-group">
@@ -247,28 +193,7 @@
         <span v-if="formErrors.reason" class="text-red-500 text-sm">{{ formErrors.reason }}</span>
       </div>
       
-      <!-- Permission Level -->
-      <div class="form-group">
-        <label class="form-label">Permission Level <span class="text-red-500">*</span></label>
-        <select 
-          class="form-input" 
-          v-model="assignForm.permissionLevel" 
-          :class="{ 'border-red-500': formErrors.permissionLevel }"
-          :disabled="isLoading"
-          required
-        >
-          <option value="">Select permission level</option>
-          <option value="view">View Only</option>
-          <option value="assist">Assist (Limited Actions)</option>
-          <option value="full">Full Control</option>
-        </select>
-        <p class="permission-hint">
-          <span v-if="assignForm.permissionLevel === 'view'">User can only view screens, no actions allowed</span>
-          <span v-else-if="assignForm.permissionLevel === 'assist'">User can perform limited actions with supervision</span>
-          <span v-else-if="assignForm.permissionLevel === 'full'">User has full control over selected capabilities</span>
-        </p>
-        <span v-if="formErrors.permissionLevel" class="text-red-500 text-sm">{{ formErrors.permissionLevel }}</span>
-      </div>
+      <!-- Permission level removed per UI change -->
       
       <!-- Action Buttons -->
       <div class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4 mt-6">
@@ -312,10 +237,7 @@
                   <span class="detail-label">Capabilities:</span> 
                   {{ formatCapabilities(assignment.capabilities) }}
                 </p>
-                <p class="assignment-detail">
-                  <span class="detail-label">Permission Level:</span> 
-                  <span class="capitalize">{{ assignment.permission_level }}</span>
-                </p>
+                
                 <p class="assignment-detail">
                   <span class="detail-label">Assigned:</span> 
                   {{ formatDate(assignment.created_at) }}
@@ -379,11 +301,7 @@ const activeAssignments = ref([]);
 const assignForm = ref({
   selectedUser: '',
   capabilities: [],
-  duration: 'temporary',
-  startTime: '',
-  endTime: '',
-  reason: '',
-  permissionLevel: ''
+  reason: ''
 });
 
 // API base URL
@@ -468,15 +386,11 @@ async function assignCapabilities() {
       return;
     }
 
-    // Prepare data for API
+    // Prepare data for API (duration and permission level removed)
     const assignmentData = {
       selectedUser: assignForm.value.selectedUser,
       capabilities: assignForm.value.capabilities,
-      duration: assignForm.value.duration,
-      startTime: assignForm.value.duration === 'scheduled' ? assignForm.value.startTime : null,
-      endTime: assignForm.value.duration === 'scheduled' ? assignForm.value.endTime : null,
-      reason: assignForm.value.reason,
-      permissionLevel: assignForm.value.permissionLevel
+      reason: assignForm.value.reason
     };
 
     const response = await fetch(`${API_BASE}/capabilities/assign`, {
@@ -571,59 +485,15 @@ function validateForm() {
     isValid = false;
   }
 
-  if (!assignForm.value.permissionLevel) {
-    formErrors.permissionLevel = "Please select a permission level";
-    isValid = false;
-  }
-
-  if (assignForm.value.duration === 'scheduled') {
-    if (!assignForm.value.startTime) {
-      formErrors.startTime = "Please provide a start time";
-      isValid = false;
-    }
-    if (!assignForm.value.endTime) {
-      formErrors.endTime = "Please provide an end time";
-      isValid = false;
-    }
-    
-    if (assignForm.value.startTime && assignForm.value.endTime) {
-      const start = new Date(assignForm.value.startTime);
-      const end = new Date(assignForm.value.endTime);
-      
-      if (end <= start) {
-        formErrors.endTime = "End time must be after start time";
-        isValid = false;
-      }
-      
-      if (start < new Date()) {
-        formErrors.startTime = "Start time cannot be in the past";
-        isValid = false;
-      }
-    }
-  }
-
   return isValid;
-}
-
-function initializeForm() {
-  const now = new Date();
-  assignForm.value.startTime = now.toISOString().slice(0, 16);
-  const endTime = new Date(now.getTime() + 60 * 60 * 1000); // 1 hour from now
-  assignForm.value.endTime = endTime.toISOString().slice(0, 16);
 }
 
 function resetForm() {
   assignForm.value = {
     selectedUser: '',
     capabilities: [],
-    duration: 'temporary',
-    startTime: '',
-    endTime: '',
-    reason: '',
-    permissionLevel: ''
+    reason: ''
   };
-  initializeForm();
-  
   // Clear form errors
   Object.keys(formErrors).forEach(key => delete formErrors[key]);
 }
@@ -682,8 +552,6 @@ function goBack() {
 }
 
 onMounted(() => {
-  initializeForm();
-
   // Fetch initial data
   fetchUsers();
   fetchActiveAssignments();
@@ -1222,10 +1090,6 @@ select.form-input {
   color: #9ca3af;
 }
 
-/* System preference for auto mode */
-.auto-theme {
-  /* System will handle via media query */
-}
 
 @media (prefers-color-scheme: dark) {
   .auto-theme .page-container {
