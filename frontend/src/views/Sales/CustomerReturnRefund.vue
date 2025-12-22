@@ -36,13 +36,14 @@
       <!-- Returns Table -->
       <div class="bg-white rounded-xl shadow overflow-hidden text-black">
         <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50 text-gray-600 text-sm">
+            <thead class="bg-gray-50 text-gray-600 text-sm">
             <tr>
               <th class="px-5 py-3 text-left">ID</th>
               <th class="px-5 py-3 text-left">Customer</th>
               <th class="px-5 py-3 text-left">Medicine</th>
               <th class="px-5 py-3 text-left">Qty</th>
               <th class="px-5 py-3 text-left">Reason</th>
+              <th class="px-5 py-3 text-left">Amount</th>
               <th class="px-5 py-3 text-left">Status</th>
             </tr>
           </thead>
@@ -54,6 +55,7 @@
               <td class="px-5 py-3">{{ r.items?.[0]?.name || 'N/A' }}</td>
               <td class="px-5 py-3">{{ r.items?.[0]?.qty || 0 }}</td>
               <td class="px-5 py-3">{{ r.items?.[0]?.reason || 'N/A' }}</td>
+              <td class="px-5 py-3">{{ ((r.totalRefund != null ? r.totalRefund : (r.items?.reduce((s,it) => s + ((it.price||0)*(it.qty||0)),0) || 0))).toFixed(2) }}</td>
               <td class="px-5 py-3">
                 <span :class="{
                   'bg-green-100 text-green-800': r.status === 'Completed',
@@ -94,7 +96,12 @@
                 <select v-model="returnForm.customer" class="form-input" required>
                   <option value="">Select customer</option>
                   <option v-for="c in customers" :key="c.id" :value="c.name">{{ c.name }}</option>
+                  <option value="Other">Other (specify)</option>
                 </select>
+
+                <div v-if="isOtherCustomer" class="mt-2">
+                  <input type="text" v-model="returnForm.customerOther" placeholder="Enter customer name" class="form-input" />
+                </div>
               </div>
 
               <div>
@@ -229,13 +236,15 @@ const medicines = ref([
 
 const returns = ref([])
 
-const returnForm = ref({ customer: '', medicine: '', qty: 1, reason: '', saleRef: '' })
+const returnForm = ref({ customer: '', customerOther: '', medicine: '', qty: 1, reason: '', saleRef: '' })
 const newCustomer = ref({ name: '', phone: '', email: '', address: '', nic: '', type: '', notes: '' })
 
 const filteredReturns = computed(() => {
   if (!searchQuery.value) return returns.value
   return returns.value.filter(r => r.customer.toLowerCase().includes(searchQuery.value.toLowerCase()))
 })
+
+const isOtherCustomer = computed(() => returnForm.value.customer === 'Other')
 
 async function fetchReturns() {
   try {
@@ -288,7 +297,7 @@ async function fetchItems() {
 }
 
 async function submitReturn() {
-  if (!returnForm.value.customer || !returnForm.value.medicine) {
+  if ((!returnForm.value.customer || returnForm.value.customer === '') && !returnForm.value.customerOther) {
     alert('Please fill required fields')
     return
   }
@@ -298,8 +307,10 @@ async function submitReturn() {
     const token = localStorage.getItem('token')
     const selectedMedicine = medicines.value.find(m => m.name === returnForm.value.medicine)
     
+    const customerName = returnForm.value.customer === 'Other' ? (returnForm.value.customerOther || 'Other') : returnForm.value.customer
+
     const payload = {
-      customer: returnForm.value.customer,
+      customer: customerName,
       items: [{
         itemId: selectedMedicine?._id || selectedMedicine?.id,
         qty: parseInt(returnForm.value.qty, 10),
