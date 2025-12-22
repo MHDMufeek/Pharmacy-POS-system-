@@ -31,7 +31,7 @@
           required
         >
           <option value="">Select a user</option>
-          <option v-for="user in userList" :key="user.id" :value="user.id">
+          <option v-for="user in userList" :key="user._id || user.id" :value="String(user._id || user.id)">
             {{ user.name }} - {{ user.role }}
           </option>
         </select>
@@ -229,16 +229,20 @@
           </button>
         </div>
         <div class="assignments-container">
-          <div v-for="assignment in activeAssignments" :key="assignment.id" class="assignment-card">
+          <div v-for="assignment in activeAssignments" :key="assignment._id || assignment.id" class="assignment-card">
             <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center">
               <div class="flex-1">
-                <p class="assignment-user">User: {{ assignment.user_name }}</p>
+                <p class="assignment-user">User: {{ assignment.name || assignment.user_name }}</p>
+                <p v-if="assignment.role || assignment.user_role" class="assignment-detail text-sm text-gray-500">
+                  <span class="detail-label">Assigned role:</span>
+                  {{ assignment.role || assignment.user_role }}
+                </p>
                 <p class="assignment-detail">
                   <span class="detail-label">Capabilities:</span> 
-                  {{ formatCapabilities(assignment.capabilities) }}
+                  {{ displayCapabilities(assignment) }}
                 </p>
                 
-                <p class="assignment-detail">
+                <p v-if="assignment.created_at" class="assignment-detail">
                   <span class="detail-label">Assigned:</span> 
                   {{ formatDate(assignment.created_at) }}
                 </p>
@@ -250,19 +254,24 @@
                   <span class="detail-label">Reason:</span> 
                   {{ assignment.reason }}
                 </p>
-                <p class="assignment-detail">
-                  <span class="detail-label">Status:</span> 
-                  <span :class="getStatusClass(assignment.status)">{{ assignment.status }}</span>
-                </p>
+                <!-- Status removed per request -->
               </div>
               <div class="mt-3 sm:mt-0 sm:ml-4">
-                <button 
-                  @click="removeAssignment(assignment.id)"
-                  class="btn btn-danger text-sm py-2 px-4"
-                  :disabled="isLoading"
-                >
-                  Remove
-                </button>
+                <div v-if="!isAdminAssignment(assignment)" class="flex flex-col space-y-2">
+                  <button 
+                    @click="removeAssignment(assignment._id || assignment.id)"
+                    class="btn btn-danger text-sm py-2 px-4"
+                    :disabled="isLoading"
+                  >
+                    Remove Assignment
+                  </button>
+                  <form @submit.prevent="deleteUser(assignment._id || assignment.id)">
+                    <button type="submit" class="btn btn-secondary text-sm py-2 px-4" :disabled="isLoading">
+                      Delete User
+                    </button>
+                  </form>
+                </div>
+                <!-- admin: no actions shown -->
               </div>
             </div>
           </div>
@@ -298,11 +307,12 @@ const formErrors = reactive({});
 const userList = ref([]);
 const activeAssignments = ref([]);
 
-const assignForm = ref({
+const assignForm = reactive({
   selectedUser: '',
   capabilities: [],
   reason: ''
 });
+
 
 // API base URL
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api';
@@ -371,7 +381,8 @@ async function fetchActiveAssignments() {
 async function assignCapabilities() {
   successMessage.value = '';
   errorMessage.value = '';
-  formErrors.value = {};
+  // Clear reactive formErrors object without reassigning
+  Object.keys(formErrors).forEach(key => delete formErrors[key]);
 
   if (!validateForm()) {
     errorMessage.value = "Please fix the errors in the form";
@@ -386,35 +397,37 @@ async function assignCapabilities() {
       return;
     }
 
-    // Prepare data for API (duration and permission level removed)
-    const assignmentData = {
-      selectedUser: assignForm.value.selectedUser,
-      capabilities: assignForm.value.capabilities,
-      reason: assignForm.value.reason
-    };
+    // Backend expects individual assignment calls with { userId, capability }
+    const failures = [];
+    for (const cap of assignForm.capabilities) {
+      try {
+        const resp = await fetch(`${API_BASE}/capabilities/assign`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ userId: assignForm.selectedUser, capability: cap })
+        });
 
-    const response = await fetch(`${API_BASE}/capabilities/assign`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(assignmentData)
-    });
+        const respData = await resp.json();
+        if (!resp.ok) {
+          failures.push(respData.message || respData.error || `Failed to assign ${cap}`);
+        }
+      } catch (err) {
+        console.error('Error assigning capability:', err);
+        failures.push(`Network error assigning ${cap}`);
+      }
+    }
 
-    const data = await response.json();
-
-    if (response.ok) {
-      successMessage.value = data.message;
+    if (failures.length > 0) {
+      errorMessage.value = failures.join('; ');
+    } else {
+      successMessage.value = 'Capabilities assigned successfully';
       await fetchActiveAssignments(); // Refresh the list
       resetForm();
-      
       // Auto-hide success message after 5 seconds
-      setTimeout(() => {
-        successMessage.value = '';
-      }, 5000);
-    } else {
-      errorMessage.value = data.error || "Failed to assign capabilities";
+      setTimeout(() => { successMessage.value = ''; }, 5000);
     }
   } catch (error) {
     console.error('Error assigning capabilities:', error);
@@ -464,23 +477,58 @@ async function removeAssignment(assignmentId) {
   }
 }
 
+async function deleteUser(userId) {
+  if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
+
+  try {
+    isLoading.value = true;
+    const token = localStorage.getItem('token');
+    if (!token) {
+      errorMessage.value = 'No authentication token found';
+      return;
+    }
+
+    const resp = await fetch(`${API_BASE}/users/${userId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (resp.ok) {
+      successMessage.value = 'User deleted successfully';
+      await fetchUsers();
+      await fetchActiveAssignments();
+      setTimeout(() => { successMessage.value = ''; }, 3000);
+    } else {
+      const d = await resp.json().catch(() => ({}));
+      errorMessage.value = d.message || d.error || 'Failed to delete user';
+    }
+  } catch (err) {
+    console.error('Error deleting user:', err);
+    errorMessage.value = 'Network error. Please try again.';
+  } finally {
+    isLoading.value = false;
+  }
+}
+
 function validateForm() {
   // Clear previous errors
   Object.keys(formErrors).forEach(key => delete formErrors[key]);
   
   let isValid = true;
 
-  if (!assignForm.value.selectedUser) {
+  if (!assignForm.selectedUser) {
     formErrors.selectedUser = "Please select a user";
     isValid = false;
   }
 
-  if (assignForm.value.capabilities.length === 0) {
+  if (assignForm.capabilities.length === 0) {
     formErrors.capabilities = "Please select at least one capability";
     isValid = false;
   }
 
-  if (!assignForm.value.reason.trim()) {
+  if (!assignForm.reason.trim()) {
     formErrors.reason = "Please provide a reason for assignment";
     isValid = false;
   }
@@ -489,11 +537,9 @@ function validateForm() {
 }
 
 function resetForm() {
-  assignForm.value = {
-    selectedUser: '',
-    capabilities: [],
-    reason: ''
-  };
+  assignForm.selectedUser = '';
+  assignForm.capabilities = [];
+  assignForm.reason = '';
   // Clear form errors
   Object.keys(formErrors).forEach(key => delete formErrors[key]);
 }
@@ -532,6 +578,31 @@ function formatCapabilities(capabilities) {
   };
   
   return capabilities.map(cap => capabilityLabels[cap] || cap).join(', ');
+}
+
+function displayCapabilities(assignment) {
+  if (!assignment) return '';
+  const role = (assignment.role || '').toString().toLowerCase();
+  if (role.includes('admin') || role.includes('administrator')) return 'Full Access';
+  const caps = assignment.capabilities || [];
+  // If core admin-like capabilities present, show full access label
+  if (caps.includes('manage_users') && caps.includes('manage_items')) return 'Full Access';
+  return formatCapabilities(caps);
+}
+
+function isAdminAssignment(assignment) {
+  if (!assignment) return false;
+  const role = (assignment.role || '').toString().toLowerCase();
+  if (role.includes('admin') || role.includes('administrator')) return true;
+  const caps = assignment.capabilities || [];
+  if (caps.includes('manage_users') && caps.includes('manage_items')) return true;
+  return false;
+}
+
+function assignedLabel(assignment) {
+  // kept for backward compatibility but now simply return the stored role or 'N/A'
+  if (!assignment) return 'N/A';
+  return assignment.role || assignment.user_role || 'N/A';
 }
 
 function getStatusClass(status) {
