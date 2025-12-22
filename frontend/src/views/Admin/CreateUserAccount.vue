@@ -172,7 +172,8 @@ function createUser() {
   const payload = {
     name: `${userForm.value.firstName.trim()} ${userForm.value.lastName.trim()}`.trim(),
     email: String(userForm.value.email).toLowerCase(),
-    password: userForm.value.password
+    password: userForm.value.password,
+    role: userForm.value.role
   };
 
   const api = axios.create({ baseURL: 'http://localhost:3000/api' });
