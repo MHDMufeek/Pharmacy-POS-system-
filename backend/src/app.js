@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const capabilityRoutes = require('./routes/capabilities');
 const itemsRoutes = require('./routes/items');
 const salesRoutes = require('./routes/sales');
+const customerReturnsRoutes = require('./routes/customerReturns');
 const reportsRoutes = require('./routes/reports');
 const notificationsRoutes = require('./routes/notifications');
 const suppliersRoutes = require('./routes/suppliers');
@@ -25,6 +26,7 @@ function createApp() {
   app.use('/api/capabilities', capabilityRoutes);
   app.use('/api/items', itemsRoutes);
   app.use('/api/sales', salesRoutes);
+  app.use('/api/customer-returns', customerReturnsRoutes);
   app.use('/api/reports', reportsRoutes);
   app.use('/api/notifications', notificationsRoutes);
   app.use('/api/suppliers', suppliersRoutes);

@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from "vue-router";
 // Auth & Dashboard
 import Login from "../Login.vue";
 import Dashboard from "../views/Dashboard.vue";
+import ClearAndLogin from "../views/ClearAndLogin.vue";
 import ViewExpenses from '../views/Expenses/ViewExpenses.vue' // Adjust path as needed
 
 
@@ -14,6 +15,13 @@ const routes = [
     path: "/",
     name: "Login",
     component: Login,
+  },
+
+  // 🔄 Clear session & redirect to login
+  {
+    path: "/refresh-session",
+    name: "ClearAndLogin",
+    component: ClearAndLogin,
   },
 
   // 🟢 Dashboard - after login
