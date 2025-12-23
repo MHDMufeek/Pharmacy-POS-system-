@@ -30,8 +30,7 @@ router.post('/:id/password', authMiddleware, async (req, res) => {
     const user = await User.findById(id);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    const isSelf = req.user && (String(req.user._id) === String(id));
-
+    const isSelf = req.user && String(req.user._id) === String(id);
     const bcrypt = require('bcryptjs');
 
     if (isSelf) {
@@ -39,7 +38,6 @@ router.post('/:id/password', authMiddleware, async (req, res) => {
       const match = await bcrypt.compare(currentPassword, user.password);
       if (!match) return res.status(400).json({ message: 'Current password is incorrect' });
     } else {
-      // Only admins may change other users' passwords
       if (!req.user || req.user.role !== 'admin') return res.status(403).json({ message: 'Forbidden' });
     }
 

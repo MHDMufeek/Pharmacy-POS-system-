@@ -49,6 +49,8 @@
               <span class="text-lg">{{ showNewPassword ? '🙈' : '👁️' }}</span>
             </button>
           </div>
+          
+          <!-- strength indicator removed -->
         </div>
 
         <div class="form-group">
@@ -134,7 +136,7 @@ onMounted(() => {
   fetchUsers()
 })
 // Computed properties
-// password strength indicator removed; no computed helper needed
+// Password strength indicator removed
 
 const isSelfChange = computed(() => {
   try {
@@ -205,9 +207,17 @@ async function changePassword() {
       return
     }
 
-    const user = userList.value.find(u => (u._id || u.id) === selectedUser.value)
-    const name = user ? user.name : selectedUser.value
-    successMessage.value = body.message || `Password changed successfully for ${name}.`
+    // If backend provided a fresh token (self-change), update stored token & user so session continues
+    if (body.token) {
+      localStorage.setItem('token', body.token)
+      if (body.user) localStorage.setItem('user', JSON.stringify(body.user))
+      successMessage.value = body.message || 'Password changed successfully. Your session has been updated.'
+    } else {
+      const user = userList.value.find(u => (u._id || u.id) === selectedUser.value)
+      const name = user ? user.name : selectedUser.value
+      successMessage.value = body.message || `Password changed successfully for ${name}.`
+    }
+
     resetForm()
   } catch (err) {
     console.error('Error calling change password API', err)

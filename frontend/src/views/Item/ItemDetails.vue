@@ -65,7 +65,7 @@
             <th class="px-6 py-3 text-left text-2xl font-medium text-gray-500 uppercase tracking-wider">Status</th>
           </tr>
         </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
+        <tbody class="bg-white divide-y divide-gray-200 text-black">
           <tr v-for="item in paginatedItems" :key="item.id" class="cursor-pointer hover:bg-gray-50" @click="showItemDetails(item)">
             <td class="px-6 py-4">
               <div class="flex items-center">
@@ -219,7 +219,7 @@
     </div>
 
     <!-- Item Details Modal -->
-    <div v-if="showDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+    <div v-if="showDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 text-black">
       <div class="bg-white rounded-lg shadow-lg p-6 w-96">
         <h3 class="text-lg font-semibold mb-4">Item Details</h3>
         <div class="space-y-3">

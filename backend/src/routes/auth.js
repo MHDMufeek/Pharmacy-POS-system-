@@ -59,10 +59,12 @@ router.post(
   })
 );
 
-module.exports = router;
-
 // verify token / current user
 router.get('/me', authMiddleware, wrap(async (req, res) => {
   // req.user is set by authMiddleware (password omitted)
-  return res.json({ user: req.user });
+  const u = req.user
+  const userObj = { id: u._id, name: u.name, email: u.email, role: u.role, capabilities: u.capabilities }
+  return res.json({ user: userObj });
 }));
+
+module.exports = router;
