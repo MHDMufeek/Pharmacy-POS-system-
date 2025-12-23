@@ -49,10 +49,6 @@
               <span class="text-lg">{{ showNewPassword ? '🙈' : '👁️' }}</span>
             </button>
           </div>
-          
-          <div class="strength-bar">
-            <div class="strength-fill" :class="getPasswordStrengthClass"></div>
-          </div>
         </div>
 
         <div class="form-group">
@@ -138,20 +134,7 @@ onMounted(() => {
   fetchUsers()
 })
 // Computed properties
-const getPasswordStrengthClass = computed(() => {
-  const password = passwordForm.value.newPassword
-  if (!password) return ''
-  
-  let strength = 0
-  if (password.length >= 8) strength++
-  if (/[A-Z]/.test(password)) strength++
-  if (/[0-9]/.test(password)) strength++
-  if (/[^A-Za-z0-9]/.test(password)) strength++
-  
-  if (strength <= 1) return 'weak'
-  if (strength <= 3) return 'medium'
-  return 'strong'
-})
+// password strength indicator removed; no computed helper needed
 
 const isSelfChange = computed(() => {
   try {
@@ -343,11 +326,7 @@ function goBack() {
 .password-input-container { position: relative; }
 .password-hint { font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem; }
 
-.strength-bar { height: 4px; border-radius: 2px; overflow: hidden; margin-top: 0.5rem; background: rgba(0,0,0,0.06); }
-.strength-fill { height: 100%; width: 0%; transition: width 0.3s ease; }
-.strength-fill.weak { width: 33%; background: #ef4444; }
-.strength-fill.medium { width: 66%; background: #f59e0b; }
-.strength-fill.strong { width: 100%; background: #10b981; }
+/* password strength styles removed */
 
 .password-match-error { color: #ef4444; font-size: 0.8rem; margin-top: 0.25rem; }
 
