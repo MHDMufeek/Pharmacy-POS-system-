@@ -79,7 +79,7 @@
   <span class="text-lg">{{ showPassword ? '🙈' : '👁️' }}</span>
 </button>
             </div>
-            <p class="password-hint">Must be at least 8 characters with a mix of letters, numbers and symbols</p>
+            
           </div>
           
           <!-- Confirm Password -->
@@ -93,8 +93,8 @@
                 placeholder="Confirm password"
                 class="form-input"
               >
-             <button type="button" class="password-toggle" @click="showPassword = !showPassword">
-  <span class="text-lg">{{ showPassword ? '🙈' : '👁️' }}</span>
+             <button type="button" class="password-toggle" @click="showConfirmPassword = !showConfirmPassword">
+  <span class="text-lg">{{ showConfirmPassword ? '🙈' : '👁️' }}</span>
 </button>
             </div>
           </div>
@@ -128,6 +128,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import axios from 'axios';
 
 const emit = defineEmits(['go-back']);
 
@@ -159,10 +160,7 @@ function createUser() {
     return;
   }
 
-  if (userForm.value.password.length < 8) {
-    errorMessage.value = "Password must be at least 8 characters long";
-    return;
-  }
+  
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(userForm.value.email)) {
@@ -170,10 +168,32 @@ function createUser() {
     return;
   }
 
-  setTimeout(() => {
-    successMessage.value = "User account created successfully!";
-    resetForm();
-  }, 1000);
+  // prepare payload for backend (backend expects `name`, `email`, `password`)
+  const payload = {
+    name: `${userForm.value.firstName.trim()} ${userForm.value.lastName.trim()}`.trim(),
+    email: String(userForm.value.email).toLowerCase(),
+    password: userForm.value.password,
+    role: userForm.value.role
+  };
+
+  const api = axios.create({ baseURL: 'http://localhost:3000/api' });
+
+  api
+    .post('/auth/register', payload)
+    .then((res) => {
+      successMessage.value = res.data && res.data.name ? `User ${res.data.name} created successfully` : 'User account created successfully!';
+      resetForm();
+    })
+    .catch((err) => {
+      // prefer server message when available
+      if (err.response && err.response.data && err.response.data.message) {
+        errorMessage.value = err.response.data.message;
+      } else if (err.response && err.response.data && err.response.data.errors) {
+        errorMessage.value = err.response.data.errors.map(e => e.msg || e.message).join('; ');
+      } else {
+        errorMessage.value = 'Failed to create user. Please try again.';
+      }
+    });
 }
 
 function resetForm() {

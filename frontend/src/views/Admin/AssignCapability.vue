@@ -31,7 +31,7 @@
           required
         >
           <option value="">Select a user</option>
-          <option v-for="user in userList" :key="user.id" :value="user.id">
+          <option v-for="user in userList" :key="user._id || user.id" :value="String(user._id || user.id)">
             {{ user.name }} - {{ user.role }}
           </option>
         </select>
@@ -173,64 +173,29 @@
             </div>
           </div>
 
+          <!-- Expenses Module -->
+          <div class="capability-module">
+            <label class="module-header">
+              <span>Expenses Module</span>
+            </label>
+            <div class="space-y-2 mt-2">
+              <label class="capability-item">
+                <input
+                  type="checkbox"
+                  v-model="assignForm.capabilities"
+                  value="view-expenses"
+                  class="checkbox-input"
+                  :disabled="isLoading"
+                />
+                <span>View Expenses</span>
+              </label>
+            </div>
+          </div>
+
         </div>
       </div>
       
-      <!-- Duration -->
-      <div class="form-group">
-        <label class="form-label">Assignment Duration <span class="text-red-500">*</span></label>
-        <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-2 sm:space-y-0 mt-2">
-          <label class="duration-option">
-            <input 
-              type="radio" 
-              v-model="assignForm.duration" 
-              value="temporary" 
-              class="radio-input"
-              :disabled="isLoading"
-            >
-            <span>Temporary (Until logout)</span>
-          </label>
-          <label class="duration-option">
-            <input 
-              type="radio" 
-              v-model="assignForm.duration" 
-              value="scheduled" 
-              class="radio-input"
-              :disabled="isLoading"
-            >
-            <span>Scheduled</span>
-          </label>
-        </div>
-      </div>
-      
-      <!-- Scheduled Time -->
-      <div v-if="assignForm.duration === 'scheduled'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="form-group">
-          <label class="form-label">Start Date & Time <span class="text-red-500">*</span></label>
-          <input 
-            type="datetime-local" 
-            class="form-input" 
-            :class="{ 'border-red-500': formErrors.startTime }"
-            v-model="assignForm.startTime" 
-            :disabled="isLoading"
-            required
-          >
-          <span v-if="formErrors.startTime" class="text-red-500 text-sm">{{ formErrors.startTime }}</span>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">End Date & Time <span class="text-red-500">*</span></label>
-          <input 
-            type="datetime-local" 
-            class="form-input" 
-            :class="{ 'border-red-500': formErrors.endTime }"
-            v-model="assignForm.endTime" 
-            :disabled="isLoading"
-            required
-          >
-          <span v-if="formErrors.endTime" class="text-red-500 text-sm">{{ formErrors.endTime }}</span>
-        </div>
-      </div>
+      <!-- Duration and scheduling removed per UI change -->
       
       <!-- Reason -->
       <div class="form-group">
@@ -247,28 +212,7 @@
         <span v-if="formErrors.reason" class="text-red-500 text-sm">{{ formErrors.reason }}</span>
       </div>
       
-      <!-- Permission Level -->
-      <div class="form-group">
-        <label class="form-label">Permission Level <span class="text-red-500">*</span></label>
-        <select 
-          class="form-input" 
-          v-model="assignForm.permissionLevel" 
-          :class="{ 'border-red-500': formErrors.permissionLevel }"
-          :disabled="isLoading"
-          required
-        >
-          <option value="">Select permission level</option>
-          <option value="view">View Only</option>
-          <option value="assist">Assist (Limited Actions)</option>
-          <option value="full">Full Control</option>
-        </select>
-        <p class="permission-hint">
-          <span v-if="assignForm.permissionLevel === 'view'">User can only view screens, no actions allowed</span>
-          <span v-else-if="assignForm.permissionLevel === 'assist'">User can perform limited actions with supervision</span>
-          <span v-else-if="assignForm.permissionLevel === 'full'">User has full control over selected capabilities</span>
-        </p>
-        <span v-if="formErrors.permissionLevel" class="text-red-500 text-sm">{{ formErrors.permissionLevel }}</span>
-      </div>
+      <!-- Permission level removed per UI change -->
       
       <!-- Action Buttons -->
       <div class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4 mt-6">
@@ -304,19 +248,20 @@
           </button>
         </div>
         <div class="assignments-container">
-          <div v-for="assignment in activeAssignments" :key="assignment.id" class="assignment-card">
+          <div v-for="assignment in activeAssignments" :key="assignment._id || assignment.id" class="assignment-card">
             <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center">
               <div class="flex-1">
-                <p class="assignment-user">User: {{ assignment.user_name }}</p>
+                <p class="assignment-user">User: {{ assignment.name || assignment.user_name }}</p>
+                <p v-if="assignment.role || assignment.user_role" class="assignment-detail text-sm text-gray-500">
+                  <span class="detail-label">Assigned role:</span>
+                  {{ assignment.role || assignment.user_role }}
+                </p>
                 <p class="assignment-detail">
                   <span class="detail-label">Capabilities:</span> 
-                  {{ formatCapabilities(assignment.capabilities) }}
+                  {{ displayCapabilities(assignment) }}
                 </p>
-                <p class="assignment-detail">
-                  <span class="detail-label">Permission Level:</span> 
-                  <span class="capitalize">{{ assignment.permission_level }}</span>
-                </p>
-                <p class="assignment-detail">
+                
+                <p v-if="assignment.created_at" class="assignment-detail">
                   <span class="detail-label">Assigned:</span> 
                   {{ formatDate(assignment.created_at) }}
                 </p>
@@ -328,19 +273,24 @@
                   <span class="detail-label">Reason:</span> 
                   {{ assignment.reason }}
                 </p>
-                <p class="assignment-detail">
-                  <span class="detail-label">Status:</span> 
-                  <span :class="getStatusClass(assignment.status)">{{ assignment.status }}</span>
-                </p>
+                <!-- Status removed per request -->
               </div>
               <div class="mt-3 sm:mt-0 sm:ml-4">
-                <button 
-                  @click="removeAssignment(assignment.id)"
-                  class="btn btn-danger text-sm py-2 px-4"
-                  :disabled="isLoading"
-                >
-                  Remove
-                </button>
+                <div v-if="!isAdminAssignment(assignment)" class="flex flex-col space-y-2">
+                  <button 
+                    @click="removeAssignment(assignment._id || assignment.id)"
+                    class="btn btn-danger text-sm py-2 px-4"
+                    :disabled="isLoading"
+                  >
+                    Remove Assignment
+                  </button>
+                  <form @submit.prevent="deleteUser(assignment._id || assignment.id)">
+                    <button type="submit" class="btn btn-secondary text-sm py-2 px-4" :disabled="isLoading">
+                      Delete User
+                    </button>
+                  </form>
+                </div>
+                <!-- admin: no actions shown -->
               </div>
             </div>
           </div>
@@ -376,15 +326,12 @@ const formErrors = reactive({});
 const userList = ref([]);
 const activeAssignments = ref([]);
 
-const assignForm = ref({
+const assignForm = reactive({
   selectedUser: '',
   capabilities: [],
-  duration: 'temporary',
-  startTime: '',
-  endTime: '',
-  reason: '',
-  permissionLevel: ''
+  reason: ''
 });
+
 
 // API base URL
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api';
@@ -453,7 +400,8 @@ async function fetchActiveAssignments() {
 async function assignCapabilities() {
   successMessage.value = '';
   errorMessage.value = '';
-  formErrors.value = {};
+  // Clear reactive formErrors object without reassigning
+  Object.keys(formErrors).forEach(key => delete formErrors[key]);
 
   if (!validateForm()) {
     errorMessage.value = "Please fix the errors in the form";
@@ -468,39 +416,55 @@ async function assignCapabilities() {
       return;
     }
 
-    // Prepare data for API
-    const assignmentData = {
-      selectedUser: assignForm.value.selectedUser,
-      capabilities: assignForm.value.capabilities,
-      duration: assignForm.value.duration,
-      startTime: assignForm.value.duration === 'scheduled' ? assignForm.value.startTime : null,
-      endTime: assignForm.value.duration === 'scheduled' ? assignForm.value.endTime : null,
-      reason: assignForm.value.reason,
-      permissionLevel: assignForm.value.permissionLevel
-    };
+    // Backend expects individual assignment calls with { userId, capability }
+    const failures = [];
+    for (const cap of assignForm.capabilities) {
+      try {
+        const resp = await fetch(`${API_BASE}/capabilities/assign`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ userId: assignForm.selectedUser, capability: cap })
+        });
 
-    const response = await fetch(`${API_BASE}/capabilities/assign`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(assignmentData)
-    });
+        const respData = await resp.json();
+        if (!resp.ok) {
+          failures.push(respData.message || respData.error || `Failed to assign ${cap}`);
+        }
+        else {
+          // If we're assigning to the currently logged-in user, update stored user object
+          try {
+            const raw = localStorage.getItem('user');
+            if (raw && respData.user && (respData.user.id || respData.user._id)) {
+              const me = JSON.parse(raw);
+              const currentId = me.id || me._id;
+              const updatedId = respData.user.id || respData.user._id || String(assignForm.selectedUser);
+              if (String(currentId) === String(updatedId)) {
+                // merge capabilities
+                me.capabilities = Array.from(new Set([...(me.capabilities || []), ...(respData.user.capabilities || [])]));
+                localStorage.setItem('user', JSON.stringify(me));
+              }
+            }
+          } catch (e) {
+            // ignore localStorage merge errors
+          }
+        }
+      } catch (err) {
+        console.error('Error assigning capability:', err);
+        failures.push(`Network error assigning ${cap}`);
+      }
+    }
 
-    const data = await response.json();
-
-    if (response.ok) {
-      successMessage.value = data.message;
+    if (failures.length > 0) {
+      errorMessage.value = failures.join('; ');
+    } else {
+      successMessage.value = 'Capabilities assigned successfully';
       await fetchActiveAssignments(); // Refresh the list
       resetForm();
-      
       // Auto-hide success message after 5 seconds
-      setTimeout(() => {
-        successMessage.value = '';
-      }, 5000);
-    } else {
-      errorMessage.value = data.error || "Failed to assign capabilities";
+      setTimeout(() => { successMessage.value = ''; }, 5000);
     }
   } catch (error) {
     console.error('Error assigning capabilities:', error);
@@ -550,80 +514,69 @@ async function removeAssignment(assignmentId) {
   }
 }
 
+async function deleteUser(userId) {
+  if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
+
+  try {
+    isLoading.value = true;
+    const token = localStorage.getItem('token');
+    if (!token) {
+      errorMessage.value = 'No authentication token found';
+      return;
+    }
+
+    const resp = await fetch(`${API_BASE}/users/${userId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (resp.ok) {
+      successMessage.value = 'User deleted successfully';
+      await fetchUsers();
+      await fetchActiveAssignments();
+      setTimeout(() => { successMessage.value = ''; }, 3000);
+    } else {
+      const d = await resp.json().catch(() => ({}));
+      errorMessage.value = d.message || d.error || 'Failed to delete user';
+    }
+  } catch (err) {
+    console.error('Error deleting user:', err);
+    errorMessage.value = 'Network error. Please try again.';
+  } finally {
+    isLoading.value = false;
+  }
+}
+
 function validateForm() {
   // Clear previous errors
   Object.keys(formErrors).forEach(key => delete formErrors[key]);
   
   let isValid = true;
 
-  if (!assignForm.value.selectedUser) {
+  if (!assignForm.selectedUser) {
     formErrors.selectedUser = "Please select a user";
     isValid = false;
   }
 
-  if (assignForm.value.capabilities.length === 0) {
+  if (assignForm.capabilities.length === 0) {
     formErrors.capabilities = "Please select at least one capability";
     isValid = false;
   }
 
-  if (!assignForm.value.reason.trim()) {
+  if (!assignForm.reason.trim()) {
     formErrors.reason = "Please provide a reason for assignment";
     isValid = false;
-  }
-
-  if (!assignForm.value.permissionLevel) {
-    formErrors.permissionLevel = "Please select a permission level";
-    isValid = false;
-  }
-
-  if (assignForm.value.duration === 'scheduled') {
-    if (!assignForm.value.startTime) {
-      formErrors.startTime = "Please provide a start time";
-      isValid = false;
-    }
-    if (!assignForm.value.endTime) {
-      formErrors.endTime = "Please provide an end time";
-      isValid = false;
-    }
-    
-    if (assignForm.value.startTime && assignForm.value.endTime) {
-      const start = new Date(assignForm.value.startTime);
-      const end = new Date(assignForm.value.endTime);
-      
-      if (end <= start) {
-        formErrors.endTime = "End time must be after start time";
-        isValid = false;
-      }
-      
-      if (start < new Date()) {
-        formErrors.startTime = "Start time cannot be in the past";
-        isValid = false;
-      }
-    }
   }
 
   return isValid;
 }
 
-function initializeForm() {
-  const now = new Date();
-  assignForm.value.startTime = now.toISOString().slice(0, 16);
-  const endTime = new Date(now.getTime() + 60 * 60 * 1000); // 1 hour from now
-  assignForm.value.endTime = endTime.toISOString().slice(0, 16);
-}
-
 function resetForm() {
-  assignForm.value = {
-    selectedUser: '',
-    capabilities: [],
-    duration: 'temporary',
-    startTime: '',
-    endTime: '',
-    reason: '',
-    permissionLevel: ''
-  };
-  initializeForm();
-  
+  assignForm.selectedUser = '';
+  assignForm.capabilities = [];
+  assignForm.reason = '';
   // Clear form errors
   Object.keys(formErrors).forEach(key => delete formErrors[key]);
 }
@@ -658,10 +611,36 @@ function formatCapabilities(capabilities) {
     'customer-return-refund': 'Customer Return/Refund',
     'creditors': 'Creditors',
     'drug-movement': 'Drug Movement',
-    'inventory-summary': 'Inventory Summary'
+    'inventory-summary': 'Inventory Summary',
+    'view-expenses': 'View Expenses'
   };
   
   return capabilities.map(cap => capabilityLabels[cap] || cap).join(', ');
+}
+
+function displayCapabilities(assignment) {
+  if (!assignment) return '';
+  const role = (assignment.role || '').toString().toLowerCase();
+  if (role.includes('admin') || role.includes('administrator')) return 'Full Access';
+  const caps = assignment.capabilities || [];
+  // If core admin-like capabilities present, show full access label
+  if (caps.includes('manage_users') && caps.includes('manage_items')) return 'Full Access';
+  return formatCapabilities(caps);
+}
+
+function isAdminAssignment(assignment) {
+  if (!assignment) return false;
+  const role = (assignment.role || '').toString().toLowerCase();
+  if (role.includes('admin') || role.includes('administrator')) return true;
+  const caps = assignment.capabilities || [];
+  if (caps.includes('manage_users') && caps.includes('manage_items')) return true;
+  return false;
+}
+
+function assignedLabel(assignment) {
+  // kept for backward compatibility but now simply return the stored role or 'N/A'
+  if (!assignment) return 'N/A';
+  return assignment.role || assignment.user_role || 'N/A';
 }
 
 function getStatusClass(status) {
@@ -682,8 +661,6 @@ function goBack() {
 }
 
 onMounted(() => {
-  initializeForm();
-
   // Fetch initial data
   fetchUsers();
   fetchActiveAssignments();
@@ -1222,10 +1199,6 @@ select.form-input {
   color: #9ca3af;
 }
 
-/* System preference for auto mode */
-.auto-theme {
-  /* System will handle via media query */
-}
 
 @media (prefers-color-scheme: dark) {
   .auto-theme .page-container {

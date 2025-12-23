@@ -11,15 +11,7 @@
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold">Login</h2>
 
-        <!-- Theme Toggle -->
-        <button
-          @click="toggleTheme"
-          class="p-2 rounded-full transition"
-          :class="isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'"
-        >
-          <span v-if="isDark">🌙</span>
-          <span v-else>☀️</span>
-        </button>
+        
       </div>
 
       <!-- Error Message -->

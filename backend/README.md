@@ -27,3 +27,14 @@ Implemented endpoints (initial)
 Notes
 - This scaffold uses MongoDB via Mongoose. For production use, provide a production MongoDB URI.
 - On first run the server will create a seeded admin account if one doesn't exist (email: admin@local, password: Admin123!).
+
+DB initialization
+ - A helper script is provided to create canonical capabilities and ensure model indexes.
+ - Run it after you start MongoDB (or as part of deployment):
+
+```powershell
+cd backend
+node src/utils/initDb.js
+```
+
+This will create capabilities such as `manage_users`, `assign_capabilities`, `items:create`, and more in the `capabilities` collection and ensure indexes exist.

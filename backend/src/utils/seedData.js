@@ -35,7 +35,7 @@ async function seed() {
     console.log(`Created ${createdItems.length} items`);
 
     // Sample sales
-    const sale1 = new Sale({ items: [{ item: createdItems[0]._id, qty: 2, price: createdItems[0].price }], total: 2 * createdItems[0].price, createdBy: admin._id });
+    const sale1 = new Sale({ items: [{ item: createdItems[0]._id, name: createdItems[0].name, qty: 2, price: createdItems[0].price }], total: 2 * createdItems[0].price, createdBy: admin._id });
     await sale1.save();
 
     // Sample creditors

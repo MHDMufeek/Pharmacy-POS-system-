@@ -60,26 +60,32 @@
           v-show="openMenu === index && sidebarOpen"
           class="ml-6 mt-2 space-y-1 animate-fade-in"
         >
-          <router-link
-            v-for="(sub, i) in menu.items"
-            :key="i"
-            :to="getRoutePath(menu.title, sub)"
-            custom
-            v-slot="{ navigate, isActive }"
-          >
-            <button
-              :class="[
-                'w-full text-left px-4 py-2 rounded-lg text-sm transition-all duration-200 flex items-center gap-2 group',
-                isActive 
-                  ? 'bg-blue-500/20 text-blue-300 border-l-2 border-blue-400' 
-                  : 'text-slate-400 hover:text-white hover:bg-slate-700/30'
-              ]"
-              @click="navigate"
+          <div v-for="(sub, i) in menu.items" :key="i">
+            <router-link
+              v-if="canAccess(menu.title, sub)"
+              :to="getRoutePath(menu.title, sub)"
+              custom
+              v-slot="{ navigate, isActive }"
             >
-              <span class="w-1 h-1 bg-current rounded-full opacity-60 group-hover:opacity-100"></span>
-              {{ sub }}
-            </button>
-          </router-link>
+              <button
+                :class="[
+                  'w-full text-left px-4 py-2 rounded-lg text-sm transition-all duration-200 flex items-center gap-2 group',
+                  isActive 
+                    ? 'bg-blue-500/20 text-blue-300 border-l-2 border-blue-400' 
+                    : 'text-slate-400 hover:text-white hover:bg-slate-700/30'
+                ]"
+                @click="navigate"
+              >
+                <span class="w-1 h-1 bg-current rounded-full opacity-60 group-hover:opacity-100"></span>
+                {{ sub }}
+              </button>
+            </router-link>
+
+            <div v-else class="w-full text-left px-4 py-2 rounded-lg text-sm flex items-center gap-2 text-slate-500 opacity-70 cursor-not-allowed" title="Access restricted">
+              <span class="material-icons-round text-sm">lock</span>
+              <span v-show="sidebarOpen">{{ sub }}</span>
+            </div>
+          </div>
         </div>
       </div>
     </nav>
@@ -182,6 +188,46 @@ function getRoutePath(menuTitle, subItem) {
   };
   
   return routeMap[menuTitle]?.[subItem] || '/';
+}
+
+function canAccess(menuTitle, subItem) {
+  try {
+    const path = getRoutePath(menuTitle, subItem);
+    const resolved = router.resolve(path);
+    const routeName = resolved && resolved.name ? resolved.name : null;
+    if (!routeName) return true;
+
+    // Capability requirements (keep in sync with router capabilityMap)
+    const capabilityMap = {
+      ChangePassword: null,
+      CreateUserAccount: null,
+      AssignCapability: null,
+      ItemSales: 'item-sales',
+      ItemDetails: 'item-details',
+      StockUpdate: 'stock-update',
+      SupplierDetails: 'supplier-details',
+      SupplierInvoice: 'supply-invoice',
+      CustomerReturnRefund: 'customer-return-refund',
+      Creditors: 'creditors',
+      DrugMovement: 'drug-movement',
+      InventorySummary: 'inventory-summary',
+      ViewExpenses: 'view-expenses'
+    };
+
+    const required = capabilityMap[routeName];
+    const raw = localStorage.getItem('user');
+    if (!raw) return false;
+    const me = JSON.parse(raw);
+    const role = (me.role || '').toString().toLowerCase();
+    const caps = me.capabilities || [];
+
+    if (role.includes('admin')) return true;
+    if (required === undefined) return true; // no restriction
+    if (required === null) return false; // admin only
+    return caps.includes(required);
+  } catch (e) {
+    return false;
+  }
 }
 </script>
 
