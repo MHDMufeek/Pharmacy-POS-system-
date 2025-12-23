@@ -410,6 +410,14 @@
                   <option value="">Select Supplier</option>
                   <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">{{ supplier.name }}</option>
                 </select>
+                <div v-if="supplierDetails" class="mt-2 p-3 bg-white border rounded text-sm text-gray-700">
+                  <div class="font-semibold mb-1">Supplier Details</div>
+                  <div class="text-xs">Name: {{ supplierDetails.name }}</div>
+                  <div class="text-xs">Contact: {{ supplierDetails.contactPerson || '-' }}</div>
+                  <div class="text-xs">Email: {{ supplierDetails.email || '-' }}</div>
+                  <div class="text-xs">Phone: {{ supplierDetails.phone || '-' }}</div>
+                  <div class="text-xs">Address: {{ supplierDetails.address || '-' }}</div>
+                </div>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Invoice Date *</label>
@@ -742,6 +750,10 @@
   
   <script setup>
   import { ref, computed, onMounted } from 'vue'
+  import axios from 'axios'
+
+  const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api'
+  const token = localStorage.getItem('token')
   
   const searchQuery = ref('')
   const showInvoiceModal = ref(false)
@@ -787,7 +799,7 @@
     notes: ''
   })
   
-  // Enhanced sample data
+  // Sample fallback; will try to replace by fetching from backend
   const suppliers = ref([
     { 
       id: 'SUP001', 
@@ -826,6 +838,30 @@
       country: 'USA'
     }
   ])
+
+  // Try to load suppliers from backend (overrides sample data if successful)
+  async function fetchSuppliers() {
+    try {
+      const res = await axios.get(`${API_BASE}/suppliers`, { headers: { Authorization: `Bearer ${token}` } })
+      if (res.data && Array.isArray(res.data.data) && res.data.data.length > 0) {
+        // map backend suppliers to expected shape (use _id as id)
+        suppliers.value = res.data.data.map(s => ({
+          id: s._id || s.id,
+          name: s.name,
+          contactPerson: s.contactName || s.contactPerson || '',
+          email: s.email || '',
+          phone: s.phone || '',
+          address: s.address || '',
+          city: s.city || '',
+          state: s.state || '',
+          zipCode: s.zipCode || s.postalCode || '',
+          country: s.country || ''
+        }))
+      }
+    } catch (err) {
+      console.warn('Could not fetch suppliers, using sample data', err)
+    }
+  }
   
   const invoices = ref([
     
@@ -833,6 +869,22 @@
   
   onMounted(() => {
     loadInvoices()
+    fetchSuppliers()
+  })
+
+  // computed supplier details for the selected supplier in invoice modal
+  const supplierDetails = computed(() => {
+    const id = currentInvoice.value.supplierId
+    if (!id) return null
+    const s = suppliers.value.find(x => x.id === id)
+    if (!s) return null
+    return {
+      name: s.name,
+      contactPerson: s.contactPerson || '',
+      email: s.email || '',
+      phone: s.phone || '',
+      address: [s.address, s.city, s.state, s.zipCode, s.country].filter(Boolean).join(', ')
+    }
   })
   
   const filteredInvoices = computed(() => {
@@ -1141,8 +1193,17 @@
         invoices.value[index] = { ...currentInvoice.value }
       }
     } else {
-      // Add new invoice
-      invoices.value.push({ ...currentInvoice.value })
+      // Add new invoice - include supplier details snapshot
+      const sd = supplierDetails || null
+      const invoiceToSave = {
+        ...currentInvoice.value,
+        supplierName: sd ? sd.name : getSupplierName(currentInvoice.value.supplierId),
+        supplierContact: sd ? sd.contactPerson : '',
+        supplierEmail: sd ? sd.email : '',
+        supplierPhone: sd ? sd.phone : '',
+        supplierAddress: sd ? sd.address : ''
+      }
+      invoices.value.push(invoiceToSave)
     }
   
     showInvoiceModal.value = false

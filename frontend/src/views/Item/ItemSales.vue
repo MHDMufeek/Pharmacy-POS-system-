@@ -248,13 +248,7 @@
               v-model="selectedSupplier" 
               class="border rounded px-2 py-1 text-sm text-gray-700"
             >
-              <option 
-                v-for="supplier in suppliers" 
-                :key="supplier" 
-                :value="supplier"
-              >
-                {{ supplier }}
-              </option>
+              <option v-for="c in creditors" :key="c._id" :value="c.name">{{ c.name }}</option>
             </select>
           </div>
           <div class="bg-yellow-50 border border-yellow-200 rounded p-3">
@@ -338,6 +332,7 @@ const cart = ref([])
 const selectedPaymentMethod = ref('cash')
 const amountPaid = ref(0)
 const selectedSupplier = ref('HealthCorp')
+const creditors = ref([])
 
 // Fetch items from backend
 const fetchItems = async () => {
@@ -359,10 +354,29 @@ const fetchItems = async () => {
 // Load items on component mount
 onMounted(() => {
   fetchItems()
+  fetchCreditors()
 })
 
-// Suppliers list
-const suppliers = computed(() => [...new Set(items.value.map(i => i.supplier))])
+// Fetch creditors from backend so the credit selector shows all creditors
+async function fetchCreditors() {
+  try {
+    const res = await axios.get(`${API_BASE}/creditors`, { headers: { Authorization: `Bearer ${token}` } })
+    creditors.value = (res.data && res.data.data) || []
+    if (!selectedSupplier.value && creditors.value.length > 0) selectedSupplier.value = creditors.value[0].name
+  } catch (err) {
+    console.error('Failed to load creditors:', err)
+  }
+}
+
+// Suppliers list (ensure selected supplier is included so the credit selector shows)
+const suppliers = computed(() => {
+  const list = items.value.map(i => i.supplier).filter(Boolean)
+  const uniq = [...new Set(list)]
+  if (selectedSupplier.value && !uniq.includes(selectedSupplier.value)) {
+    uniq.unshift(selectedSupplier.value)
+  }
+  return uniq
+})
 
 // Categories
 const categories = computed(() => [...new Set(items.value.map(i => i.category))])
@@ -384,9 +398,14 @@ const filteredItems = computed(() => {
 
 // Add to cart
 function addToCart(item) {
-  const existing = cart.value.find(c => c.id === item.id)
-  if (existing) existing.qty += 1
-  else cart.value.push({ ...item, qty: 1 })
+  const itemId = item._id || item.id
+  const existing = cart.value.find(c => c.id === itemId)
+  if (existing) {
+    existing.qty += 1
+  } else {
+    const cartItem = { ...item, qty: 1, id: itemId }
+    cart.value.push(cartItem)
+  }
 }
 
 // Update quantity
@@ -431,6 +450,34 @@ async function processPayment() {
     const response = await axios.post(`${API_BASE}/sales`, saleData, {
       headers: { Authorization: `Bearer ${token}` }
     })
+
+    // If credit sale, ensure creditor record is created/updated
+    if (selectedPaymentMethod.value === 'credit') {
+      try {
+        const creditorName = selectedSupplier.value
+        // Search for existing creditor by name
+        const searchRes = await axios.get(`${API_BASE}/creditors?q=${encodeURIComponent(creditorName)}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        const matches = (searchRes.data && searchRes.data.data) || []
+        const exact = matches.find(m => m.name === creditorName)
+        const saleId = response.data && response.data._id
+        const historyEntry = { amount: totalAmount.value, status: 'Pending', reference: saleId }
+
+        if (exact) {
+          const updated = {
+            amount: (exact.amount || 0) + totalAmount.value,
+            history: Array.isArray(exact.history) ? [...exact.history, historyEntry] : [historyEntry]
+          }
+          await axios.put(`${API_BASE}/creditors/${exact._id}`, updated, { headers: { Authorization: `Bearer ${token}` } })
+        } else {
+          const payload = { name: creditorName, amount: totalAmount.value, history: [historyEntry] }
+          await axios.post(`${API_BASE}/creditors`, payload, { headers: { Authorization: `Bearer ${token}` } })
+        }
+      } catch (err) {
+        console.error('Failed to create/update creditor:', err)
+      }
+    }
 
     alert(`Payment processed via ${selectedPaymentMethod.value.toUpperCase()}! Total: Rs. ${totalAmount.value}`)
     
