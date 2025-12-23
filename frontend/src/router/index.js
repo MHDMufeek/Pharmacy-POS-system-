@@ -169,6 +169,42 @@ router.beforeEach(async (to, from) => {
       if (data && data.user) {
         // keep a fresh copy of the user
         localStorage.setItem('user', JSON.stringify(data.user));
+
+        // Capability map: route name -> required capability (null = admin-only)
+        const capabilityMap = {
+          ChangePassword: null,
+          CreateUserAccount: null,
+          AssignCapability: null,
+          ItemSales: 'item-sales',
+          ItemDetails: 'item-details',
+          StockUpdate: 'stock-update',
+          SupplierDetails: 'supplier-details',
+          SupplierInvoice: 'supply-invoice',
+          CustomerReturnRefund: 'customer-return-refund',
+          Creditors: 'creditors',
+          DrugMovement: 'drug-movement',
+          InventorySummary: 'inventory-summary',
+          ViewExpenses: 'view-expenses'
+        };
+
+        // If route requires capability, enforce it
+        const required = capabilityMap[to.name];
+        if (required !== undefined) {
+          const user = data.user;
+          const role = (user.role || '').toString().toLowerCase();
+          const caps = user.capabilities || [];
+
+          // admin role bypasses capability checks
+          if (role.includes('admin')) return true;
+
+          // admin-only pages
+          if (required === null) {
+            return { name: 'NoAccess' };
+          }
+
+          if (!caps.includes(required)) return { name: 'NoAccess' };
+        }
+
         return true;
       }
     }

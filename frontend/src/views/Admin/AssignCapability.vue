@@ -173,6 +173,25 @@
             </div>
           </div>
 
+          <!-- Expenses Module -->
+          <div class="capability-module">
+            <label class="module-header">
+              <span>Expenses Module</span>
+            </label>
+            <div class="space-y-2 mt-2">
+              <label class="capability-item">
+                <input
+                  type="checkbox"
+                  v-model="assignForm.capabilities"
+                  value="view-expenses"
+                  class="checkbox-input"
+                  :disabled="isLoading"
+                />
+                <span>View Expenses</span>
+              </label>
+            </div>
+          </div>
+
         </div>
       </div>
       
@@ -414,6 +433,24 @@ async function assignCapabilities() {
         if (!resp.ok) {
           failures.push(respData.message || respData.error || `Failed to assign ${cap}`);
         }
+        else {
+          // If we're assigning to the currently logged-in user, update stored user object
+          try {
+            const raw = localStorage.getItem('user');
+            if (raw && respData.user && (respData.user.id || respData.user._id)) {
+              const me = JSON.parse(raw);
+              const currentId = me.id || me._id;
+              const updatedId = respData.user.id || respData.user._id || String(assignForm.selectedUser);
+              if (String(currentId) === String(updatedId)) {
+                // merge capabilities
+                me.capabilities = Array.from(new Set([...(me.capabilities || []), ...(respData.user.capabilities || [])]));
+                localStorage.setItem('user', JSON.stringify(me));
+              }
+            }
+          } catch (e) {
+            // ignore localStorage merge errors
+          }
+        }
       } catch (err) {
         console.error('Error assigning capability:', err);
         failures.push(`Network error assigning ${cap}`);
@@ -574,7 +611,8 @@ function formatCapabilities(capabilities) {
     'customer-return-refund': 'Customer Return/Refund',
     'creditors': 'Creditors',
     'drug-movement': 'Drug Movement',
-    'inventory-summary': 'Inventory Summary'
+    'inventory-summary': 'Inventory Summary',
+    'view-expenses': 'View Expenses'
   };
   
   return capabilities.map(cap => capabilityLabels[cap] || cap).join(', ');
