@@ -3,13 +3,6 @@
       <!-- Header -->
       <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-blue-900">Supplier Details</h1>
-        <button 
-          @click="$emit('go-back')" 
-          class="flex items-center text-blue-600 hover:text-blue-800"
-        >
-          <span class="material-icons mr-1">arrow_back</span>
-          
-        </button>
       </div>
   
       <!-- Action Buttons -->
@@ -19,25 +12,47 @@
             <span class="material-icons text-sm mr-1">add</span>
             Add Supplier
           </button>
-          <button class="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center">
-            <span class="material-icons text-sm mr-1">file_download</span>
-            Download
-          </button>
         </div>
         <div class="flex gap-2">
           <div class="flex items-center bg-gray-100 rounded-lg px-3 py-2">
-            <span class="material-icons text-gray-400 mr-2">search</span>
+            <span
+              class="material-icons text-gray-600 mr-2 cursor-pointer"
+              role="button"
+              tabindex="0"
+              @click="focusSearch"
+              @keydown.enter.prevent="focusSearch"
+              @keydown.space.prevent="focusSearch"
+            >search</span>
             <input
+              ref="searchRef"
               type="text"
               placeholder="Search suppliers..."
-              class="bg-transparent outline-none w-full text-sm"
+              class="bg-transparent outline-none w-full text-sm text-gray-700 placeholder-gray-500"
               v-model="searchQuery"
             />
+            <button v-if="searchQuery" @click="clearSearch" class="ml-2 text-gray-500 hover:text-gray-700" title="Clear search">
+              <span class="material-icons text-sm">close</span>
+            </button>
           </div>
-          <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center">
-            <span class="material-icons text-sm mr-1">filter_list</span>
-            
-          </button>
+          <div class="relative">
+            <button id="supplier-filter-btn" @click="toggleFilter" @keydown.enter.prevent="toggleFilter" @keydown.space.prevent="toggleFilter" :aria-expanded="filterOpen" aria-haspopup="true" type="button" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center">
+              <span class="material-icons text-sm mr-1">filter_list</span>
+              <span class="sr-only">Open filter menu</span>
+            </button>
+
+            <div v-if="filterOpen" id="supplier-filter-dropdown" @click.stop class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow border p-3 z-50">
+              <label class="text-xs text-gray-500 mb-1 block">Status</label>
+              <select v-model="statusFilter" class="w-full rounded px-2 py-1 border text-sm">
+                <option value="">All</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+              <div class="mt-3 flex justify-end gap-2">
+                <button @click="clearFilter" class="px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200">Clear</button>
+                <button @click="applyFilter" class="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">Apply</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
   
@@ -67,16 +82,11 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            <tr v-for="supplier in filteredSuppliers" :key="supplier.id">
+            <tr v-for="supplier in paginatedSuppliers" :key="supplier.id">
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center">
-                  <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <span class="material-icons text-blue-600"></span>
-                  </div>
-                  <div class="ml-4">
-                    <div class="text-sm font-medium text-gray-900">{{ supplier.name }}</div>
-                    <div class="text-sm text-gray-500">ID: {{ supplier.id }}</div>
-                  </div>
+                <div>
+                  <div class="text-sm font-medium text-gray-900">{{ supplier.name }}</div>
+                  <div class="text-sm text-gray-500">ID: {{ supplier.id }}</div>
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
@@ -100,9 +110,9 @@
                 <button class="text-blue-600 hover:text-blue-900 mr-3" @click="editSupplier(supplier)">
                   <span class="material-icons">edit</span>
                 </button>
-                <button type="button" class="password-toggle" @click="showPassword = !showPassword">
-  <span class="text-lg">{{ showPassword ? '🙈' : '👁️' }}</span>
-</button>
+                <button class="text-gray-600 hover:text-gray-900 mr-3" @click="viewSupplier(supplier)" title="View details">
+                  <span class="material-icons">visibility</span>
+                </button>
                 <button class="text-red-600 hover:text-red-900" @click="deleteSupplier(supplier)">
                   <span class="material-icons">delete</span>
                 </button>
@@ -112,7 +122,7 @@
         </table>
         
         <!-- Empty State -->
-        <div v-if="filteredSuppliers.length === 0" class="text-center py-12">
+        <div v-if="totalSuppliers === 0" class="text-center py-12">
           <span class="material-icons text-gray-300 text-6xl">business</span>
           <p class="mt-4 text-gray-500">No suppliers found</p>
           <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg" @click="showAddSupplierModal">
@@ -121,27 +131,25 @@
         </div>
         
         <!-- Pagination -->
-        <div v-if="filteredSuppliers.length > 0" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+        <div v-if="totalSuppliers > 0" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
           <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
               <p class="text-sm text-gray-700">
-                Showing <span class="font-medium">1</span> to <span class="font-medium">{{ filteredSuppliers.length }}</span> of
-                <span class="font-medium">{{ filteredSuppliers.length }}</span> results
+                Showing <span class="font-medium">{{ displayedFrom }}</span> to <span class="font-medium">{{ displayedTo }}</span> of
+                <span class="font-medium">{{ totalSuppliers }}</span> results
               </p>
             </div>
             <div>
               <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <button @click.prevent="changePage(currentPage - 1)" :disabled="currentPage === 1" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                   <span class="sr-only">previous</span>
                     <span class="material-icons">chevron_left</span>
-                </a>
-                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600 hover:bg-blue-100">1</a>
-                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">2</a>
-                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">3</a>
-                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                </button>
+                <button v-for="p in pageNumbers" :key="p" @click.prevent="changePage(p)" :class="['relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium', p === currentPage ? 'bg-blue-50 text-blue-600' : 'bg-white text-gray-500 hover:bg-gray-50']">{{ p }}</button>
+                <button @click.prevent="changePage(currentPage + 1)" :disabled="currentPage === totalPages" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                   <span class="sr-only">next</span>
                     <span class="material-icons">chevron_right</span> 
-                </a>
+                </button>
               </nav>
             </div>
           </div>
@@ -149,12 +157,120 @@
       </div>
   
       <!-- Add/Edit Supplier Modal -->
-      <div v-if="showSupplierModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl">
-          <div class="px-6 py-4 border-b">
-            <h3 class="text-lg font-semibold text-gray-900">{{ isEditing ? 'Edit' : 'Add' }} Supplier</h3>
+      <div v-if="showSupplierModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[80vh] flex flex-col overflow-hidden">
+          <div class="sticky top-0 bg-white z-10 flex items-center justify-between p-6 border-b">
+            <div>
+              <h2 class="text-xl font-bold text-gray-900">Supplier Details</h2>
+              <p class="text-sm text-gray-600 mt-1">{{ currentSupplier.name }} — {{ currentSupplier.contactPerson || '' }}</p>
+              <p class="text-xs text-gray-500 mt-1">{{ currentSupplier.phone }} · {{ currentSupplier.email }}</p>
+            </div>
+            <button @click="closeModal" class="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg">
+              <span class="material-icons">close</span>
+            </button>
           </div>
-          <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+          <div v-if="isViewing" class="px-6 py-6 overflow-auto flex-grow">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div class="bg-blue-50 p-4 rounded-lg">
+                <div class="flex items-center">
+                  <div class="bg-blue-100 p-2 rounded-lg mr-3">
+                    <span class="material-icons text-blue-600">trending_up</span>
+                  </div>
+                  <div>
+                    <p class="text-gray-500 text-xs">Total Products</p>
+                    <p class="text-lg font-bold text-blue-600">{{ currentSupplier.productCount || 0 }} items</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-green-50 p-4 rounded-lg">
+                <div class="flex items-center">
+                  <div class="bg-green-100 p-2 rounded-lg mr-3">
+                    <span class="material-icons text-green-600">check_circle</span>
+                  </div>
+                  <div>
+                    <p class="text-gray-500 text-xs">Status</p>
+                    <p class="text-lg font-bold text-green-600">{{ currentSupplier.status || 'Active' }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <div class="flex items-center">
+                  <div class="bg-gray-100 p-2 rounded-lg mr-3">
+                    <span class="material-icons text-gray-600">history</span>
+                  </div>
+                  <div>
+                    <p class="text-gray-500 text-xs">Last Order</p>
+                    <p class="text-lg font-bold text-gray-900">{{ formatDate(currentSupplier.lastOrder) }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+              <h3 class="text-sm font-semibold text-gray-700 mb-2">Details</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p class="text-xs text-gray-500">Contact Person</p>
+                  <p class="text-sm text-gray-900">{{ currentSupplier.contactPerson || '-' }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">Phone</p>
+                  <p class="text-sm text-gray-900">{{ currentSupplier.phone || '-' }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">Email</p>
+                  <p class="text-sm text-gray-900">{{ currentSupplier.email || '-' }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">Address</p>
+                  <p class="text-sm text-gray-900 whitespace-pre-line">{{ currentSupplier.address || '-' }}</p>
+                </div>
+                <div class="md:col-span-2">
+                  <p class="text-xs text-gray-500">Notes</p>
+                  <p class="text-sm text-gray-900 whitespace-pre-line">{{ currentSupplier.notes || '-' }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Activity Table (stock-update style) -->
+            <div class="mt-6">
+              <h3 class="text-sm font-semibold text-gray-700 mb-2">Recent Activity</h3>
+              <div class="overflow-auto max-h-48 bg-white rounded-lg p-4">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50 sticky top-0">
+                    <tr>
+                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reference</th>
+                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performed By</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    <tr v-for="(act, idx) in supplierActivity" :key="idx">
+                      <td class="px-4 py-2 text-sm text-gray-900">{{ formatDate(act.date) }}</td>
+                      <td class="px-4 py-2 text-sm text-gray-900">{{ act.type }}</td>
+                      <td class="px-4 py-2 text-sm text-gray-900">{{ act.ref || '-' }}</td>
+                      <td class="px-4 py-2 text-sm text-gray-900">{{ act.amount !== undefined ? act.amount : '-' }}</td>
+                      <td class="px-4 py-2 text-sm text-gray-900">{{ act.performedBy || '-' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <div v-if="supplierActivity.length === 0" class="text-center py-6">
+                  <div class="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                    <span class="material-icons text-gray-400">history</span>
+                  </div>
+                  <h3 class="text-md font-medium text-gray-900 mb-1">No recent supplier activity available</h3>
+                  <p class="text-gray-500 text-sm">There are no invoices or stock notes recorded for this supplier yet.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div v-else class="px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-4 overflow-auto flex-grow">
             <div class="col-span-2">
               <label class="block text-sm font-medium text-gray-700 mb-1">Supplier Name *</label>
               <input 
@@ -217,9 +333,9 @@
               ></textarea>
             </div>
           </div>
-          <div class="px-6 py-4 border-t flex justify-end gap-3">
-            <button @click="showSupplierModal = false" class="px-4 py-2 text-gray-700 bg-blue-200 rounded-lg">Cancel</button>
-            <button @click="saveSupplier" class="px-4 py-2 text-white bg-blue-600 rounded-lg">{{ isEditing ? 'Update' : 'Save' }}</button>
+          <div class="bg-gray-50 px-6 py-4 border-t flex justify-end gap-3 sticky bottom-0 z-20">
+            <button @click="closeModal" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Close</button>
+            <button v-if="!isViewing" @click="saveSupplier" class="px-4 py-2 text-white bg-blue-600 rounded-lg">{{ isEditing ? 'Update' : 'Save' }}</button>
           </div>
         </div>
       </div>
@@ -227,11 +343,27 @@
   </template>
   
   <script setup>
-  import { ref, computed, onMounted } from 'vue'
+  import { ref, computed, onMounted, onUnmounted, watch } from 'vue' 
+
+  const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api';
   
   const searchQuery = ref('')
+  const searchRef = ref(null)
+  const filterOpen = ref(false)
+  const statusFilter = ref('')
+
+  function focusSearch() { if (searchRef.value) searchRef.value.focus() }
+  function clearSearch() { searchQuery.value = '' }
+  function toggleFilter() { filterOpen.value = !filterOpen.value }
+  function closeFilter() { filterOpen.value = false }
+  function applyFilter() { filterOpen.value = false }
+  function clearFilter() { statusFilter.value = ''; filterOpen.value = false }
+
   const showSupplierModal = ref(false)
   const isEditing = ref(false)
+  const isViewing = ref(false)
+  const currentPage = ref(1)
+  const pageSize = ref(10)
   const currentSupplier = ref({
     id: '',
     name: '',
@@ -245,43 +377,127 @@
     notes: ''
   })
   
-  // Sample data - in a real application, this would come from an API
-  const suppliers = ref([
-    { id: 'SUP001', name: 'Pharma Distributors Inc.', contactPerson: 'John Smith', phone: '+1 (555) 123-4567', email: 'john@pharmadist.com', address: '123 Medical Blvd, Health City', status: 'Active', productCount: 45, lastOrder: '2023-10-20', notes: 'Primary supplier for antibiotics' },
-    { id: 'SUP002', name: 'MediSupply Co.', contactPerson: 'Sarah Johnson', phone: '+1 (555) 987-6543', email: 'sarah@medisupply.com', address: '456 Healthcare Ave, Medtown', status: 'Active', productCount: 32, lastOrder: '2023-10-18', notes: 'Specializes in surgical supplies' },
-    { id: 'SUP003', name: 'Global Pharma Ltd.', contactPerson: 'Mike Chen', phone: '+1 (555) 456-7890', email: 'mike@globalpharma.com', address: '789 Drug Street, Pharmaville', status: 'Active', productCount: 67, lastOrder: '2023-10-15', notes: 'International supplier with wide range' },
-    { id: 'SUP004', name: 'First Aid Supplies Corp.', contactPerson: 'Emily Davis', phone: '+1 (555) 234-5678', email: 'emily@firstaid.com', address: '321 Emergency Rd, Safety City', status: 'Inactive', productCount: 28, lastOrder: '2023-09-05', notes: 'Temporarily suspended due to quality issues' },
-    { id: 'SUP005', name: 'Lab Equipment Specialists', contactPerson: 'David Wilson', phone: '+1 (555) 876-5432', email: 'david@labspecialists.com', address: '654 Laboratory Lane, Sciencetown', status: 'Active', productCount: 19, lastOrder: '2023-10-22', notes: 'Specialized lab equipment only' }
-  ])
+  // Suppliers loaded from backend
+  const suppliers = ref([])
+  const supplierActivity = ref([])
+  const isLoading = ref(false)
   
+  function handleDocumentClick(e) {
+    const btn = document.getElementById('supplier-filter-btn')
+    const dropdown = document.getElementById('supplier-filter-dropdown')
+    if (!filterOpen.value) return
+    if (btn && btn.contains(e.target)) return
+    if (dropdown && dropdown.contains(e.target)) return
+    filterOpen.value = false
+  }
+
+  function handleKeydown(e) {
+    if (e.key === 'Escape' && filterOpen.value) closeFilter()
+  }
+
   onMounted(() => {
     loadSuppliers()
+    document.addEventListener('click', handleDocumentClick)
+    document.addEventListener('keydown', handleKeydown)
+  })
+
+  onUnmounted(() => {
+    document.removeEventListener('click', handleDocumentClick)
+    document.removeEventListener('keydown', handleKeydown)
   })
   
-  const filteredSuppliers = computed(() => {
-    if (!searchQuery.value) return suppliers.value
-    const query = searchQuery.value.toLowerCase()
-    return suppliers.value.filter(supplier => 
-      supplier.name.toLowerCase().includes(query) || 
-      supplier.contactPerson.toLowerCase().includes(query) ||
-      supplier.email.toLowerCase().includes(query) ||
-      supplier.phone.includes(query)
-    )
+  const filteredSuppliersBase = computed(() => {
+    let list = suppliers.value
+    if (searchQuery.value) {
+      const query = searchQuery.value.toLowerCase()
+      list = list.filter(supplier => 
+        supplier.name.toLowerCase().includes(query) || 
+        supplier.contactPerson.toLowerCase().includes(query) ||
+        supplier.email.toLowerCase().includes(query) ||
+        supplier.phone.includes(query)
+      )
+    }
+
+    if (statusFilter.value) {
+      list = list.filter(supplier => supplier.status === statusFilter.value)
+    }
+
+    return list
   })
+
+  const totalSuppliers = computed(() => filteredSuppliersBase.value.length)
+  const totalPages = computed(() => Math.max(1, Math.ceil(totalSuppliers.value / pageSize.value)))
+  const pageNumbers = computed(() => Array.from({ length: totalPages.value }, (_, i) => i + 1))
+
+  // Reset to first page when searching
+  watch(searchQuery, () => {
+    currentPage.value = 1
+  })
+
+  // Reset to first page when filter changes
+  watch(statusFilter, () => {
+    currentPage.value = 1
+  })
+
+  // Keep current page within bounds when total changes
+  watch(totalSuppliers, () => {
+    if (currentPage.value > totalPages.value) currentPage.value = totalPages.value
+  })
+
+  const paginatedSuppliers = computed(() => {
+    const start = (currentPage.value - 1) * pageSize.value
+    return filteredSuppliersBase.value.slice(start, start + pageSize.value)
+  })
+
+  const displayedFrom = computed(() => totalSuppliers.value === 0 ? 0 : (currentPage.value - 1) * pageSize.value + 1)
+  const displayedTo = computed(() => Math.min(currentPage.value * pageSize.value, totalSuppliers.value))
+
+  function changePage(n) {
+    if (n < 1 || n > totalPages.value) return
+    currentPage.value = n
+  }
   
-  function loadSuppliers() {
-    // In a real application, this would fetch data from an API
-    console.log('Loading suppliers...')
+  async function loadSuppliers() {
+    isLoading.value = true
+    try {
+      const token = localStorage.getItem('token')
+      const res = await fetch(`${API_BASE}/suppliers?page=1&limit=100`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+      if (!res.ok) throw new Error('Failed to load suppliers')
+      const json = await res.json()
+      suppliers.value = (json.data || []).map(s => ({
+        id: s._id,
+        name: s.name,
+        contactPerson: s.contactName || '',
+        phone: s.phone || '',
+        email: s.email || '',
+        address: s.address || '',
+        status: s.status || 'Active',
+        productCount: s.productCount || 0,
+        lastOrder: s.lastOrder || '',
+        notes: s.notes || ''
+      }))
+    } catch (err) {
+      console.error(err)
+      alert(err.message || 'Error loading suppliers')
+    } finally {
+      isLoading.value = false
+    }
   }
   
   function formatDate(dateString) {
-    return new Date(dateString).toLocaleDateString()
+    if (!dateString) return '-'
+    try {
+      return new Date(dateString).toLocaleDateString()
+    } catch {
+      return dateString
+    }
   }
   
   function showAddSupplierModal() {
     isEditing.value = false
+    isViewing.value = false
     currentSupplier.value = {
-      id: 'SUP' + String(suppliers.value.length + 1).padStart(3, '0'),
+      id: '',
       name: '',
       contactPerson: '',
       phone: '',
@@ -292,6 +508,7 @@
       lastOrder: new Date().toISOString().split('T')[0],
       notes: ''
     }
+    supplierActivity.value = []
     showSupplierModal.value = true
   }
   
@@ -302,36 +519,111 @@
   }
   
   function viewSupplier(supplier) {
-    alert(`Viewing details for: ${supplier.name}`)
-    // In a real application, this would navigate to a detailed view
+    isViewing.value = true
+    isEditing.value = false
+    currentSupplier.value = { ...supplier }
+    supplierActivity.value = supplier.activity || []
+    showSupplierModal.value = true
   }
   
-  function deleteSupplier(supplier) {
-    if (confirm(`Are you sure you want to delete ${supplier.name}?`)) {
+  function closeModal() {
+    showSupplierModal.value = false
+    isEditing.value = false
+    isViewing.value = false
+    supplierActivity.value = []
+  }
+
+  async function deleteSupplier(supplier) {
+    if (!confirm(`Are you sure you want to delete ${supplier.name}?`)) return
+    try {
+      const token = localStorage.getItem('token')
+      const res = await fetch(`${API_BASE}/suppliers/${supplier.id}`, { method: 'DELETE', headers: token ? { Authorization: `Bearer ${token}` } : {} })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: res.statusText }))
+        throw new Error(err.message || 'Failed to delete supplier')
+      }
       suppliers.value = suppliers.value.filter(s => s.id !== supplier.id)
       alert('Supplier deleted successfully')
+    } catch (err) {
+      console.error(err)
+      alert(err.message || 'Error deleting supplier')
     }
   }
   
-  function saveSupplier() {
+  async function saveSupplier() {
     if (!currentSupplier.value.name || !currentSupplier.value.contactPerson || !currentSupplier.value.phone) {
       alert('Please fill in all required fields')
       return
     }
-  
-    if (isEditing.value) {
-      // Update existing supplier
-      const index = suppliers.value.findIndex(s => s.id === currentSupplier.value.id)
-      if (index !== -1) {
-        suppliers.value[index] = { ...currentSupplier.value }
+
+    try {
+      const token = localStorage.getItem('token')
+      const body = {
+        name: currentSupplier.value.name,
+        contactName: currentSupplier.value.contactPerson,
+        email: currentSupplier.value.email,
+        phone: currentSupplier.value.phone,
+        address: currentSupplier.value.address,
+        notes: currentSupplier.value.notes,
+        status: currentSupplier.value.status
       }
-    } else {
-      // Add new supplier
-      suppliers.value.push({ ...currentSupplier.value })
+
+      if (isEditing.value && currentSupplier.value.id) {
+        const res = await fetch(`${API_BASE}/suppliers/${currentSupplier.value.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+          body: JSON.stringify(body)
+        })
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ message: res.statusText }))
+          throw new Error(err.message || 'Failed to update supplier')
+        }
+        const updated = await res.json()
+        const mapped = {
+          id: updated._id,
+          name: updated.name,
+          contactPerson: updated.contactName || '',
+          phone: updated.phone || '',
+          email: updated.email || '',
+          address: updated.address || '',
+          status: updated.status || currentSupplier.value.status || 'Active',
+          productCount: updated.productCount || 0,
+          lastOrder: updated.lastOrder || '',
+          notes: updated.notes || ''
+        }
+        const index = suppliers.value.findIndex(s => s.id === mapped.id)
+        if (index !== -1) suppliers.value[index] = mapped
+      } else {
+        const res = await fetch(`${API_BASE}/suppliers`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+          body: JSON.stringify(body)
+        })
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ message: res.statusText }))
+          throw new Error(err.message || 'Failed to create supplier')
+        }
+        const created = await res.json()
+        suppliers.value.unshift({
+          id: created._id,
+          name: created.name,
+          contactPerson: created.contactName || '',
+          phone: created.phone || '',
+          email: created.email || '',
+          address: created.address || '',
+          status: created.status || currentSupplier.value.status || 'Active',
+          productCount: 0,
+          lastOrder: '',
+          notes: created.notes || ''
+        })
+      }
+
+      showSupplierModal.value = false
+      alert(`Supplier ${isEditing.value ? 'updated' : 'added'} successfully`)
+    } catch (err) {
+      console.error(err)
+      alert(err.message || 'Error saving supplier')
     }
-  
-    showSupplierModal.value = false
-    alert(`Supplier ${isEditing.value ? 'updated' : 'added'} successfully`)
   }
   </script>
   
