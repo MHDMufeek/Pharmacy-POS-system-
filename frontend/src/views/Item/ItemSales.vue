@@ -244,10 +244,12 @@
         <div v-if="selectedPaymentMethod === 'credit'" class="space-y-3">
           <div class="flex justify-between items-center mb-3">
             <label class="text-sm font-medium text-gray-700">Creditor:</label>
+             <option value="">Select Creditor</option>
             <select 
               v-model="selectedSupplier" 
-              class="border rounded px-2 py-1 text-sm text-gray-700"
+              class="border rounded px-2 py-1 text-sm text-black bg-white"
             >
+             
               <option v-for="c in creditors" :key="c._id" :value="c.name">{{ c.name }}</option>
             </select>
           </div>
