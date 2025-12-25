@@ -43,13 +43,53 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // POST /api/items - create
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const { name, sku, description, category, price, cost, stock, supplier, metadata } = req.body;
+    const { name, sku, code, description, genericName, category, price, cost, stock, supplier, metadata, image } = req.body;
     if (!name || price == null) return res.status(400).json({ message: 'Missing required fields (name, price)' });
-    const item = new Item({ name, sku, description, category, price, cost: cost || 0, stock: stock || 0, supplier, metadata });
+    // accept either `sku` or `code` from client
+    const finalSku = sku || code || undefined;
+    const itemData = { name, sku: finalSku, description, genericName, category, price, cost: cost || 0, stock: stock || 0, supplier, metadata };
+    if (image) itemData.image = image;
+    // If no SKU supplied, generate a sequential one
+    if (!itemData.sku) {
+      // find matching SKUs like MED-0001 and compute max
+      const rows = await Item.find({ sku: { $regex: '^MED-\\d+$' } }).select('sku').lean();
+      let max = 0;
+      for (const r of rows) {
+        const m = r.sku && r.sku.match(/^MED-(\d+)$/);
+        if (m) {
+          const n = parseInt(m[1], 10);
+          if (!isNaN(n) && n > max) max = n;
+        }
+      }
+      const next = max + 1;
+      itemData.sku = `MED-${String(next).padStart(4, '0')}`;
+    }
+    const item = new Item(itemData);
     await item.save();
     return res.status(201).json(item);
   } catch (err) {
     console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// GET /api/items/next-code - return next sequential SKU
+router.get('/next-code', authMiddleware, async (req, res) => {
+  try {
+    const rows = await Item.find({ sku: { $regex: '^MED-\\d+$' } }).select('sku').lean();
+    let max = 0;
+    for (const r of rows) {
+      const m = r.sku && r.sku.match(/^MED-(\d+)$/);
+      if (m) {
+        const n = parseInt(m[1], 10);
+        if (!isNaN(n) && n > max) max = n;
+      }
+    }
+    const next = max + 1;
+    const code = `MED-${String(next).padStart(4, '0')}`;
+    return res.json({ code });
+  } catch (err) {
+    console.error('Failed to compute next code', err);
     return res.status(500).json({ message: 'Server error' });
   }
 });

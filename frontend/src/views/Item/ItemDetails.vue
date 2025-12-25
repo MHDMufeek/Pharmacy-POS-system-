@@ -3,14 +3,7 @@
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold text-blue-900">Item Details</h1>
-      <div class="flex gap-2">
-        <button 
-          @click="goBack" 
-          class="flex items-center text-gray-600 hover:text-gray-800 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-        >
-          <span class="material-icons mr-1">arrow_back</span> Back
-        </button>
-      </div>
+      
     </div>
 
     <div v-if="loadingItems" class="text-sm text-gray-500 mb-4">Loading items...</div>
@@ -230,6 +223,10 @@
           <div class="flex justify-between">
             <span class="text-gray-600">Category:</span>
             <span class="font-medium">{{ selectedItem.category }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Code:</span>
+            <span class="font-medium">{{ selectedItem.code || selectedItem.sku || selectedItem.id || selectedItem._id || '—' }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-gray-600">Current Stock:</span>

@@ -70,12 +70,10 @@
           <!-- Medicine Info -->
           <div>
             <h3 class="font-semibold text-red-600">{{ item.name }}</h3>
-            <p class="text-sm text-gray-500">{{ item.description || 'No description' }}</p>
+            <p v-if="item.genericName" class="text-sm text-gray-500">Generic: <span class="font-medium">{{ item.genericName }}</span></p>
+            <p v-if="item.description" class="text-sm text-gray-500">{{ item.description }}</p>
             <p class="text-xs text-gray-400 mt-1">
               Category: <span class="font-medium">{{ item.category || 'N/A' }}</span>
-            </p>
-            <p class="text-xs text-gray-400">
-              SKU: <span class="font-medium">{{ item.sku || 'N/A' }}</span>
             </p>
             <p class="text-xs text-gray-400">
               Stock: <span class="font-medium">{{ item.stock }}</span>

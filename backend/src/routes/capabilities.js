@@ -45,3 +45,20 @@ router.post('/assign', authMiddleware, requireRole('admin'), async (req, res) =>
 });
 
 module.exports = router;
+
+// Delete assignments for a user (remove all capabilities)
+router.delete('/assignments/:userId', authMiddleware, requireRole('admin'), async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    user.capabilities = [];
+    await user.save();
+
+    return res.json({ message: 'Assignments removed' });
+  } catch (err) {
+    console.error('Error removing assignments:', err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});

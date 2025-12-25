@@ -11,12 +11,7 @@
           <span class="material-icons text-sm mr-1">add</span>
           Add New Item
         </button>
-        <button 
-          @click="$emit('go-back')" 
-          class="flex items-center text-blue-600 hover:text-blue-800 px-4 py-2"
-        >
-          <span class="material-icons mr-1">arrow_back</span> Back
-        </button>
+        
       </div>
     </div>
 
@@ -196,16 +191,40 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">
                   Category <span class="text-red-500">*</span>
                 </label>
-                <select
-                  v-model="newItem.category"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="">Select Category</option>
-                  <option v-for="category in categories" :key="category" :value="category">
-                    {{ category }}
-                  </option>
-                </select>
+                <div class="flex items-center gap-2">
+                  <select
+                    v-model="newItem.category"
+                    required
+                    class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="">Select Category</option>
+                    <option v-for="category in categories" :key="category" :value="category">
+                      {{ category }}
+                    </option>
+                  </select>
+                  <button
+                    type="button"
+                    class="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm"
+                    @click="showAddCategory = !showAddCategory"
+                  >
+                    + Add
+                  </button>
+                </div>
+
+                <div v-if="showAddCategory" class="mt-2 flex gap-2">
+                  <input
+                    v-model="newCategory"
+                    type="text"
+                    placeholder="New category"
+                    class="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
+                  />
+                  <button type="button" class="px-3 py-2 bg-green-600 text-white rounded-lg" @click="addCategory">
+                    Save
+                  </button>
+                  <button type="button" class="px-3 py-2 bg-gray-200 rounded-lg" @click="cancelAddCategory">
+                    Cancel
+                  </button>
+                </div>
               </div>
 
               <div>
@@ -222,24 +241,47 @@
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Item Code
+                  Generic Name
                 </label>
-                <div class="flex items-center">
-                  <input
-                    v-model="newItem.code"
-                    type="text"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="e.g., MED-001"
-                  >
-                  <button 
-                    type="button"
-                    @click="generateItemCode"
-                    class="ml-2 px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg"
-                  >
-                    Generate
-                  </button>
+                <input
+                  v-model="newItem.genericName"
+                  type="text"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="e.g., Paracetamol"
+                >
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Image (PNG/JPEG/WebP)
+                </label>
+                <div class="flex items-start sm:items-center gap-3">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3">
+                      <input
+                        type="file"
+                        accept="image/*,image/webp"
+                        @change="handleImageChange"
+                        class="block"
+                      />
+                      <input
+                        v-model="imageUrl"
+                        @input="onImageUrlInput"
+                        type="url"
+                        placeholder="Or enter image URL (optional)"
+                        class="px-3 py-2 border border-gray-300 rounded-lg flex-1"
+                      />
+                    </div>
+                    <div v-if="imageUrlError" class="text-red-600 text-sm mt-2">{{ imageUrlError }}</div>
+                  </div>
+                  <div class="w-20 h-20 bg-gray-50 rounded overflow-hidden border flex-shrink-0">
+                    <img v-if="imagePreview" :src="imagePreview" alt="preview" class="w-full h-full object-cover" />
+                    <div v-else class="w-full h-full flex items-center justify-center text-gray-300">No image</div>
+                  </div>
                 </div>
               </div>
+
+              <!-- Item code is assigned automatically; hidden from the form -->
             </div>
           </div>
 
@@ -367,8 +409,8 @@
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">Select Supplier</option>
-                  <option v-for="supplier in suppliers" :key="supplier" :value="supplier">
-                    {{ supplier }}
+                  <option v-for="supplier in suppliers" :key="supplier._id || supplier.id" :value="supplier._id || supplier.id">
+                    {{ supplier.name }}
                   </option>
                 </select>
               </div>
@@ -568,7 +610,7 @@ api.interceptors.request.use(cfg => {
 const stockItems = ref([]);
 
 const categories = ref(["Pain Relief", "Antibiotics", "Supplements", "Diabetes", "Allergy", "Steroids", "Acidity", "Cold & Cough"]);
-const suppliers = ref(["PharmaCorp", "MediLife", "HealthPlus", "Global Pharma", "BioMed"]);
+const suppliers = ref([]);
 
 // Add New Item Modal
 const showAddItemModal = ref(false);
@@ -577,6 +619,8 @@ const newItem = ref({
   category: "",
   manufacturer: "",
   code: "",
+    image: "",
+    genericName: "",
   currentStock: 0,
   minLevel: 10,
   maxLevel: "",
@@ -585,6 +629,41 @@ const newItem = ref({
   supplier: "",
   expiryDate: ""
 });
+
+// Add category helper state
+const showAddCategory = ref(false);
+const newCategory = ref('');
+
+function addCategory() {
+  const name = (newCategory.value || '').trim();
+  if (!name) {
+    alert('Please enter a category name');
+    return;
+  }
+  if (categories.value.includes(name)) {
+    // select existing
+    newItem.value.category = name;
+    showAddCategory.value = false;
+    newCategory.value = '';
+    return;
+  }
+  categories.value.push(name);
+  newItem.value.category = name;
+  newCategory.value = '';
+  showAddCategory.value = false;
+}
+
+function cancelAddCategory() {
+  newCategory.value = '';
+  showAddCategory.value = false;
+}
+
+// image file and preview for Add Item form
+const imageFile = ref(null);
+const imagePreview = ref("");
+const imageUrl = ref("");
+const imageUrlValid = ref(false);
+const imageUrlError = ref("");
 
 // Update Stock Modal
 const showUpdateModal = ref(false);
@@ -686,9 +765,71 @@ function getStockStatus(item) {
   return "Good";
 }
 
-function generateItemCode() {
-  const randomNum = Math.floor(Math.random() * 1000);
-  newItem.value.code = `MED-${String(randomNum).padStart(3, '0')}`;
+// Item codes are now generated on the backend. No client-side generator required.
+
+function handleImageChange(e) {
+  const f = e.target.files && e.target.files[0];
+  if (!f) {
+    imageFile.value = null;
+    // if user cleared file input, keep URL preview if provided
+    imagePreview.value = imageUrl.value || "";
+    return;
+  }
+  // accept common image types incl. webp
+  if (!f.type.startsWith('image/')) {
+    alert('Please select a valid image file');
+    e.target.value = null;
+    return;
+  }
+  imageFile.value = f;
+  const reader = new FileReader();
+  reader.onload = () => {
+    imagePreview.value = reader.result;
+  };
+  reader.readAsDataURL(f);
+}
+
+function onImageUrlInput() {
+  // show URL preview only when no file selected
+  if (!imageFile.value) {
+    imagePreview.value = imageUrl.value || "";
+  }
+  imageUrlError.value = "";
+  imageUrlValid.value = false;
+  const url = (imageUrl.value || "").trim();
+  if (!url) return;
+
+  // Quick check: must look like an image URL or data URL
+  if (!/^data:image\//.test(url) && !/\.(png|jpe?g|gif|webp|svg)(\?|$)/i.test(url)) {
+    // still try loading since some CDNs omit extension
+  }
+
+  // Attempt to load image to validate (works cross-origin for display)
+  const img = new Image();
+  img.onload = () => {
+    imageUrlValid.value = true;
+    imageUrlError.value = "";
+    // only set preview if no file selected
+    if (!imageFile.value) imagePreview.value = url;
+  };
+  img.onerror = () => {
+    imageUrlValid.value = false;
+    imageUrlError.value = 'Cannot load image from this URL. Use a direct image link (jpg/png/webp) or upload a file.';
+    // clear preview if invalid
+    if (!imageFile.value) imagePreview.value = "";
+  };
+  // start load
+  img.src = url;
+}
+
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    if (!file) return resolve(null);
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
 function formatDate(date) {
@@ -712,11 +853,30 @@ function addNewItem() {
       const payload = {
         name: newItem.value.name,
         category: newItem.value.category,
+        genericName: newItem.value.genericName || undefined,
         price: newItem.value.sellingPrice || 0,
         cost: newItem.value.costPrice || 0,
         stock: Number(newItem.value.currentStock) || 0,
+        supplier: newItem.value.supplier || undefined,
         metadata: { minLevel: Number(newItem.value.minLevel) || 10 }
       };
+          // include image if provided (base64)
+          // if a URL was entered ensure it was validated by loading
+          if (!imageFile.value && imageUrl.value && !imageUrlValid.value) {
+            alert('The provided image URL could not be loaded. Please provide a direct image URL or upload a file.');
+            return;
+          }
+          if (imageFile.value) {
+        try {
+          const b64 = await toBase64(imageFile.value);
+          if (b64) payload.image = b64;
+        } catch (e) {
+          console.warn('Failed to convert image to base64', e);
+        }
+      } else if (imageUrl.value) {
+        // allow passing a remote image URL
+        payload.image = imageUrl.value;
+      }
       const res = await api.post('/items', payload);
       const created = res.data;
       // normalize for local view
@@ -731,7 +891,10 @@ function addNewItem() {
       };
       stockItems.value.unshift(display);
       stockHistory.value[display.id] = [{ date: new Date(), type: 'Added', quantity: display.currentStock, previousStock: 0, newStock: display.currentStock, performedBy: 'You' }];
-      newItem.value = { name: "", category: "", manufacturer: "", code: "", currentStock: 0, minLevel: 10, maxLevel: "", costPrice: 0, sellingPrice: 0, supplier: "", expiryDate: "" };
+      newItem.value = { name: "", category: "", manufacturer: "", code: "", image: "", currentStock: 0, minLevel: 10, maxLevel: "", costPrice: 0, sellingPrice: 0, supplier: "", expiryDate: "" };
+      imageFile.value = null;
+      imagePreview.value = "";
+      imageUrl.value = "";
       showAddItemModal.value = false;
       alert('Item added to database');
     } catch (e) {
@@ -759,7 +922,25 @@ async function loadItems() {
   }
 }
 
+// fetch suppliers from backend for the Add Item form
+async function fetchSuppliers() {
+  try {
+    const res = await api.get('/suppliers');
+    const list = (res.data && res.data.data) || [];
+    suppliers.value = list;
+    // set default supplier if not selected
+    if (!newItem.value.supplier && suppliers.value.length > 0) {
+      newItem.value.supplier = suppliers.value[0]._id || suppliers.value[0].id;
+    }
+  } catch (err) {
+    console.error('Failed to load suppliers', err);
+    // fallback to empty list
+    suppliers.value = [];
+  }
+}
+
 onMounted(loadItems);
+onMounted(fetchSuppliers);
 
 function adjustStock(item) {
   selectedItem.value = { ...item };
