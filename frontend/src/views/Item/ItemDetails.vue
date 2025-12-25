@@ -211,46 +211,94 @@
       </div>
     </div>
 
-    <!-- Item Details Modal -->
+    <!-- Item Details Modal (redesigned) -->
     <div v-if="showDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 text-black">
-      <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+      <div class="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-3xl">
         <h3 class="text-lg font-semibold mb-4">Item Details</h3>
-        <div class="space-y-3">
-          <div class="flex justify-between">
-            <span class="text-gray-600">Name:</span>
-            <span class="font-medium">{{ selectedItem.name }}</span>
+        <div class="flex flex-col md:flex-row gap-4 items-start text-sm text-gray-700">
+          <div class="w-full md:w-44 flex-shrink-0">
+            <div class="w-full h-44 bg-gray-100 rounded-md overflow-hidden border flex items-center justify-center">
+              <img v-if="selectedItem.image" :src="selectedItem.image" :alt="selectedItem.name" class="w-full h-full object-cover" />
+              <div v-else class="text-gray-400">No image</div>
+            </div>
           </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">Category:</span>
-            <span class="font-medium">{{ selectedItem.category }}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">Code:</span>
-            <span class="font-medium">{{ selectedItem.code || selectedItem.sku || selectedItem.id || selectedItem._id || '—' }}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">Current Stock:</span>
-            <span class="font-medium" :class="getStockStatus(selectedItem) === 'Low' ? 'text-red-600' : 'text-green-600'">
-              {{ selectedItem.currentStock }} units
-            </span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">Min Level:</span>
-            <span class="font-medium">{{ selectedItem.minLevel }}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">Cost Price:</span>
-            <span class="font-medium">Rs.{{ selectedItem.costPrice?.toFixed(2) || '0.00' }}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">Selling Price:</span>
-            <span class="font-medium">Rs.{{ selectedItem.sellingPrice?.toFixed(2) || '0.00' }}</span>
-          </div>
-          <div v-if="selectedItem.supplier" class="flex justify-between">
-            <span class="text-gray-600">Supplier:</span>
-            <span class="font-medium">{{ selectedItem.supplier }}</span>
+
+          <div class="flex-1 space-y-3 text-left">
+            <div>
+              <span class="text-gray-600">Name:</span>
+              <div class="font-bold text-lg">{{ selectedItem.name }}</div>
+            </div>
+
+            <div v-if="selectedItem.genericName">
+              <span class="text-gray-600">Generic Name:</span>
+              <div class="font-bold">{{ selectedItem.genericName }}</div>
+            </div>
+
+            <div v-if="selectedItem.manufacturer">
+              <span class="text-gray-600">Brand Name:</span>
+              <div class="font-bold">{{ selectedItem.manufacturer }}</div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <span class="text-gray-600">Category:</span>
+                <div class="font-bold">{{ selectedItem.category }}</div>
+              </div>
+              <div>
+                <span class="text-gray-600">Code:</span>
+                <div class="font-bold">{{ selectedItem.code || selectedItem.sku || selectedItem.id || selectedItem._id || '—' }}</div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <span class="text-gray-600">Stock:</span>
+                <div class="font-bold" :class="getStockStatus(selectedItem) === 'Low' ? 'text-red-600' : 'text-green-600'">{{ selectedItem.currentStock }} units</div>
+              </div>
+              <div>
+                <span class="text-gray-600">Min Level:</span>
+                <div class="font-bold">{{ selectedItem.minLevel }}</div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <span class="text-gray-600">Cost Price:</span>
+                <div class="font-bold">Rs.{{ selectedItem.costPrice?.toFixed(2) || '0.00' }}</div>
+              </div>
+              <div>
+                <span class="text-gray-600">Selling Price:</span>
+                <div class="font-bold">Rs.{{ selectedItem.sellingPrice?.toFixed(2) || '0.00' }}</div>
+              </div>
+            </div>
+
+            <div v-if="selectedItem.metadata?.dose || selectedItem.dose">
+              <span class="text-gray-600">Dose Form:</span>
+              <div class="font-bold">{{ selectedItem.metadata?.dose || selectedItem.dose }}</div>
+            </div>
+
+            <div v-if="selectedItem.metadata?.packageSize || selectedItem.packageSize">
+              <span class="text-gray-600">Package Size:</span>
+              <div class="font-bold">{{ selectedItem.metadata?.packageSize || selectedItem.packageSize }}</div>
+            </div>
+
+            <div v-if="selectedItem.expiryDate || selectedItem.expiry">
+              <span class="text-gray-600">Expiry:</span>
+              <div class="font-bold">{{ selectedItem.expiryDate || selectedItem.expiry }}</div>
+            </div>
+
+            <div v-if="selectedItem.description">
+              <span class="text-gray-600">Description:</span>
+              <div class="font-bold">{{ selectedItem.description }}</div>
+            </div>
+
+            <div v-if="selectedItem.supplier">
+              <span class="text-gray-600">Supplier:</span>
+              <div class="font-bold">{{ resolveSupplier(selectedItem.supplier) }}</div>
+            </div>
           </div>
         </div>
+
         <div class="flex justify-end mt-6">
           <button class="px-4 py-2 bg-blue-600 text-white rounded-lg" @click="showDetailsModal = false">Close</button>
         </div>
@@ -261,12 +309,40 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
 // stock items (fetched from backend). Fallback to empty array for local dev
 const stockItems = ref([]);
 const loadingItems = ref(false);
 const itemsError = ref(null);
+
+// Supplier name cache
+const suppliersMap = ref({})
+
+async function fetchSupplierName(id) {
+  if (!id) return null
+  try {
+    const token = localStorage.getItem('token')
+    const res = await fetch(`${API_BASE}/suppliers/${id}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+    if (!res.ok) return null
+    const data = await res.json()
+    const name = data && data.name
+    if (name) suppliersMap.value[id] = name
+    return name
+  } catch (err) {
+    console.error('Failed to fetch supplier', id, err)
+    return null
+  }
+}
+
+function resolveSupplier(id) {
+  if (!id) return ''
+  const cached = suppliersMap.value[id]
+  if (cached) return cached
+  // background fetch, return id as fallback
+  fetchSupplierName(id).catch(() => {})
+  return id
+}
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api';
 
@@ -322,6 +398,7 @@ const showDetailsModal = ref(false);
 
 const emit = defineEmits(['go-back']);
 const router = useRouter();
+const route = useRoute();
 
 function goBack() {
   try { emit('go-back'); } catch (e) {}
@@ -499,6 +576,8 @@ async function loadItemDetails(item) {
       selectedItem.value = {
         id: body._id || body.id,
         name: body.name,
+        genericName: body.genericName || body.generic || undefined,
+        manufacturer: body.manufacturer || body.brand || body.company || undefined,
         category: body.category || '',
         currentStock: body.stock ?? body.currentStock ?? 0,
         minLevel: (body.metadata && body.metadata.minLevel) ?? body.minLevel ?? 10,
@@ -506,7 +585,11 @@ async function loadItemDetails(item) {
         costPrice: body.cost ?? body.costPrice ?? 0,
         sellingPrice: body.price ?? body.sellingPrice ?? 0,
         supplier: body.supplier || '',
-        code: body.sku || body.code || ''
+        code: body.sku || body.code || '',
+        image: body.image || body.imageUrl || undefined,
+        expiryDate: body.expiryDate || body.expiry || undefined,
+        metadata: body.metadata || {},
+        description: body.description || body.note || undefined
       };
     }
   } catch (err) {
@@ -545,6 +628,13 @@ function updateStock() {
 // Initialize data
 onMounted(() => {
   fetchItems();
+  // If navigated with ?id=<itemId>, open details for that item
+  try {
+    const qid = route && route.query && route.query.id;
+    if (qid) {
+      loadItemDetails({ id: qid });
+    }
+  } catch (e) {}
 });
 </script>
 

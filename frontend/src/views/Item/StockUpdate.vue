@@ -229,13 +229,13 @@
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Manufacturer
+                  Brand Name
                 </label>
                 <input
                   v-model="newItem.manufacturer"
                   type="text"
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="e.g., PharmaCorp"
+                  placeholder="e.g., PharmaCorp (brand name)"
                 >
               </div>
 
@@ -279,6 +279,31 @@
                     <div v-else class="w-full h-full flex items-center justify-center text-gray-300">No image</div>
                   </div>
                 </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Dose
+                </label>
+                <select v-model="newItem.dose" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <option value="">Select Dose</option>
+                  <option value="tablets">Tablets</option>
+                  <option value="syrup">Syrup</option>
+                  <option value="injection">Injection</option>
+                  <option value="cream">Cream</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Package Size
+                </label>
+                <input
+                  v-model="newItem.packageSize"
+                  type="text"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="e.g., 10 tablets, 100 ml"
+                />
               </div>
 
               <!-- Item code is assigned automatically; hidden from the form -->
@@ -621,6 +646,8 @@ const newItem = ref({
   code: "",
     image: "",
     genericName: "",
+  dose: "",
+  packageSize: "",
   currentStock: 0,
   minLevel: 10,
   maxLevel: "",
@@ -857,8 +884,13 @@ function addNewItem() {
         price: newItem.value.sellingPrice || 0,
         cost: newItem.value.costPrice || 0,
         stock: Number(newItem.value.currentStock) || 0,
-        supplier: newItem.value.supplier || undefined,
-        metadata: { minLevel: Number(newItem.value.minLevel) || 10 }
+          supplier: newItem.value.supplier || undefined,
+          manufacturer: newItem.value.manufacturer || undefined,
+          metadata: { 
+            minLevel: Number(newItem.value.minLevel) || 10,
+            dose: newItem.value.dose || undefined,
+            packageSize: newItem.value.packageSize || undefined
+          }
       };
           // include image if provided (base64)
           // if a URL was entered ensure it was validated by loading
@@ -891,7 +923,7 @@ function addNewItem() {
       };
       stockItems.value.unshift(display);
       stockHistory.value[display.id] = [{ date: new Date(), type: 'Added', quantity: display.currentStock, previousStock: 0, newStock: display.currentStock, performedBy: 'You' }];
-      newItem.value = { name: "", category: "", manufacturer: "", code: "", image: "", currentStock: 0, minLevel: 10, maxLevel: "", costPrice: 0, sellingPrice: 0, supplier: "", expiryDate: "" };
+      newItem.value = { name: "", category: "", manufacturer: "", code: "", image: "", genericName: "", dose: "", packageSize: "", currentStock: 0, minLevel: 10, maxLevel: "", costPrice: 0, sellingPrice: 0, supplier: "", expiryDate: "" };
       imageFile.value = null;
       imagePreview.value = "";
       imageUrl.value = "";

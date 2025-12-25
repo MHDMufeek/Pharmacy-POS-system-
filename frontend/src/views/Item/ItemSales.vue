@@ -2,6 +2,12 @@
   <div class="flex h-screen bg-gray-50">
     <!-- Left: Item Grid -->
     <div class="flex-1 p-6 overflow-y-auto">
+      <!-- Notifications -->
+      <div class="fixed top-4 right-4 z-50 flex flex-col gap-2">
+        <div v-for="n in notifications" :key="n.id" class="bg-yellow-100 border-l-4 border-yellow-400 text-yellow-800 px-4 py-2 rounded shadow-sm max-w-sm">
+          {{ n.message }}
+        </div>
+      </div>
       <!-- Header -->
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-blue-900 mb-2">Waiting List</h1>
@@ -43,6 +49,62 @@
         </div>
       </div>
 
+    <!-- Item Details Modal: minimal stable version (reverted) -->
+    <div v-if="showDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 text-black">
+      <div class="bg-white rounded-lg shadow-lg p-6 w-96 max-h-[80vh] overflow-y-auto">
+        <h3 class="text-lg font-semibold mb-4">Product Details</h3>
+        <div class="space-y-3 text-sm text-gray-700">
+          <div>
+            <span class="text-gray-600">Name:</span>
+            <div class="font-medium">{{ selectedItem.name }}</div>
+          </div>
+          <div v-if="selectedItem.genericName">
+            <span class="text-gray-600">Generic Name:</span>
+            <div class="font-medium">{{ selectedItem.genericName }}</div>
+          </div>
+          <div v-if="selectedItem.manufacturer">
+            <span class="text-gray-600">Brand Name:</span>
+            <div class="font-medium">{{ selectedItem.manufacturer }}</div>
+          </div>
+          <div>
+            <span class="text-gray-600">Category:</span>
+            <div class="font-medium">{{ selectedItem.category }}</div>
+          </div>
+          <div>
+            <span class="text-gray-600">Code:</span>
+            <div class="font-medium">{{ selectedItem.code || selectedItem.sku || selectedItem.id || selectedItem._id || '—' }}</div>
+          </div>
+          <div>
+            <span class="text-gray-600">Stock:</span>
+            <div class="font-medium">{{ formatStockDisplay(selectedItem.stock ?? selectedItem.currentStock ?? selectedItem.quantity) }}</div>
+          </div>
+          <div v-if="selectedItem.metadata?.dose || selectedItem.dose">
+            <span class="text-gray-600">Dose Form:</span>
+            <div class="font-medium">{{ selectedItem.metadata?.dose || selectedItem.dose }}</div>
+          </div>
+          <div v-if="selectedItem.metadata?.packageSize || selectedItem.packageSize">
+            <span class="text-gray-600">Package Size:</span>
+            <div class="font-medium">{{ selectedItem.metadata?.packageSize || selectedItem.packageSize }}</div>
+          </div>
+          <div v-if="selectedItem.expiryDate || selectedItem.expiry">
+            <span class="text-gray-600">Expiry:</span>
+            <div class="font-medium">{{ selectedItem.expiryDate || selectedItem.expiry }}</div>
+          </div>
+          <div v-if="selectedItem.supplier">
+            <span class="text-gray-600">Supplier:</span>
+            <div class="font-medium">{{ resolveSupplier(selectedItem.supplier) }}</div>
+          </div>
+          <div v-if="selectedItem.description">
+            <span class="text-gray-600">Description:</span>
+            <div class="font-medium">{{ selectedItem.description }}</div>
+          </div>
+        </div>
+        <div class="flex justify-end mt-6">
+          <button class="px-4 py-2 bg-blue-600 text-white rounded-lg" @click="showDetailsModal = false">Close</button>
+        </div>
+      </div>
+    </div>
+
       <!-- Medicines Grid -->
       <div v-if="loading" class="text-center py-8">
         <div class="text-gray-500">Loading items...</div>
@@ -54,29 +116,35 @@
       <div v-else-if="filteredItems.length === 0" class="text-center py-8">
         <div class="text-gray-500">No items found</div>
       </div>
-      <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         <div
           v-for="item in filteredItems"
           :key="item._id"
-          class="bg-white rounded-lg shadow p-4 flex flex-col justify-between"
+          class="bg-white rounded-lg shadow p-4 flex flex-col justify-between cursor-pointer h-full text-left"
+          @click="viewItem(item)"
         >
           <!-- Medicine Image -->
-          <img
-            :src="item.image || 'https://via.placeholder.com/100x80?text=No+Image'"
-            :alt="item.name"
-            class="w-full h-28 object-contain mb-3"
-          />
+          <div class="h-32 w-full bg-gradient-to-br from-gray-50 to-white rounded-md overflow-hidden mb-3 flex items-center justify-center border">
+            <img
+              :src="item.image || 'https://via.placeholder.com/160x120?text=No+Image'"
+              :alt="item.name"
+              class="w-full h-full object-cover"
+            />
+          </div>
 
           <!-- Medicine Info -->
-          <div>
-            <h3 class="font-semibold text-red-600">{{ item.name }}</h3>
-            <p v-if="item.genericName" class="text-sm text-gray-500">Generic: <span class="font-medium">{{ item.genericName }}</span></p>
-            <p v-if="item.description" class="text-sm text-gray-500">{{ item.description }}</p>
+          <div class="flex-1">
+            <h3 class="font-bold text-red-600 text-left truncate">{{ item.name }}</h3>
+            <p v-if="item.genericName" class="text-sm text-gray-500">Generic: <span class="font-bold">{{ item.genericName }}</span></p>
+            <p v-if="item.description" class="text-sm text-gray-500 truncate">{{ item.description }}</p>
             <p class="text-xs text-gray-400 mt-1">
-              Category: <span class="font-medium">{{ item.category || 'N/A' }}</span>
+              Category: <span class="font-bold">{{ item.category || 'N/A' }}</span>
+            </p>
+            <p v-if="item.supplier" class="text-xs text-gray-400 mt-1">
+              Supplier: <span class="font-bold">{{ resolveSupplier(item.supplier) }}</span>
             </p>
             <p class="text-xs text-gray-400">
-              Stock: <span class="font-medium">{{ item.stock }}</span>
+              Stock: <span class="font-bold">{{ formatStockDisplay(item.stock ?? item.currentStock ?? item.quantity) }}</span>
             </p>
           </div>
 
@@ -84,8 +152,14 @@
           <div class="flex justify-between items-center mt-4">
             <p class="text-red-600 font-bold">Rs. {{ item.price }}</p>
             <button 
-              @click="addToCart(item)"
-              class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm"
+              @click.stop="addToCart(item)"
+              :disabled="(Number(item.stock ?? item.currentStock ?? item.quantity ?? 0) <= 0)"
+              :class="[
+                (Number(item.stock ?? item.currentStock ?? item.quantity ?? 0) <= 0)
+                  ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white',
+                'px-3 py-1 rounded-md text-sm'
+              ]"
             >
               +
             </button>
@@ -117,7 +191,7 @@
               <div>
                 <p class="font-semibold text-gray-800">{{ cartItem.name }}</p>
                 <p class="text-sm text-gray-500">Rs. {{ cartItem.price }} × {{ cartItem.qty }}</p>
-                <p class="text-xs text-gray-400">Supplier: <span class="font-medium">{{ cartItem.supplier }}</span></p>
+                <p class="text-xs text-gray-400">Supplier: <span class="font-bold">{{ resolveSupplier(cartItem.supplier) }}</span></p>
               </div>
 
               <!-- Controls -->
@@ -170,73 +244,33 @@
             💵 Cash
           </button>
           <button
-            @click="selectedPaymentMethod = 'card'"
-            :class="paymentMethodClass('card')"
-          >
-            💳 Card
-          </button>
-          <button
             @click="selectedPaymentMethod = 'credit'"
             :class="paymentMethodClass('credit')"
           >
             📝 Credit
           </button>
-          <button
-            @click="selectedPaymentMethod = 'upi'"
-            :class="paymentMethodClass('upi')"
-          >
-            📱 UPI
-          </button>
         </div>
 
         <!-- Payment Details based on selected method -->
         <div v-if="selectedPaymentMethod === 'cash'" class="space-y-3">
-          <div class="flex justify-between items-center">
-            <span class="text-sm font-medium text-gray-700">Amount Paid:</span>
+          <div class="flex flex-col sm:flex-row justify-between items-center">
+            <label class="text-sm font-medium text-gray-700 mb-2 sm:mb-0">Amount Paid:</label>
             <input
               v-model.number="amountPaid"
               type="number"
               min="0"
-              :max="totalAmount"
-              class="w-24 border rounded px-2 py-1 text-sm text-right"
+              step="0.01"
+              class="w-full sm:w-40 border rounded px-2 py-1 text-sm text-right"
               placeholder="0.00"
             />
           </div>
-          <div v-if="amountPaid > 0" class="flex justify-between items-center text-sm">
+          <div v-if="Number(amountPaid) > 0" class="flex justify-between items-center text-sm">
             <span class="font-medium text-gray-700">Change:</span>
-            <span class="font-bold text-green-600">Rs. {{ (amountPaid - totalAmount).toFixed(2) }}</span>
+            <span class="font-bold text-green-600">Rs. {{ (Number(amountPaid) - totalAmount).toFixed(2) }}</span>
           </div>
         </div>
 
-        <!-- Card Payment Details -->
-        <div v-if="selectedPaymentMethod === 'card'" class="space-y-3">
-          <div>
-            <label class="text-xs text-gray-600">Card Number</label>
-            <input
-              type="text"
-              placeholder="1234 5678 9012 3456"
-              class="w-full border rounded px-3 py-2 text-sm"
-            />
-          </div>
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="text-xs text-gray-600">Expiry Date</label>
-              <input
-                type="text"
-                placeholder="MM/YY"
-                class="w-full border rounded px-3 py-2 text-sm"
-              />
-            </div>
-            <div>
-              <label class="text-xs text-gray-600">CVV</label>
-              <input
-                type="text"
-                placeholder="123"
-                class="w-full border rounded px-3 py-2 text-sm"
-              />
-            </div>
-          </div>
-        </div>
+        
 
         <!-- Credit Payment Details -->
         <div v-if="selectedPaymentMethod === 'credit'" class="space-y-3">
@@ -258,22 +292,7 @@
           </div>
         </div>
 
-        <!-- UPI Payment Details -->
-        <div v-if="selectedPaymentMethod === 'upi'" class="space-y-3">
-          <div>
-            <label class="text-xs text-gray-600">UPI ID</label>
-            <input
-              type="text"
-              placeholder="username@upi"
-              class="w-full border rounded px-3 py-2 text-sm"
-            />
-          </div>
-          <div class="bg-blue-50 border border-blue-200 rounded p-3">
-            <p class="text-xs text-blue-800 text-center">
-              📱 Scan QR code or enter UPI ID
-            </p>
-          </div>
-        </div>
+        
       </div>
 
       <!-- Overall Totals -->
@@ -291,7 +310,7 @@
         <div class="space-y-2 pt-2">
           <button
             @click="processPayment"
-            :disabled="cart.length === 0 || (selectedPaymentMethod === 'cash' && amountPaid < totalAmount)"
+            :disabled="cart.length === 0 || (selectedPaymentMethod === 'cash' && ((Number(amountPaid) || 0) < totalAmount))"
             :class="[
               'w-full py-2 rounded-lg shadow-md transition font-medium',
               cart.length === 0 || (selectedPaymentMethod === 'cash' && amountPaid < totalAmount)
@@ -317,6 +336,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api'
@@ -326,11 +346,39 @@ const items = ref([])
 const loading = ref(false)
 const error = ref('')
 
+// Supplier name cache (key: id, value: name)
+const suppliersMap = ref({})
+
+async function fetchSupplierName(id) {
+  if (!id) return null
+  try {
+    const res = await axios.get(`${API_BASE}/suppliers/${id}`, { headers: { Authorization: `Bearer ${token}` } })
+    const name = (res.data && res.data.name) || null
+    if (name) suppliersMap.value[id] = name
+    return name
+  } catch (err) {
+    // ignore errors; leave id as fallback
+    console.error('Failed to fetch supplier', id, err)
+    return null
+  }
+}
+
+function resolveSupplier(id) {
+  if (!id) return ''
+  const cached = suppliersMap.value[id]
+  if (cached) return cached
+  // trigger background fetch (no await) and return id as temporary fallback
+  fetchSupplierName(id).catch(() => {})
+  return id
+}
+
 const searchQuery = ref('')
 const selectedCategory = ref('')
+  const notifications = ref([])
 const cart = ref([])
+const router = useRouter()
 const selectedPaymentMethod = ref('cash')
-const amountPaid = ref(0)
+const amountPaid = ref(null)
 const selectedSupplier = ref('HealthCorp')
 const creditors = ref([])
 
@@ -368,6 +416,12 @@ async function fetchCreditors() {
   }
 }
 
+function formatStockDisplay(val) {
+  const n = Number(val ?? 0)
+  if (isNaN(n)) return 'N/A'
+  return n <= 0 ? 'No stock available' : n
+}
+
 // Suppliers list (ensure selected supplier is included so the credit selector shows)
 const suppliers = computed(() => {
   const list = items.value.map(i => i.supplier).filter(Boolean)
@@ -400,18 +454,111 @@ const filteredItems = computed(() => {
 function addToCart(item) {
   const itemId = item._id || item.id
   const existing = cart.value.find(c => c.id === itemId)
+  const stock = Number(item.stock ?? item.currentStock ?? item.quantity ?? 0)
+  const inCartQty = existing ? existing.qty : 0
+
+  if (isNaN(stock) ? false : stock <= 0) {
+    const msg = `${item.name} — No stock available.`
+    try { alert(msg) } catch (e) {}
+    notifications.value.push({ id: Date.now() + Math.random(), message: msg, type: 'error' })
+    setTimeout(() => { notifications.value = notifications.value.filter(n => n.message !== msg) }, 6000)
+    return
+  }
+
+  if (inCartQty + 1 > stock) {
+    const left = Math.max(0, stock - inCartQty)
+    const msg = left <= 0 ? `${item.name} — No stock available.` : `${item.name} — only ${left} left in stock.`
+    try { alert(msg) } catch (e) {}
+    notifications.value.push({ id: Date.now() + Math.random(), message: msg, type: 'warning' })
+    setTimeout(() => { notifications.value = notifications.value.filter(n => n.message !== msg) }, 6000)
+    return
+  }
+
   if (existing) {
     existing.qty += 1
   } else {
     const cartItem = { ...item, qty: 1, id: itemId }
     cart.value.push(cartItem)
   }
+  // Low-stock check: estimate remaining after adding
+  try {
+    const stock = Number(item.stock ?? item.currentStock ?? item.quantity)
+    const minLevel = Number(item.minLevel ?? (item.metadata && item.metadata.minLevel) ?? 0)
+    if (!isNaN(stock)) {
+      const inCart = cart.value.find(c => c.id === itemId)
+      const remaining = stock - (inCart ? inCart.qty : 0)
+      if (!isNaN(remaining) && remaining <= minLevel) {
+        const msg = `${item.name} is low in stock (${remaining} left).`
+        // browser alert
+        try { alert(msg) } catch(e){}
+        // in-app toast
+        notifications.value.push({ id: Date.now() + Math.random(), message: msg, type: 'warning' })
+        // auto-dismiss
+        setTimeout(() => { notifications.value = notifications.value.filter(n => n.message !== msg) }, 6000)
+      }
+    }
+  } catch (e) {
+    // ignore
+  }
+}
+
+function viewItem(item) {
+  const id = item._id || item.id
+  if (!id) return
+  loadItemDetails(id)
+}
+
+const showDetailsModal = ref(false)
+const selectedItem = ref({})
+
+async function loadItemDetails(id) {
+  showDetailsModal.value = false
+  try {
+    const res = await axios.get(`${API_BASE}/items/${id}`, { headers: { Authorization: `Bearer ${token}` } })
+    const body = res.data || {}
+    selectedItem.value = {
+      id: body._id || body.id,
+      name: body.name,
+      category: body.category || body.categoryName || '',
+      description: body.description,
+      genericName: body.genericName || body.generic || undefined,
+      manufacturer: body.manufacturer || body.brand || body.company || undefined,
+      supplier: body.supplier || undefined,
+      image: body.image || body.imageUrl || undefined,
+      stock: body.stock ?? body.currentStock ?? body.quantity,
+      code: body.code || body.sku || undefined,
+      expiryDate: body.expiryDate || body.expiry || undefined,
+      metadata: body.metadata || {},
+      price: body.price || body.sellingPrice || undefined,
+      cost: body.cost || body.costPrice || undefined
+    }
+  } catch (err) {
+    console.error('Failed to load item details', err)
+    selectedItem.value = { name: 'Unknown' }
+  } finally {
+    showDetailsModal.value = true
+  }
 }
 
 // Update quantity
 function updateQty(cartItem, change) {
   cartItem.qty += change
-  if (cartItem.qty <= 0) removeFromCart(cartItem.id)
+    const stock = Number(cartItem.stock ?? cartItem.currentStock ?? cartItem.quantity ?? 0)
+    const newQty = cartItem.qty + change
+
+    if (change > 0 && !isNaN(stock) && newQty > stock) {
+      const msg = stock <= 0 ? `No stock available.` : `Cannot set quantity. Only ${stock} available.`
+      try { alert(msg) } catch (e) {}
+      notifications.value.push({ id: Date.now() + Math.random(), message: msg, type: 'warning' })
+      setTimeout(() => { notifications.value = notifications.value.filter(n => n.message !== msg) }, 6000)
+      return
+    }
+
+    if (newQty <= 0) {
+      cart.value = cart.value.filter(c => c.id !== cartItem.id)
+      return
+    }
+    cartItem.qty = newQty
 }
 
 // Remove from cart
@@ -529,9 +676,7 @@ function paymentMethodClass(method) {
 function getPaymentMethodActiveClass(method) {
   const classes = {
     cash: 'bg-green-600 text-white hover:bg-green-700',
-    card: 'bg-blue-600 text-white hover:bg-blue-700',
-    credit: 'bg-orange-600 text-white hover:bg-orange-700',
-    upi: 'bg-purple-600 text-white hover:bg-purple-700'
+    credit: 'bg-orange-600 text-white hover:bg-orange-700'
   }
   return classes[method] || 'bg-blue-600 text-white'
 }
@@ -539,9 +684,7 @@ function getPaymentMethodActiveClass(method) {
 function getPaymentButtonClass() {
   const classes = {
     cash: 'bg-green-600 hover:bg-green-700 text-white',
-    card: 'bg-blue-600 hover:bg-blue-700 text-white',
-    credit: 'bg-orange-600 hover:bg-orange-700 text-white',
-    upi: 'bg-purple-600 hover:bg-purple-700 text-white'
+    credit: 'bg-orange-600 hover:bg-orange-700 text-white'
   }
   return classes[selectedPaymentMethod.value] || 'bg-green-600 hover:bg-green-700 text-white'
 }
@@ -549,9 +692,7 @@ function getPaymentButtonClass() {
 function getPaymentButtonText() {
   const texts = {
     cash: `💵 Pay Rs. ${totalAmount.value}`,
-    card: `💳 Pay with Card`,
-    credit: `📝 Confirm Credit Sale`,
-    upi: `📱 Pay with UPI`
+    credit: `📝 Confirm Credit Sale`
   }
   return texts[selectedPaymentMethod.value] || `Pay Rs. ${totalAmount.value}`
 }
