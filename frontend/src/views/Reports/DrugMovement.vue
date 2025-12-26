@@ -3,12 +3,12 @@
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
       <div>
-        <h1 class="text-2xl font-bold text-blue-900">Drug Movement Summary</h1>
-        <p class="text-gray-600 mt-1">Track and analyze drug inventory movements and transactions</p>
+        <h1 class="text-2xl font-bold text-blue-900 dark:text-blue-300">Drug Movement Summary</h1>
+        <p class="text-gray-600 mt-1 dark:text-gray-300">Track and analyze drug inventory movements and transactions</p>
       </div>
       <button 
         @click="$emit('go-back')" 
-        class="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+        class="flex items-center text-blue-600 hover:text-blue-800 transition-colors dark:text-blue-300 dark:hover:text-blue-100"
       >
         <span class="material-icons mr-1">arrow_back</span>
         Back to Dashboard
@@ -144,7 +144,7 @@
         <!-- Overview Tab -->
         <div v-if="activeTab === 'overview'">
           <!-- Date Range Filter -->
-          <div class="bg-gray-50 p-4 rounded-lg mb-6">
+          <div class="bg-gray-50 p-4 rounded-lg mb-6 dark:bg-slate-800 dark:text-gray-300">
             <div class="flex flex-col md:flex-row gap-4 items-end">
               <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
@@ -297,7 +297,7 @@
         <!-- Transactions Tab -->
         <div v-if="activeTab === 'transactions'">
           <div class="flex justify-between items-center mb-6">
-            <h3 class="text-lg font-semibold text-gray-900">All Transactions</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">All Transactions</h3>
             <div class="flex gap-2">
               <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
                 <span class="material-icons text-sm mr-1">file_download</span>
@@ -316,12 +316,12 @@
               <thead class="bg-gray-50 dark:bg-slate-900">
                 <tr>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Transaction ID</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Drug Name</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Drug Name</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Quantity</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Amount</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Date</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200 dark:bg-transparent dark:divide-slate-700">
