@@ -420,26 +420,26 @@
                 </div>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Invoice Date *</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Invoice Date *</label>
                 <input 
                   type="date" 
                   v-model="currentInvoice.date" 
-                  class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
+                  class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
                   required
                 >
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Due Date *</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Due Date *</label>
                 <input 
                   type="date" 
                   v-model="currentInvoice.dueDate" 
-                  class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
+                  class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
                   required
                 >
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <select v-model="currentInvoice.status" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none">
+                <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Status</label>
+                <select v-model="currentInvoice.status" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600">
                   <option value="pending">Pending</option>
                   <option value="paid">Paid</option>
                   <option value="overdue">Overdue</option>
@@ -472,7 +472,7 @@
                     v-model="item.quantity" 
                     placeholder="Qty"
                     min="1"
-                    class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
+                    class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
                     @input="calculateItemTotal(item)"
                   >
                 </div>
@@ -483,7 +483,7 @@
                     placeholder="Unit Price"
                     min="0"
                     step="0.01"
-                    class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
+                    class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
                     @input="calculateItemTotal(item)"
                   >
                 </div>
@@ -492,7 +492,7 @@
                     type="text" 
                     :value="'$' + (item.total || 0).toFixed(2)" 
                     disabled
-                    class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
+                    class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
                   >
                 </div>
                 <div class="col-span-1">
@@ -512,16 +512,16 @@
                     <span class="font-medium dark:text-white">${{ currentInvoice.subtotal.toFixed(2) }}</span>
                   </div>
                   <div class="flex justify-between mb-2">
-                    <span class="text-sm text-gray-600">Tax (10%):</span>
-                    <span class="font-medium">${{ currentInvoice.tax.toFixed(2) }}</span>
+                    <span class="text-sm text-gray-600 dark:text-gray-300">Tax (10%):</span>
+                    <span class="font-medium dark:text-white">${{ currentInvoice.tax.toFixed(2) }}</span>
                   </div>
                   <div class="flex justify-between mb-2">
-                    <span class="text-sm text-gray-600">Discount:</span>
-                    <span class="font-medium">-${{ currentInvoice.discount.toFixed(2) }}</span>
+                    <span class="text-sm text-gray-600 dark:text-gray-300">Discount:</span>
+                    <span class="font-medium dark:text-white">-${{ currentInvoice.discount.toFixed(2) }}</span>
                   </div>
                   <div class="flex justify-between border-t pt-2">
-                    <span class="text-lg font-bold text-gray-800">Total:</span>
-                    <span class="text-lg font-bold text-blue-600">${{ currentInvoice.totalAmount.toFixed(2) }}</span>
+                    <span class="text-lg font-bold text-gray-800 dark:text-white">Total:</span>
+                    <span class="text-lg font-bold text-blue-600 dark:text-blue-300">${{ currentInvoice.totalAmount.toFixed(2) }}</span>
                   </div>
                 </div>
               </div>
