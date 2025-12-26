@@ -41,17 +41,6 @@
         </div>
       </div>
       
-      <div class="bg-white p-4 rounded-lg shadow border">
-        <div class="flex items-center">
-          <div class="bg-purple-100 p-3 rounded-lg mr-4">
-            <span class="material-icons text-purple-600">category</span>
-          </div>
-          <div>
-            <p class="text-2xl font-bold text-gray-900">{{ categories.length }}</p>
-            <p class="text-gray-600">Categories</p>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- Filters -->
@@ -113,9 +102,10 @@
         </div>
       </div>
 
-      <table class="w-full border-collapse">
+      <div class="overflow-x-auto">
+      <table class="w-full border-collapse min-w-[720px]">
         <thead>
-          <tr class="bg-blue-500 text-left">
+          <tr class="bg-gray-100 text-left text-sm text-gray-700 uppercase tracking-wider">
             <th class="p-3 border-b">#</th>
             <th class="p-3 border-b">Expense Name</th>
             <th class="p-3 border-b">Category</th>
@@ -133,9 +123,20 @@
           >
             <td class="p-3 border-b">{{ index + 1 }}</td>
             <td class="p-3 border-b">
-              <div>
-                <p class="font-medium">{{ expense.name }}</p>
-                <p class="text-sm text-gray-500" v-if="expense.description">{{ expense.description }}</p>
+              <div class="flex items-start gap-3">
+                <div class="flex-shrink-0 w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600">
+                  <span class="material-icons text-base">receipt</span>
+                </div>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-3">
+                    <p class="font-medium text-gray-900 truncate" :title="expense.name">{{ expense.name }}</p>
+                    <button v-if="expense.description" @click.prevent.stop="toggleExpand(getExpenseId(expense, index))" class="text-xs text-blue-600 hover:underline">
+                      {{ expandedHas(getExpenseId(expense, index)) ? 'Hide' : 'Description' }}
+                    </button>
+                  </div>
+                      <p v-if="expandedHas(getExpenseId(expense, index))" class="text-sm text-gray-700 mt-1 break-words">{{ expense.description }}</p>
+                      <p v-else class="hidden" v-if="expense.description" :title="expense.description">{{ expense.description }}</p>
+                </div>
               </div>
             </td>
             <td class="p-3 border-b">
@@ -180,6 +181,7 @@
           </tr>
         </tfoot>
       </table>
+      </div>
 
       <div v-if="!filteredExpenses.length" class="text-center py-8">
         <span class="material-icons text-4xl text-gray-400 mb-2">receipt</span>
@@ -364,6 +366,21 @@ export default {
       filteredExpenses.value.reduce((sum, expense) => sum + expense.amount, 0)
     )
 
+    // Expanded descriptions state
+    const expanded = ref([])
+    function getExpenseId(expense, index) {
+      return String(expense._id || expense.id || index)
+    }
+    function toggleExpand(id) {
+      const sid = String(id)
+      const idx = expanded.value.indexOf(sid)
+      if (idx === -1) expanded.value.push(sid)
+      else expanded.value.splice(idx, 1)
+    }
+    function expandedHas(id) {
+      return expanded.value.indexOf(String(id)) !== -1
+    }
+
     // Methods
     function formatDate(date) {
       return new Date(date).toLocaleDateString('en-US', {
@@ -520,7 +537,11 @@ export default {
       editExpense,
       deleteExpense,
       closeModal,
-      saveExpense
+      saveExpense,
+      // expose description helpers
+      getExpenseId,
+      toggleExpand,
+      expandedHas
     }
   }
 }

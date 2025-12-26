@@ -78,10 +78,10 @@
 
         <!-- User Profile -->
         <div class="flex items-center gap-3 ml-2">
-          <div class="text-right hidden sm:block">
-            <p class="font-bold text-slate-800 text-sm">Dr. Sarah Johnson</p>
-            <p class="text-xs text-slate-500 font-medium">Senior Administrator</p>
-          </div>
+            <div class="text-right hidden sm:block">
+              <p class="font-bold text-slate-800 text-sm">{{ userName }}</p>
+              <p class="text-xs text-slate-500 font-medium">{{ userRoleLabel }}</p>
+            </div>
           <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg cursor-pointer hover:shadow-xl transition-all duration-200">
             <span class="material-icons-round text-white text-lg">person</span>
           </div>
@@ -114,6 +114,24 @@ const route = useRoute();
 const router = useRouter();
 
 const currentRouteName = computed(() => route.name);
+
+// Current user (from localStorage)
+const user = ref({ name: 'Guest', role: '' });
+const userName = computed(() => (user.value && user.value.name) ? user.value.name : 'Guest');
+const userRoleLabel = computed(() => {
+  const r = (user.value && user.value.role) ? (user.value.role || '') : '';
+  if (!r) return '';
+  return r.charAt(0).toUpperCase() + r.slice(1);
+});
+
+function loadUserFromStorage() {
+  try {
+    const raw = localStorage.getItem('user');
+    user.value = raw ? JSON.parse(raw) : { name: 'Guest', role: '' };
+  } catch (e) {
+    user.value = { name: 'Guest', role: '' };
+  }
+}
 
 // Logout function
 function logout() {
@@ -172,9 +190,14 @@ onMounted(() => {
   fetchNotifications();
   // listen for stock updates elsewhere in the app
   window.addEventListener('low-stock-updated', fetchNotifications);
+  // watch for storage changes (other tabs or auth updates)
+  loadUserFromStorage();
+  const storageHandler = (ev) => { if (ev.key === 'user') loadUserFromStorage(); };
+  window.addEventListener('storage', storageHandler);
 });
 
 onUnmounted(() => {
   window.removeEventListener('low-stock-updated', fetchNotifications);
+  window.removeEventListener('storage', storageHandler);
 });
 </script>

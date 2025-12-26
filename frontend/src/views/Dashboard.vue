@@ -11,7 +11,7 @@
       <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-3xl p-8 text-white shadow-2xl">
         <div class="flex items-center justify-between">
           <div>
-            <h2 class="text-3xl font-bold mb-2">Welcome back, Dr. Johnson</h2>
+            <h2 class="text-3xl font-bold mb-2">Welcome back, {{ userName }}</h2>
             <p class="text-blue-100 text-lg font-medium">Your healthcare management hub awaits</p>
           </div>
           <div class="hidden md:block">
@@ -37,7 +37,7 @@
         <h3 class="text-lg font-bold text-slate-800 mb-2 group-hover:text-blue-600 transition-colors duration-200">
           {{ menu.title }}
         </h3>
-        <p class="text-sm text-slate-500 font-medium">{{ menu.items.length }} features</p>
+        <p class="text-sm text-slate-500 font-medium">{{ menu.items.length }} {{ menu.items.length === 1 ? 'feature' : 'features' }}</p>
 
         <!-- Hover preview: shows full feature list on hover (clickable) -->
         <ul class="mt-3 text-sm text-slate-500 space-y-1 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
@@ -107,7 +107,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 
 const router = useRouter();
 
@@ -116,12 +116,26 @@ const activeUsers = ref(0);
 const monthlySales = ref(0);
 const lowStockCount = ref(0);
 
+// current user
+const user = ref({ name: 'Guest', role: '' });
+const userName = computed(() => (user.value && user.value.name) ? user.value.name : 'Guest');
+
+function loadUserFromStorage() {
+  try {
+    const raw = localStorage.getItem('user');
+    user.value = raw ? JSON.parse(raw) : { name: 'Guest', role: '' };
+  } catch (e) {
+    user.value = { name: 'Guest', role: '' };
+  }
+}
+
 function formatCurrency(v) {
   const n = Number(v || 0);
   return 'Rs.' + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 onMounted(async () => {
+  loadUserFromStorage();
   try {
     const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api';
     const token = localStorage.getItem('token');
@@ -170,7 +184,7 @@ const menus = [
    {
     title: "Expenses",
     icon: "analytics",
-    items: ["", ""],
+    items: ["View Expenses"],
   },
 ];
 
@@ -213,7 +227,7 @@ const featureRouteMap = {
     'Inventory Summary': '/reports/inventory-summary',
   },
   Expenses: {
-    '': '/expenses/view',
+    'View Expenses': '/expenses/view',
   },
 };
 
