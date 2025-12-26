@@ -12,6 +12,7 @@ const customerReturnsRoutes = require('./routes/customerReturns');
 const reportsRoutes = require('./routes/reports');
 const notificationsRoutes = require('./routes/notifications');
 const suppliersRoutes = require('./routes/suppliers');
+const invoicesRoutes = require('./routes/invoices');
 const expensesRoutes = require('./routes/expenses');
 const creditorsRoutes = require('./routes/creditors');
 const errorHandler = require('./middleware/errorHandler');
@@ -32,6 +33,7 @@ function createApp() {
   app.use('/api/reports', reportsRoutes);
   app.use('/api/notifications', notificationsRoutes);
   app.use('/api/suppliers', suppliersRoutes);
+  app.use('/api/invoices', invoicesRoutes);
   app.use('/api/creditors', creditorsRoutes);
   app.use('/api/expenses', expensesRoutes);
 
