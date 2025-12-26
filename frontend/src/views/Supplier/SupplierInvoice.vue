@@ -511,14 +511,30 @@
                     <span class="text-sm text-gray-600 dark:text-gray-300">Subtotal:</span>
                     <span class="font-medium dark:text-white">${{ currentInvoice.subtotal.toFixed(2) }}</span>
                   </div>
+                  
                   <div class="flex justify-between mb-2">
-                    <span class="text-sm text-gray-600 dark:text-gray-300">Tax (10%):</span>
-                    <span class="font-medium dark:text-white">${{ currentInvoice.tax.toFixed(2) }}</span>
-                  </div>
-                  <div class="flex justify-between mb-2">
-                    <span class="text-sm text-gray-600 dark:text-gray-300">Discount:</span>
-                    <span class="font-medium dark:text-white">-${{ currentInvoice.discount.toFixed(2) }}</span>
-                  </div>
+                        <span class="text-sm text-gray-600 dark:text-gray-300">Discount (%):</span>
+                          <div class="flex items-center space-x-2">
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              v-model.number="currentInvoice.discountPercent"
+                              @input="onDiscountPercentInput"
+                              class="w-20 bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
+                            />
+                            <span class="text-sm text-gray-600 dark:text-gray-300">Amount:</span>
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              v-model.number="currentInvoice.discount"
+                              @input="onDiscountAmountInput"
+                              class="w-28 bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
+                            />
+                            <span class="font-medium dark:text-white">- ${{ currentInvoice.discount.toFixed(2) }}</span>
+                          </div>
+                      </div>
                   <div class="flex justify-between border-t pt-2">
                     <span class="text-lg font-bold text-gray-800 dark:text-white">Total:</span>
                     <span class="text-lg font-bold text-blue-600 dark:text-blue-300">${{ currentInvoice.totalAmount.toFixed(2) }}</span>
@@ -760,6 +776,7 @@
   const showSupplierModal = ref(false)
   const isEditing = ref(false)
   const activeTab = ref('invoices')
+  const lastEditedDiscount = ref('percent')
   const filters = ref({
     supplier: '',
     status: '',
@@ -779,6 +796,7 @@
     subtotal: 0,
     tax: 0,
     discount: 0,
+    discountPercent: 0,
     totalAmount: 0,
     notes: ''
   })
@@ -1032,7 +1050,8 @@
             id: i._id || i.id,
             subtotal: Number(i.subtotal || 0),
             tax: Number(i.tax || 0),
-            discount: Number(i.discount || 0),
+              discount: Number(i.discount || 0),
+              discountPercent: Number(i.discountPercent || 0),
             totalAmount: Number(i.totalAmount || 0)
           }))
           console.log('Loaded', invoices.value.length, 'invoices from API')
@@ -1049,11 +1068,12 @@
       if (raw) {
         const parsed = JSON.parse(raw)
         if (Array.isArray(parsed)) {
-          invoices.value = parsed.map(i => ({
+        invoices.value = parsed.map(i => ({
             ...i,
             subtotal: Number(i.subtotal || 0),
             tax: Number(i.tax || 0),
             discount: Number(i.discount || 0),
+            discountPercent: Number(i.discountPercent || 0),
             totalAmount: Number(i.totalAmount || 0)
           }))
           console.log('Loaded', invoices.value.length, 'invoices from localStorage')
@@ -1105,9 +1125,11 @@
       subtotal: 0,
       tax: 0,
       discount: 0,
+      discountPercent: 0,
       totalAmount: 0,
       notes: ''
     }
+    lastEditedDiscount.value = 'percent'
     showInvoiceModal.value = true
   }
 
@@ -1183,12 +1205,41 @@
   function calculateTotals() {
     currentInvoice.value.subtotal = currentInvoice.value.items.reduce((sum, item) => sum + (item.total || 0), 0)
     currentInvoice.value.tax = currentInvoice.value.subtotal * 0.1 // 10% tax
+    // compute discount based on last edited field
+    if (lastEditedDiscount.value === 'percent') {
+      const pct = Number(currentInvoice.value.discountPercent || 0)
+      currentInvoice.value.discount = +(currentInvoice.value.subtotal * (pct / 100))
+    } else {
+      // amount was edited last -> update percent (avoid division by zero)
+      currentInvoice.value.discountPercent = currentInvoice.value.subtotal ? +(currentInvoice.value.discount / currentInvoice.value.subtotal * 100) : 0
+    }
     currentInvoice.value.totalAmount = currentInvoice.value.subtotal + currentInvoice.value.tax - currentInvoice.value.discount
+  }
+
+  function onDiscountPercentInput() {
+    lastEditedDiscount.value = 'percent'
+    // ensure discount amount follows percent
+    const pct = Number(currentInvoice.value.discountPercent || 0)
+    currentInvoice.value.discount = +(currentInvoice.value.subtotal * (pct / 100))
+    calculateTotals()
+  }
+
+  function onDiscountAmountInput() {
+    lastEditedDiscount.value = 'amount'
+    // update percent based on entered amount
+    const amt = Number(currentInvoice.value.discount || 0)
+    currentInvoice.value.discountPercent = currentInvoice.value.subtotal ? +(amt / currentInvoice.value.subtotal * 100) : 0
+    calculateTotals()
   }
   
   function editInvoice(invoice) {
     isEditing.value = true
     currentInvoice.value = { ...invoice }
+    if (typeof currentInvoice.value.discountPercent === 'undefined') currentInvoice.value.discountPercent = 0
+    if (typeof currentInvoice.value.discount === 'undefined') currentInvoice.value.discount = 0
+    // prefer percent if it was provided, otherwise treat amount as last-edited
+    lastEditedDiscount.value = (currentInvoice.value.discountPercent && Number(currentInvoice.value.discountPercent) > 0) ? 'percent' : 'amount'
+    calculateTotals()
     showInvoiceModal.value = true
   }
   
