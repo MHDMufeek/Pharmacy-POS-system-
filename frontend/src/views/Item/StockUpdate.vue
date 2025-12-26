@@ -1,8 +1,8 @@
 <template>
-  <div class="container mx-auto p-6">
+  <div class="container mx-auto p-6 dark:bg-slate-900 dark:text-white">
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold text-blue-900">Stock Update</h1>
+      <h1 class="text-2xl font-bold text-blue-900 dark:text-blue-300">Stock Update</h1>
       <div class="flex gap-2">
         <button 
           @click="showAddItemModal = true"
@@ -16,9 +16,9 @@
     </div>
 
     <!-- Table -->
-    <div class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="bg-white rounded-lg shadow overflow-hidden dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700">
       <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-50 dark:bg-slate-900">
           <tr>
             <th class="px-6 py-3 text-left text-xl font-medium text-gray-500 uppercase">Item</th>
             <th class="px-6 py-3 text-left text-xl font-medium text-gray-500 uppercase">Category</th>
@@ -28,19 +28,19 @@
             <th class="px-6 py-3 text-left text-xl font-medium text-gray-500 uppercase">Actions</th>
           </tr>
         </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
+        <tbody class="bg-white divide-y divide-gray-200 dark:bg-transparent dark:divide-slate-700">
           <tr v-for="item in paginatedItems" :key="item.id">
-            <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ item.name }}</td>
-            <td class="px-6 py-4 text-sm text-gray-600">{{ item.category }}</td>
-            <td class="px-6 py-4 text-sm text-gray-900">{{ item.currentStock }}</td>
-            <td class="px-6 py-4 text-sm text-gray-600">{{ item.minLevel }}</td>
+            <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">{{ item.name }}</td>
+            <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ item.category }}</td>
+            <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">{{ item.currentStock }}</td>
+            <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ item.minLevel }}</td>
             <td class="px-6 py-4">
               <span 
                 :class="[
                   'px-2 py-1 text-xs rounded-full font-medium',
-                  getStockStatus(item) === 'Low' ? 'bg-red-100 text-red-700' :
-                  getStockStatus(item) === 'Adequate' ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-green-100 text-green-700'
+                  getStockStatus(item) === 'Low' ? 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300' :
+                  getStockStatus(item) === 'Adequate' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-300' :
+                  'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300'
                 ]"
               >
                 {{ getStockStatus(item) }}
@@ -48,21 +48,21 @@
             </td>
             <td class="px-6 py-4">
               <button 
-                class="text-yellow-600 hover:text-yellow-800 mr-3"
+                class="text-yellow-600 hover:text-yellow-800 mr-3 dark:text-yellow-300 dark:hover:text-yellow-100"
                 @click="adjustStock(item)"
                 title="Adjust Stock"
               >
                 <span class="material-icons text-sm">swap_vert</span>
               </button>
               <button 
-                class="text-purple-600 hover:text-purple-800"
+                class="text-purple-600 hover:text-purple-800 dark:text-purple-300 dark:hover:text-purple-100"
                 @click="showItemHistory(item)"
                 title="View History"
               >
                 <span class="material-icons text-sm">visibility</span>
               </button>
               <button 
-                class="text-red-600 hover:text-red-800 ml-3"
+                class="text-red-600 hover:text-red-800 ml-3 dark:text-red-300 dark:hover:text-red-100"
                 @click="confirmDeleteItem(item)"
                 title="Delete Item"
               >
@@ -75,11 +75,11 @@
 
       <!-- Empty State -->
       <div v-if="stockItems.length === 0" class="text-center py-12">
-        <div class="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-          <span class="material-icons text-gray-400 text-2xl">inventory_2</span>
+        <div class="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4 dark:bg-slate-800">
+          <span class="material-icons text-gray-400 text-2xl dark:text-gray-300">inventory_2</span>
         </div>
-        <h3 class="text-lg font-medium text-gray-900 mb-2">No items found</h3>
-        <p class="text-gray-500 mb-4">Add your first item to get started</p>
+        <h3 class="text-lg font-medium text-gray-900 mb-2 dark:text-white">No items found</h3>
+        <p class="text-gray-500 mb-4 dark:text-gray-300">Add your first item to get started</p>
         <button 
           @click="showAddItemModal = true"
           class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg inline-flex items-center"
@@ -90,7 +90,7 @@
       </div>
 
       <!-- Pagination -->
-      <div v-if="stockItems.length > itemsPerPage" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+      <div v-if="stockItems.length > itemsPerPage" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 dark:bg-slate-800 dark:border-t dark:border-slate-700 dark:text-gray-300">
         <div class="flex-1 flex justify-between sm:justify-end items-center">
           <div class="sm:block hidden">
             <p class="text-sm text-gray-700">
@@ -155,15 +155,15 @@
 
     <!-- Add Item Modal -->
     <div v-if="showAddItemModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-        <div class="sticky top-0 bg-white z-10 flex items-center justify-between p-6 border-b">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto dark:bg-slate-800 dark:text-white">
+        <div class="sticky top-0 bg-white z-10 flex items-center justify-between p-6 border-b dark:bg-slate-800 dark:border-b dark:border-slate-700">
           <div>
-            <h2 class="text-xl font-bold text-gray-900">Add New Inventory Item</h2>
-            <p class="text-sm text-gray-600 mt-1">Complete all required fields</p>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Add New Inventory Item</h2>
+            <p class="text-sm text-gray-600 mt-1 dark:text-gray-300">Complete all required fields</p>
           </div>
           <button 
             @click="showAddItemModal = false"
-            class="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg"
+            class="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg dark:text-gray-300 dark:hover:text-gray-100 dark:hover:bg-slate-700"
           >
             <span class="material-icons">close</span>
           </button>
@@ -172,17 +172,17 @@
         <form @submit.prevent="addNewItem" class="p-6 space-y-6">
           <!-- Basic Information -->
           <div>
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Basic Information</h3>
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 dark:text-gray-200">Basic Information</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
                   Item Name <span class="text-red-500">*</span>
                 </label>
                 <input
                   v-model="newItem.name"
                   type="text"
                   required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-white dark:border-slate-600"
                   placeholder="e.g., Paracetamol 500mg"
                 >
               </div>
@@ -195,7 +195,7 @@
                   <select
                     v-model="newItem.category"
                     required
-                    class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-white dark:border-slate-600"
                   >
                     <option value="">Select Category</option>
                     <option v-for="category in categories" :key="category" :value="category">
@@ -216,12 +216,12 @@
                     v-model="newCategory"
                     type="text"
                     placeholder="New category"
-                    class="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
+                    class="flex-1 px-3 py-2 border border-gray-300 rounded-lg dark:bg-slate-700 dark:text-white dark:border-slate-600"
                   />
                   <button type="button" class="px-3 py-2 bg-green-600 text-white rounded-lg" @click="addCategory">
                     Save
                   </button>
-                  <button type="button" class="px-3 py-2 bg-gray-200 rounded-lg" @click="cancelAddCategory">
+                  <button type="button" class="px-3 py-2 bg-gray-200 rounded-lg dark:bg-slate-700 dark:text-white" @click="cancelAddCategory">
                     Cancel
                   </button>
                 </div>
@@ -312,7 +312,7 @@
 
           <!-- Stock & Pricing -->
           <div>
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Stock & Pricing</h3>
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 dark:text-gray-200">Stock & Pricing</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="space-y-4">
                 <div>
@@ -403,10 +403,10 @@
                   </div>
                 </div>
 
-                <div v-if="newItem.costPrice > 0 && newItem.sellingPrice > 0" class="bg-green-50 p-3 rounded-lg">
+                <div v-if="newItem.costPrice > 0 && newItem.sellingPrice > 0" class="bg-green-50 p-3 rounded-lg dark:bg-slate-800">
                   <div class="flex justify-between text-sm">
-                    <span>Profit per unit:</span>
-                    <span class="font-medium text-green-600">
+                    <span class="dark:text-gray-300">Profit per unit:</span>
+                    <span class="font-medium text-green-600 dark:text-green-300">
                       Rs.{{ (newItem.sellingPrice - newItem.costPrice).toFixed(2) }}
                     </span>
                   </div>
@@ -458,7 +458,7 @@
             <button
               type="button"
               @click="showAddItemModal = false"
-              class="px-6 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
+              class="px-6 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
             >
               Cancel
             </button>
@@ -476,24 +476,24 @@
 
     <!-- Update Stock Modal -->
     <div v-if="showUpdateModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg shadow-lg p-6 w-96">
-        <h3 class="text-lg font-semibold mb-4">Update Stock</h3>
-        <p class="mb-2 text-sm text-gray-700">Item: {{ selectedItem.name }}</p>
-        <label class="block text-sm text-gray-700 mb-1">Adjustment Type</label>
-        <select v-model="adjustmentType" class="w-full border rounded-lg px-3 py-2 text-sm mb-3">
+      <div class="bg-white rounded-lg shadow-lg p-6 w-96 dark:bg-slate-800 dark:text-white">
+        <h3 class="text-lg font-semibold mb-4 dark:text-white">Update Stock</h3>
+        <p class="mb-2 text-sm text-gray-700 dark:text-gray-300">Item: {{ selectedItem.name }}</p>
+        <label class="block text-sm text-gray-700 mb-1 dark:text-gray-300">Adjustment Type</label>
+        <select v-model="adjustmentType" class="w-full border rounded-lg px-3 py-2 text-sm mb-3 dark:bg-slate-700 dark:text-white dark:border-slate-600">
           <option value="add">Add</option>
           <option value="subtract">Subtract</option>
           <option value="set">Set Value</option>
         </select>
-        <label class="block text-sm text-gray-700 mb-1">Quantity</label>
+        <label class="block text-sm text-gray-700 mb-1 dark:text-gray-300">Quantity</label>
         <input 
           type="number"
           v-model="adjustmentQuantity"
-          class="w-full border rounded-lg px-3 py-2 text-sm mb-4"
+          class="w-full border rounded-lg px-3 py-2 text-sm mb-4 dark:bg-slate-700 dark:text-white dark:border-slate-600"
         />
         <div class="flex justify-end gap-2">
-          <button class="px-4 py-2 bg-gray-200 rounded-lg" @click="showUpdateModal = false">Cancel</button>
-          <button class="px-4 py-2 bg-blue-600 text-white rounded-lg" @click="updateStock">Save</button>
+          <button class="px-4 py-2 bg-gray-200 rounded-lg dark:bg-slate-700 dark:text-white" @click="showUpdateModal = false">Cancel</button>
+          <button class="px-4 py-2 bg-blue-600 text-white rounded-lg dark:bg-blue-600" @click="updateStock">Save</button>
         </div>
       </div>
     </div>
@@ -501,15 +501,15 @@
     <!-- Item History Modal -->
     <div v-if="showHistoryModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[80vh] overflow-hidden">
-        <div class="sticky top-0 bg-white z-10 flex items-center justify-between p-6 border-b">
+        <div class="sticky top-0 bg-white z-10 flex items-center justify-between p-6 border-b dark:bg-slate-800 dark:border-b dark:border-slate-700">
           <div>
-            <h2 class="text-xl font-bold text-gray-900">Stock History</h2>
-            <p class="text-sm text-gray-600 mt-1">{{ selectedItem.name }} ({{ selectedItem.category }})</p>
-            <p class="text-xs text-gray-500 mt-1">Current Stock: {{ selectedItem.currentStock }} units</p>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Stock History</h2>
+            <p class="text-sm text-gray-600 mt-1 dark:text-gray-300">{{ selectedItem.name }} ({{ selectedItem.category }})</p>
+            <p class="text-xs text-gray-500 mt-1 dark:text-gray-400">Current Stock: {{ selectedItem.currentStock }} units</p>
           </div>
           <button 
             @click="showHistoryModal = false"
-            class="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg"
+            class="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg dark:text-gray-300 dark:hover:text-gray-100 dark:hover:bg-slate-700"
           >
             <span class="material-icons">close</span>
           </button>
@@ -518,14 +518,14 @@
         <div class="p-6">
           <!-- History Summary -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div class="bg-blue-50 p-4 rounded-lg">
+            <div class="bg-blue-50 p-4 rounded-lg dark:bg-slate-800 dark:text-white">
               <div class="flex items-center">
-                <div class="bg-blue-100 p-2 rounded-lg mr-3">
-                  <span class="material-icons text-blue-600">trending_up</span>
+                <div class="bg-blue-100 p-2 rounded-lg mr-3 dark:bg-slate-700">
+                  <span class="material-icons text-blue-600 dark:text-blue-300">trending_up</span>
                 </div>
                 <div>
-                  <p class="text-gray-500 text-xs">Total Added</p>
-                  <p class="text-lg font-bold text-blue-600">{{ getTotalAdded }} units</p>
+                  <p class="text-gray-500 text-xs dark:text-gray-300">Total Added</p>
+                  <p class="text-lg font-bold text-blue-600 dark:text-blue-300">{{ getTotalAdded }} units</p>
                 </div>
               </div>
             </div>

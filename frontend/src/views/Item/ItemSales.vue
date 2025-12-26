@@ -1,28 +1,28 @@
 <template>
-  <div class="flex h-screen bg-gray-50">
+  <div class="flex h-screen bg-gray-50 dark:bg-slate-900 dark:text-white">
     <!-- Left: Item Grid -->
     <div class="flex-1 p-6 overflow-y-auto">
       <!-- Notifications -->
       <div class="fixed top-4 right-4 z-50 flex flex-col gap-2">
-        <div v-for="n in notifications" :key="n.id" class="bg-yellow-100 border-l-4 border-yellow-400 text-yellow-800 px-4 py-2 rounded shadow-sm max-w-sm">
+        <div v-for="n in notifications" :key="n.id" class="bg-yellow-100 border-l-4 border-yellow-400 text-yellow-800 px-4 py-2 rounded shadow-sm max-w-sm dark:bg-yellow-900/20 dark:border-yellow-700 dark:text-yellow-300">
           {{ n.message }}
         </div>
       </div>
       <!-- Header -->
       <div class="mb-6">
-        <h1 class="text-2xl font-bold text-blue-900 mb-2">Waiting List</h1>
-        <h1 class="text-2xl font-bold text-blue-900 mb-4">Medicines</h1>
+        <h1 class="text-2xl font-bold text-blue-900 mb-2 dark:text-blue-300">Waiting List</h1>
+        <h1 class="text-2xl font-bold text-blue-900 mb-4 dark:text-blue-300">Medicines</h1>
 
         <!-- Search + Category Filter -->
         <div class="flex flex-col gap-3">
           <!-- Search -->
-          <div class="flex items-center bg-gray-100 rounded-lg px-3 py-2 w-72">
-            <span class="material-icons text-gray-400 mr-2">search</span>
+          <div class="flex items-center bg-gray-100 rounded-lg px-3 py-2 w-72 dark:bg-slate-700 dark:text-gray-200">
+            <span class="material-icons text-gray-400 mr-2 dark:text-gray-300">search</span>
             <input
               v-model="searchQuery"
               type="text"
               placeholder="Search by name, category, note, supplier or price..."
-              class="bg-transparent outline-none w-full text-sm"
+              class="bg-transparent outline-none w-full text-sm dark:text-gray-100 dark:placeholder-gray-400"
             />
           </div>
 
@@ -50,17 +50,17 @@
       </div>
 
     <!-- Item Details Modal: minimal stable version (reverted) -->
-    <div v-if="showDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 text-black">
-      <div class="bg-white rounded-lg shadow-lg p-6 w-96 max-h-[80vh] overflow-y-auto">
-        <h3 class="text-lg font-semibold mb-4">Product Details</h3>
-        <div class="space-y-3 text-sm text-gray-700">
+    <div v-if="showDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 text-white dark:bg-black/60">
+      <div class="bg-white rounded-lg shadow-lg p-6 w-96 max-h-[80vh] overflow-y-auto dark:bg-slate-800 dark:text-white">
+        <h3 class="text-lg font-semibold mb-4 dark:text-white">Product Details</h3>
+        <div class="space-y-3 text-sm text-gray-700 dark:text-gray-200">
           <div>
-            <span class="text-gray-600">Name:</span>
-            <div class="font-medium">{{ selectedItem.name }}</div>
+            <span class="text-gray-600 dark:text-gray-300">Name:</span>
+            <div class="font-medium dark:text-white">{{ selectedItem.name }}</div>
           </div>
           <div v-if="selectedItem.genericName">
-            <span class="text-gray-600">Generic Name:</span>
-            <div class="font-medium">{{ selectedItem.genericName }}</div>
+            <span class="text-gray-600 dark:text-gray-300">Generic Name:</span>
+            <div class="font-medium dark:text-white">{{ selectedItem.genericName }}</div>
           </div>
           <div v-if="selectedItem.manufacturer">
             <span class="text-gray-600">Brand Name:</span>
@@ -107,24 +107,24 @@
 
       <!-- Medicines Grid -->
       <div v-if="loading" class="text-center py-8">
-        <div class="text-gray-500">Loading items...</div>
+        <div class="text-gray-500 dark:text-gray-300">Loading items...</div>
       </div>
       <div v-else-if="error" class="text-center py-8">
-        <div class="text-red-500">{{ error }}</div>
+        <div class="text-red-500 dark:text-red-300">{{ error }}</div>
         <button @click="fetchItems" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded">Retry</button>
       </div>
       <div v-else-if="filteredItems.length === 0" class="text-center py-8">
-        <div class="text-gray-500">No items found</div>
+        <div class="text-gray-500 dark:text-gray-400">No items found</div>
       </div>
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         <div
           v-for="item in filteredItems"
           :key="item._id"
-          class="bg-white rounded-lg shadow p-4 flex flex-col justify-between cursor-pointer h-full text-left"
+          class="bg-white rounded-lg shadow p-4 flex flex-col justify-between cursor-pointer h-full text-left dark:bg-slate-800 dark:border dark:border-slate-700 dark:text-white"
           @click="viewItem(item)"
         >
           <!-- Medicine Image -->
-          <div class="h-32 w-full bg-gradient-to-br from-gray-50 to-white rounded-md overflow-hidden mb-3 flex items-center justify-center border">
+          <div class="h-32 w-full bg-gradient-to-br from-gray-50 to-white rounded-md overflow-hidden mb-3 flex items-center justify-center border border-gray-200/50 dark:from-slate-700 dark:to-slate-800 dark:border-slate-700/30">
             <img
               :src="item.image || 'https://via.placeholder.com/160x120?text=No+Image'"
               :alt="item.name"
@@ -134,16 +134,16 @@
 
           <!-- Medicine Info -->
           <div class="flex-1">
-            <h3 class="font-bold text-red-600 text-left truncate">{{ item.name }}</h3>
-            <p v-if="item.genericName" class="text-sm text-gray-500">Generic: <span class="font-bold">{{ item.genericName }}</span></p>
-            <p v-if="item.description" class="text-sm text-gray-500 truncate">{{ item.description }}</p>
-            <p class="text-xs text-gray-400 mt-1">
+            <h3 class="font-bold text-red-600 text-left truncate dark:text-red-400">{{ item.name }}</h3>
+            <p v-if="item.genericName" class="text-sm text-gray-500 dark:text-gray-300">Generic: <span class="font-bold">{{ item.genericName }}</span></p>
+            <p v-if="item.description" class="text-sm text-gray-500 truncate dark:text-gray-300">{{ item.description }}</p>
+            <p class="text-xs text-gray-400 mt-1 dark:text-gray-400">
               Category: <span class="font-bold">{{ item.category || 'N/A' }}</span>
             </p>
-            <p v-if="item.supplier" class="text-xs text-gray-400 mt-1">
+            <p v-if="item.supplier" class="text-xs text-gray-400 mt-1 dark:text-gray-400">
               Supplier: <span class="font-bold">{{ resolveSupplier(item.supplier) }}</span>
             </p>
-            <p class="text-xs text-gray-400">
+            <p class="text-xs text-gray-400 dark:text-gray-400">
               Stock: <span class="font-bold">{{ formatStockDisplay(item.stock ?? item.currentStock ?? item.quantity) }}</span>
             </p>
           </div>
@@ -156,8 +156,8 @@
               :disabled="(Number(item.stock ?? item.currentStock ?? item.quantity ?? 0) <= 0)"
               :class="[
                 (Number(item.stock ?? item.currentStock ?? item.quantity ?? 0) <= 0)
-                  ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-700 text-white',
+                  ? 'bg-gray-300 text-gray-600 cursor-not-allowed dark:bg-slate-700 dark:text-gray-400'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-600 dark:hover:bg-blue-700',
                 'px-3 py-1 rounded-md text-sm'
               ]"
             >
@@ -169,11 +169,11 @@
     </div>
 
     <!-- Right: Cart / Selected Items -->
-    <div class="w-80 bg-white shadow-xl border-l flex flex-col">
+    <div class="w-80 bg-white shadow-xl border-l flex flex-col dark:bg-slate-800 dark:border-slate-700 dark:text-white">
       <!-- Header -->
-      <div class="p-4 border-b bg-blue-50">
-        <h2 class="text-lg font-bold text-blue-900 flex items-center gap-2">
-          <span class="material-icons text-blue-600">shopping_cart</span>
+      <div class="p-4 border-b bg-blue-50 dark:bg-slate-800 dark:border-b dark:border-slate-700">
+        <h2 class="text-lg font-bold text-blue-900 flex items-center gap-2 dark:text-blue-300">
+          <span class="material-icons text-blue-600 dark:text-blue-300">shopping_cart</span>
           Current Sale
         </h2>
       </div>
@@ -184,26 +184,26 @@
           <div
             v-for="cartItem in cart"
             :key="cartItem.id"
-            class="bg-gray-50 border rounded-lg p-3 flex flex-col shadow-sm"
+            class="bg-gray-50 border rounded-lg p-3 flex flex-col shadow-sm dark:bg-slate-800 dark:border-slate-700 dark:text-white"
           >
             <!-- Item Info -->
             <div class="flex justify-between items-center">
               <div>
-                <p class="font-semibold text-gray-800">{{ cartItem.name }}</p>
-                <p class="text-sm text-gray-500">Rs. {{ cartItem.price }} × {{ cartItem.qty }}</p>
-                <p class="text-xs text-gray-400">Supplier: <span class="font-bold">{{ resolveSupplier(cartItem.supplier) }}</span></p>
+                <p class="font-semibold text-gray-800 dark:text-white">{{ cartItem.name }}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-300">Rs. {{ cartItem.price }} × {{ cartItem.qty }}</p>
+                <p class="text-xs text-gray-400 dark:text-gray-400">Supplier: <span class="font-bold">{{ resolveSupplier(cartItem.supplier) }}</span></p>
               </div>
 
               <!-- Controls -->
               <div class="flex items-center gap-1">
                 <button
                   @click="updateQty(cartItem, -1)"
-                  class="bg-red-100 text-red-600 px-2 py-1 rounded-md hover:bg-red-200"
+                  class="bg-red-100 text-red-600 px-2 py-1 rounded-md hover:bg-red-200 dark:bg-red-900/20 dark:text-red-300 dark:hover:bg-red-800/40"
                 >-</button>
-                <span class="font-bold text-gray-700 w-6 text-center">{{ cartItem.qty }}</span>
+                <span class="font-bold text-gray-700 dark:text-white w-6 text-center">{{ cartItem.qty }}</span>
                 <button
                   @click="updateQty(cartItem, 1)"
-                  class="bg-green-100 text-green-600 px-2 py-1 rounded-md hover:bg-green-200"
+                  class="bg-green-100 text-green-600 px-2 py-1 rounded-md hover:bg-green-200 dark:bg-green-900/20 dark:text-green-300 dark:hover:bg-green-800/40"
                 >+</button>
                 <button
                   @click="removeFromCart(cartItem.id)"
@@ -215,12 +215,12 @@
             </div>
           </div>
         </div>
-        <p v-else class="text-gray-500 text-center italic">🛒 No Items Selected</p>
+        <p v-else class="text-gray-500 text-center italic dark:text-gray-400">🛒 No Items Selected</p>
       </div>
 
       <!-- Category Summary -->
-      <div v-if="cart.length > 0" class="p-4 border-t bg-gray-50">
-        <h3 class="text-sm font-semibold text-blue-900 mb-2">Category Summary</h3>
+      <div v-if="cart.length > 0" class="p-4 border-t bg-gray-50 dark:bg-slate-800">
+        <h3 class="text-sm font-semibold text-blue-900 mb-2 dark:text-blue-300">Category Summary</h3>
         <div
           v-for="(cat, name) in categorySummary"
           :key="name"
@@ -232,8 +232,8 @@
       </div>
 
       <!-- Payment Section -->
-      <div v-if="cart.length > 0" class="p-4 border-t bg-white">
-        <h3 class="text-sm font-semibold text-blue-900 mb-3">Payment Method</h3>
+      <div v-if="cart.length > 0" class="p-4 border-t bg-white dark:bg-slate-800">
+        <h3 class="text-sm font-semibold text-blue-900 mb-3 dark:text-blue-300">Payment Method</h3>
         
         <!-- Payment Method Selection -->
         <div class="grid grid-cols-2 gap-2 mb-4">
@@ -254,13 +254,13 @@
         <!-- Payment Details based on selected method -->
         <div v-if="selectedPaymentMethod === 'cash'" class="space-y-3">
           <div class="flex flex-col sm:flex-row justify-between items-center">
-            <label class="text-sm font-medium text-gray-700 mb-2 sm:mb-0">Amount Paid:</label>
+            <label class="text-sm font-medium text-gray-700 mb-2 sm:mb-0 dark:text-gray-300">Amount Paid:</label>
             <input
               v-model.number="amountPaid"
               type="number"
               min="0"
               step="0.01"
-              class="w-full sm:w-40 border rounded px-2 py-1 text-sm text-right"
+              class="w-full sm:w-40 border rounded px-2 py-1 text-sm text-right dark:bg-slate-700 dark:text-white dark:border-slate-600"
               placeholder="0.00"
             />
           </div>
@@ -279,14 +279,14 @@
              <option value="">Select Creditor</option>
             <select 
               v-model="selectedSupplier" 
-              class="border rounded px-2 py-1 text-sm text-black bg-white"
+              class="border rounded px-2 py-1 text-sm bg-white text-black dark:bg-slate-700 dark:text-white dark:border-slate-600"
             >
              
               <option v-for="c in creditors" :key="c._id" :value="c.name">{{ c.name }}</option>
             </select>
           </div>
-          <div class="bg-yellow-50 border border-yellow-200 rounded p-3">
-            <p class="text-xs text-yellow-800 text-center">
+          <div class="bg-yellow-50 border border-yellow-200 rounded p-3 dark:bg-yellow-900/20 dark:border-yellow-700">
+            <p class="text-xs text-yellow-800 text-center dark:text-yellow-200">
               💡 This sale will be recorded as credit
             </p>
           </div>
@@ -296,14 +296,14 @@
       </div>
 
       <!-- Overall Totals -->
-      <div class="p-4 border-t bg-gradient-to-r from-blue-50 to-blue-100 space-y-3">
+      <div class="p-4 border-t bg-gradient-to-r from-blue-50 to-blue-100 space-y-3 dark:from-slate-900 dark:to-slate-800">
         <div class="flex justify-between">
-          <span class="font-medium text-gray-700">Total Items:</span>
-          <span class="font-bold text-gray-900">{{ totalItems }}</span>
+          <span class="font-medium text-gray-700 dark:text-gray-300">Total Items:</span>
+          <span class="font-bold text-gray-900 dark:text-white">{{ totalItems }}</span>
         </div>
         <div class="flex justify-between">
-          <span class="font-medium text-gray-700">Total Amount:</span>
-          <span class="font-bold text-green-700 text-lg">Rs. {{ totalAmount }}</span>
+          <span class="font-medium text-gray-700 dark:text-gray-300">Total Amount:</span>
+          <span class="font-bold text-green-700 text-lg dark:text-green-400">Rs. {{ totalAmount }}</span>
         </div>
 
         <!-- Action Buttons -->

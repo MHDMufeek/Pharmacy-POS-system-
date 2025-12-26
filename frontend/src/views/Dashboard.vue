@@ -1,10 +1,6 @@
 <template>
   <div>
-<<<<<<< HEAD
-    <!-- Fixed logout button (top-right) -->
-=======
->>>>>>> 0f63c88ace846826eb28036ac1a70111c6a48359
-    
+
 
     <!-- Welcome Section -->
     <div class="mb-8">
@@ -28,23 +24,23 @@
       <div
         v-for="(menu, index) in menus"
         :key="'card-' + index"
-        class="group relative overflow-hidden bg-white/80 backdrop-blur-sm hover:bg-white shadow-lg hover:shadow-2xl rounded-2xl p-8 text-center cursor-pointer transition-transform duration-300 transform-gpu hover:-translate-y-1 hover:scale-105 border border-gray-200/50 hover:border-blue-200/40 hover:ring-4 hover:ring-blue-200/20"
+        class="group relative overflow-hidden bg-white/80 backdrop-blur-sm hover:bg-white dark:bg-slate-800/60 dark:text-white shadow-lg hover:shadow-2xl rounded-2xl p-8 text-center cursor-pointer transition-transform duration-300 transform-gpu hover:-translate-y-1 hover:scale-105 border border-gray-200/50 dark:border dark:border-slate-700 hover:border-blue-200/40 dark:hover:border-slate-600 hover:ring-4 hover:ring-blue-200/20 dark:hover:ring-slate-700/20"
         @click="navigateToFirstItem(menu)"
       >
         <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-110 group-hover:-rotate-6">
           <span class="material-icons-round text-2xl text-white transition-transform duration-300">{{ menu.icon }}</span>
         </div>
-        <h3 class="text-lg font-bold text-slate-800 mb-2 group-hover:text-blue-600 transition-colors duration-200">
+        <h3 class="text-lg font-bold text-slate-800 mb-2 group-hover:text-blue-600 transition-colors duration-200 dark:text-white dark:group-hover:text-blue-300">
           {{ menu.title }}
         </h3>
-        <p class="text-sm text-slate-500 font-medium">{{ menu.items.length }} {{ menu.items.length === 1 ? 'feature' : 'features' }}</p>
+  <p class="text-sm text-slate-500 font-medium dark:text-gray-300">{{ menu.items.length }} {{ menu.items.length === 1 ? 'feature' : 'features' }}</p>
 
         <!-- Hover preview: shows full feature list on hover (clickable) -->
         <ul class="mt-3 text-sm text-slate-500 space-y-1 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
           <li
             v-for="(it, i2) in menu.items"
             :key="'preview-'+i2"
-            class="truncate cursor-pointer hover:bg-blue-50 rounded px-2 py-1"
+            class="truncate cursor-pointer hover:bg-blue-50 dark:hover:bg-slate-700/40 rounded px-2 py-1"
             @click.stop="goToFeature(menu.title, it)"
           >
             {{ it || '—' }}
@@ -57,47 +53,47 @@
 
     <!-- Quick Stats -->
     <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
-      <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200/50">
+      <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200/50 dark:bg-slate-800/60 dark:border-slate-700 dark:text-white">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Total Items</p>
-            <p class="text-3xl font-bold text-slate-800">{{ totalItems.toLocaleString() }}</p>
+            <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide dark:text-gray-300">Total Items</p>
+            <p class="text-3xl font-bold text-slate-800 dark:text-white">{{ totalItems.toLocaleString() }}</p>
           </div>
-          <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-            <span class="material-icons-round text-green-600">inventory</span>
+          <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center dark:bg-green-900/20">
+            <span class="material-icons-round text-green-600 dark:text-green-300">inventory</span>
           </div>
         </div>
       </div>
-      <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200/50">
+      <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200/50 dark:bg-slate-800/60 dark:border-slate-700 dark:text-white">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Active Users</p>
-            <p class="text-3xl font-bold text-slate-800">{{ activeUsers }}</p>
+            <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide dark:text-gray-300">Active Users</p>
+            <p class="text-3xl font-bold text-slate-800 dark:text-white">{{ activeUsers }}</p>
           </div>
-          <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-            <span class="material-icons-round text-blue-600">people</span>
+          <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center dark:bg-blue-900/20">
+            <span class="material-icons-round text-blue-600 dark:text-blue-300">people</span>
           </div>
         </div>
       </div>
-      <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200/50">
+      <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200/50 dark:bg-slate-800/60 dark:border-slate-700 dark:text-white">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Monthly Sales</p>
-            <p class="text-3xl font-bold text-slate-800">{{ formatCurrency(monthlySales) }}</p>
+            <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide dark:text-gray-300">Monthly Sales</p>
+            <p class="text-3xl font-bold text-slate-800 dark:text-white">{{ formatCurrency(monthlySales) }}</p>
           </div>
-          <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-            <span class="material-icons-round text-purple-600">trending_up</span>
+          <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center dark:bg-purple-900/20">
+            <span class="material-icons-round text-purple-600 dark:text-purple-300">trending_up</span>
           </div>
         </div>
       </div>
-      <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200/50">
+      <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200/50 dark:bg-slate-800/60 dark:border-slate-700 dark:text-white">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Low Stock</p>
-            <p class="text-3xl font-bold text-slate-800">{{ lowStockCount }}</p>
+            <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide dark:text-gray-300">Low Stock</p>
+            <p class="text-3xl font-bold text-slate-800 dark:text-white">{{ lowStockCount }}</p>
           </div>
-          <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
-            <span class="material-icons-round text-red-600">warning</span>
+          <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center dark:bg-red-900/20">
+            <span class="material-icons-round text-red-600 dark:text-red-300">warning</span>
           </div>
         </div>
       </div>

@@ -1,10 +1,10 @@
 <template>
-  <div class="p-6">
+  <div class="p-6 dark:bg-slate-900 dark:text-white">
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold text-blue-900">Creditors Management</h1>
+      <h1 class="text-2xl font-bold text-blue-900 dark:text-blue-300">Creditors Management</h1>
       <button
-        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center"
+        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center dark:bg-blue-500 dark:hover:bg-blue-600"
         @click="openAddCreditorForm"
       >
         <span class="material-icons mr-2">add</span>
@@ -13,22 +13,22 @@
     </div>
 
     <!-- Search and Filter -->
-    <div class="bg-white p-4 rounded-lg shadow mb-6">
+    <div class="bg-white p-4 rounded-lg shadow mb-6 dark:bg-slate-800 dark:border dark:border-slate-700 dark:text-white">
       <div class="flex flex-col md:flex-row gap-4">
         <div
-          class="flex-1 flex items-center bg-gray-100 rounded-lg px-3 py-2"
+          class="flex-1 flex items-center bg-gray-100 rounded-lg px-3 py-2 dark:bg-slate-700"
         >
-          <span class="material-icons text-gray-400 mr-2">search</span>
+          <span class="material-icons text-gray-400 mr-2 dark:text-gray-300">search</span>
           <input
             type="text"
             placeholder="Search creditors..."
-            class="bg-transparent outline-none w-full text-sm"
+            class="bg-transparent outline-none w-full text-sm dark:text-white"
             v-model="searchQuery"
           />
         </div>
         <div class="w-full md:w-48">
           <select
-            class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
+            class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white"
             v-model="statusFilter"
           >
             <option value="">All Status</option>
@@ -41,56 +41,57 @@
     </div>
 
     <!-- Creditors Table -->
-    <div class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="bg-white rounded-lg shadow overflow-hidden dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700">
       <table class="w-full">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-50 dark:bg-slate-900">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               Creditor
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               Amount Owed
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               Due Date
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               Status
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               Actions
             </th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200">
+        <tbody class="divide-y divide-gray-200 dark:divide-slate-700">
           <tr
             v-for="(creditor, index) in filteredCreditors"
             :key="index"
+            class="hover:bg-gray-50 dark:hover:bg-slate-700"
           >
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center">
                 <div
-                  class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3"
+                  class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3 dark:bg-blue-900/20"
                 >
                   
                 </div>
                 <div>
-                  <div class="font-medium text-gray-900">
+                  <div class="font-medium text-gray-900 dark:text-white">
                     {{ creditor.name }}
                   </div>
-                  <div class="text-sm text-gray-500">
+                  <div class="text-sm text-gray-500 dark:text-gray-300">
                     {{ creditor.contact }}
                   </div>
                 </div>
               </div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-gray-900">
+              <div class="text-gray-900 dark:text-gray-200">
                 Rs.{{ creditor.amount.toLocaleString() }}
               </div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-gray-900">
+              <div class="text-gray-900 dark:text-gray-200">
                 {{ formatDate(creditor.dueDate) }}
               </div>
             </td>
@@ -98,18 +99,18 @@
               <span
                 :class="{
                   'px-2 py-1 text-xs rounded-full': true,
-                  'bg-green-100 text-green-800': creditor.status === 'Paid',
-                  'bg-yellow-100 text-yellow-800': creditor.status === 'Active',
-                  'bg-red-100 text-red-800': creditor.status === 'Overdue'
+                  'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300': creditor.status === 'Paid',
+                  'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/10 dark:text-yellow-300': creditor.status === 'Active',
+                  'bg-red-100 text-red-800 dark:bg-red-900/10 dark:text-red-300': creditor.status === 'Overdue'
                 }"
               >
                 {{ creditor.status }}
               </span>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
               <!-- 👁️ View Details -->
               <button
-                class="text-blue-600 hover:text-blue-900 mr-3"
+                class="text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-100 mr-3"
                 @click="openCreditorDetails(creditor)"
                 title="View Creditor Details"
               >
@@ -118,7 +119,7 @@
               
               <!-- 💰 Make Payment -->
               <button 
-                class="text-green-600 hover:text-green-900 mr-3"
+                class="text-green-600 hover:text-green-900 dark:text-green-300 dark:hover:text-green-100 mr-3"
                 title="Make Payment"
               >
                 <span class="material-icons">payment</span>
@@ -126,7 +127,7 @@
               
               <!-- Delete -->
               <button 
-                class="text-gray-600 hover:text-gray-900 cursor-pointer"
+                class="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white cursor-pointer"
                 title="Delete Creditor"
                 @click="deleteCreditor(creditor)"
               >
@@ -140,37 +141,37 @@
 
     <!-- Pagination -->
     <div
-      class="flex justify-between items-center mt-6 bg-white p-4 rounded-lg shadow"
+      class="flex justify-between items-center mt-6 bg-white p-4 rounded-lg shadow dark:bg-slate-800 dark:text-gray-300 dark:border dark:border-slate-700"
     >
-      <div class="text-sm text-gray-700">
+      <div class="text-sm text-gray-700 dark:text-gray-300">
         Showing <span class="font-medium">1</span> to
         <span class="font-medium">5</span> of
         <span class="font-medium">20</span> results
       </div>
       <div class="flex space-x-2">
         <button
-          class="px-3 py-1 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200"
+          class="px-3 py-1 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-transparent dark:text-gray-300 dark:hover:bg-slate-700"
         >
             <span class="sr-only">next</span>
                   <span class="material-icons">chevron_left</span>
         </button>
         <button
-          class="px-3 py-1 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+          class="px-3 py-1 rounded-md bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
         >
           1
         </button>
         <button
-          class="px-3 py-1 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200"
+          class="px-3 py-1 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-transparent dark:text-gray-300 dark:hover:bg-slate-700"
         >
           2
         </button>
         <button
-          class="px-3 py-1 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200"
+          class="px-3 py-1 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-transparent dark:text-gray-300 dark:hover:bg-slate-700"
         >
           3
         </button>
         <button
-          class="px-3 py-1 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200"
+          class="px-3 py-1 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-transparent dark:text-gray-300 dark:hover:bg-slate-700"
         >
             <span class="sr-only">next</span>
                   <span class="material-icons">chevron_right</span>
@@ -183,14 +184,14 @@
       v-if="showAddCreditorModal"
       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
     >
-      <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
+      <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700">
         <!-- Header -->
         <div class="flex justify-between items-center p-6 border-b">
           <h2 class="text-2xl font-bold text-gray-800">
             Add New Creditor
           </h2>
           <button
-            class="text-gray-500 hover:text-gray-700"
+            class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
             @click="closeAddCreditorForm"
           >
             <span class="material-icons text-2xl">close</span>
@@ -370,14 +371,14 @@
       v-if="showCreditorDetails"
       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
     >
-      <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
+      <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700">
         <!-- Header -->
         <div class="flex justify-between items-center p-6 border-b">
-          <h2 class="text-2xl font-bold text-gray-800">
+          <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
             Creditor Details - {{ selectedCreditor?.name }}
           </h2>
           <button
-            class="text-gray-500 hover:text-gray-700"
+            class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
             @click="showCreditorDetails = false"
           >
             <span class="material-icons text-2xl">close</span>
@@ -448,7 +449,7 @@
             <div class="space-y-3">
               <div>
                 <span class="text-gray-600 block mb-1">Notes:</span>
-                <p class="text-gray-800 bg-white p-3 rounded border min-h-[60px]">
+                <p class="text-gray-800 bg-white p-3 rounded border min-h-[60px] dark:bg-slate-900 dark:text-gray-200 dark:border dark:border-slate-700">
                   {{ selectedCreditor?.notes || 'No additional notes available.' }}
                 </p>
               </div>
@@ -533,7 +534,7 @@
       v-if="showHistory"
       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
     >
-      <div class="bg-white rounded-lg shadow-lg w-1/2 p-6 relative">
+      <div class="bg-white rounded-lg shadow-lg w-1/2 p-6 relative dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700">
         <button
           class="absolute top-3 right-3 text-gray-600 hover:text-gray-900"
           @click="showHistory = false"
@@ -752,4 +753,9 @@ select.form-input {
 .text-red-500 {
   color: #ef4444;
 }
+
+/* Dark mode overrides */
+.dark .form-label { color: #cbd5e1; }
+.dark .form-input { background-color: #0f172a; color: #e2e8f0; border-color: #334155; }
+.dark .form-input:focus { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12); border-color: #1d4ed8; }
 </style>

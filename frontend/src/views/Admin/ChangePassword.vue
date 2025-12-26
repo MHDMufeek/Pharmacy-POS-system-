@@ -350,4 +350,13 @@ function goBack() {
 @media (max-width: 640px) {
   .form-container { padding: 0 1rem; }
 }
+
+/* Global dark mode overrides */
+.dark .page-container { background: #0f172a; color: #e6eef8; }
+.dark .page-header { color: #93c5fd; border-bottom-color: #1f2937; }
+.dark .form-label { color: #cbd5e1; }
+.dark .form-input { background-color: #0b1220; color: #e2e8f0; border-color: #334155; }
+.dark .form-input:focus { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12); border-color: #1d4ed8; }
+.dark .alert-success { background-color: #052e12; color: #bbf7d0; border: 1px solid #144e17; }
+.dark .alert-error { background-color: #2b0505; color: #fecaca; border: 1px solid #7f1d1d; }
 </style>

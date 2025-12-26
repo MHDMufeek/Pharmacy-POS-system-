@@ -2,13 +2,13 @@
     <div class="p-6">
       <!-- Header -->
       <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-blue-900">Inventory Summary</h1>
+        <h1 class="text-2xl font-bold text-blue-900 dark:text-blue-300">Inventory Summary</h1>
         <div class="flex gap-2">
-          <button class="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center">
+          <button class="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center dark:bg-blue-500 dark:text-white">
             <span class="material-icons mr-2">download</span>
             Export Report
           </button>
-          <button class="bg-green-600 text-white px-4 py-2 rounded-md flex items-center">
+          <button class="bg-green-600 text-white px-4 py-2 rounded-md flex items-center dark:bg-green-500 dark:text-white">
             <span class="material-icons mr-2">print</span>
             Print
           </button>
@@ -16,110 +16,110 @@
       </div>
   
       <!-- Filters -->
-      <div class="bg-white p-4 rounded-lg shadow mb-6">
+      <div class="bg-white p-4 rounded-lg shadow mb-6 dark:bg-slate-800 dark:border dark:border-slate-700 dark:text-white">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">As of Date</label>
-            <input type="date" class="w-full p-2 border border-gray-300 rounded-md" v-model="filterDate">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">As of Date</label>
+            <input type="date" class="w-full p-2 border border-gray-300 rounded-md bg-white dark:bg-slate-700 dark:text-white border-gray-300 dark:border-slate-600" v-model="filterDate">
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-            <select class="w-full p-2 border border-gray-300 rounded-md" v-model="filterCategory">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+            <select class="w-full p-2 border border-gray-300 rounded-md bg-white dark:bg-slate-700 dark:text-white border-gray-300 dark:border-slate-600" v-model="filterCategory">
               <option value="">All Categories</option>
               <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Supplier</label>
-            <select class="w-full p-2 border border-gray-300 rounded-md" v-model="filterSupplier">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Supplier</label>
+            <select class="w-full p-2 border border-gray-300 rounded-md bg-white dark:bg-slate-700 dark:text-white border-gray-300 dark:border-slate-600" v-model="filterSupplier">
               <option value="">All Suppliers</option>
               <option v-for="supplier in suppliers" :key="supplier" :value="supplier">{{ supplier }}</option>
             </select>
           </div>
           <div class="flex items-end">
-            <button class="bg-blue-600 text-white px-4 py-2 rounded-md w-full" @click="applyFilters">Apply Filters</button>
+            <button class="bg-blue-600 text-white px-4 py-2 rounded-md w-full dark:bg-blue-500 dark:text-white" @click="applyFilters">Apply Filters</button>
           </div>
         </div>
       </div>
   
       <!-- Summary Cards -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        <div class="bg-white p-4 rounded-lg shadow">
+        <div class="bg-white p-4 rounded-lg shadow dark:bg-slate-800 dark:border dark:border-slate-700 dark:text-white">
           <div class="flex items-center">
-            <div class="rounded-full bg-blue-100 p-3 mr-4">
+            <div class="rounded-full bg-blue-100 p-3 mr-4 dark:bg-blue-900/20">
               <span class="material-icons text-blue-600">inventory_2</span>
             </div>
             <div>
-              <p class="text-sm text-gray-500">Total Items</p>
-              <p class="text-2xl font-bold">{{ summaryData.totalItems }}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-300">Total Items</p>
+              <p class="text-2xl font-bold dark:text-white">{{ summaryData.totalItems }}</p>
             </div>
           </div>
         </div>
         
-        <div class="bg-white p-4 rounded-lg shadow">
+        <div class="bg-white p-4 rounded-lg shadow dark:bg-slate-800 dark:border dark:border-slate-700 dark:text-white">
           <div class="flex items-center">
-            <div class="rounded-full bg-green-100 p-3 mr-4">
+            <div class="rounded-full bg-green-100 p-3 mr-4 dark:bg-green-900/10">
               <span class="material-icons text-green-600">check_circle</span>
             </div>
             <div>
-              <p class="text-sm text-gray-500">In Stock</p>
-              <p class="text-2xl font-bold">{{ summaryData.inStock }}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-300">In Stock</p>
+              <p class="text-2xl font-bold dark:text-white">{{ summaryData.inStock }}</p>
             </div>
           </div>
         </div>
         
-        <div class="bg-white p-4 rounded-lg shadow">
+        <div class="bg-white p-4 rounded-lg shadow dark:bg-slate-800 dark:border dark:border-slate-700 dark:text-white">
           <div class="flex items-center">
-            <div class="rounded-full bg-yellow-100 p-3 mr-4">
+            <div class="rounded-full bg-yellow-100 p-3 mr-4 dark:bg-yellow-900/10">
               <span class="material-icons text-yellow-600">warning</span>
             </div>
             <div>
-              <p class="text-sm text-gray-500">Low Stock</p>
-              <p class="text-2xl font-bold">{{ summaryData.lowStock }}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-300">Low Stock</p>
+              <p class="text-2xl font-bold dark:text-white">{{ summaryData.lowStock }}</p>
             </div>
           </div>
         </div>
         
-        <div class="bg-white p-4 rounded-lg shadow">
+        <div class="bg-white p-4 rounded-lg shadow dark:bg-slate-800 dark:border dark:border-slate-700 dark:text-white">
           <div class="flex items-center">
-            <div class="rounded-full bg-red-100 p-3 mr-4">
+            <div class="rounded-full bg-red-100 p-3 mr-4 dark:bg-red-900/10">
               <span class="material-icons text-red-600">cancel</span>
             </div>
             <div>
-              <p class="text-sm text-gray-500">Out of Stock</p>
-              <p class="text-2xl font-bold">{{ summaryData.outOfStock }}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-300">Out of Stock</p>
+              <p class="text-2xl font-bold dark:text-white">{{ summaryData.outOfStock }}</p>
             </div>
           </div>
         </div>
       </div>
   
       <!-- Inventory Table -->
-      <div class="bg-white rounded-lg shadow overflow-hidden">
+      <div class="bg-white rounded-lg shadow overflow-hidden dark:bg-slate-800 dark:border dark:border-slate-700 dark:text-white">
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+            <thead class="bg-gray-50 dark:bg-slate-900">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item Code</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item Name</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Stock</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Price</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Value</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Item Code</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Item Name</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Category</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Current Stock</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Unit Price</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Total Value</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="bg-white divide-y divide-gray-200 dark:bg-transparent dark:divide-slate-700">
               <tr v-for="(item, index) in inventoryData" :key="index">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ item.code }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ item.name }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.category }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.stock }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Rs.{{ item.price.toFixed(2) }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Rs.{{ (item.stock * item.price).toFixed(2) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ item.code }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{{ item.name }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ item.category }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ item.stock }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">Rs.{{ item.price.toFixed(2) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">Rs.{{ (item.stock * item.price).toFixed(2) }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span :class="['px-2 py-1 text-xs rounded-full', 
-                    item.status === 'In Stock' ? 'bg-green-100 text-green-800' : 
-                    item.status === 'Low Stock' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800']">
+                    item.status === 'In Stock' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' : 
+                    item.status === 'Low Stock' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/10 dark:text-yellow-300' : 'bg-red-100 text-red-800 dark:bg-red-900/10 dark:text-red-300']">
                     {{ item.status }}
                   </span>
                 </td>
@@ -129,24 +129,24 @@
         </div>
         
         <!-- Pagination -->
-        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 dark:bg-slate-800 dark:border-t dark:border-slate-700 dark:text-gray-300">
           <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
-              <p class="text-sm text-gray-700">
+              <p class="text-sm text-gray-700 dark:text-gray-300">
                 Showing <span class="font-medium">1</span> to <span class="font-medium">10</span> of
                 <span class="font-medium">{{ inventoryData.length }}</span> results
               </p>
             </div>
             <div>
               <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-slate-600 dark:bg-transparent dark:text-gray-300 dark:hover:bg-slate-700">
                   <span class="sr-only">Previous</span>
                   <span class="material-icons text-sm">chevron_left</span>
                 </a>
-                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600 hover:bg-blue-100">1</a>
-                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">2</a>
-                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">3</a>
-                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-300">1</a>
+                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:bg-transparent dark:text-gray-300 dark:hover:bg-slate-700">2</a>
+                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:bg-transparent dark:text-gray-300 dark:hover:bg-slate-700">3</a>
+                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-slate-600 dark:bg-transparent dark:text-gray-300 dark:hover:bg-slate-700">
                   <span class="sr-only">Next</span>
                   <span class="material-icons text-sm">chevron_right</span>
                 </a>
