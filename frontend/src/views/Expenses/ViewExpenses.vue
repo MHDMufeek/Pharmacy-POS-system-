@@ -1,10 +1,10 @@
 <template>
-  <div class="p-6 bg-gray-50 min-h-screen">
+  <div class="p-6 bg-gray-50 min-h-screen dark:bg-slate-900 dark:text-white">
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
       <div>
-        <h1 class="text-2xl font-bold text-blue-900">View Expenses</h1>
-        <p class="text-gray-600">Manage and track your business expenses</p>
+        <h1 class="text-2xl font-bold text-blue-900 dark:text-blue-200">View Expenses</h1>
+        <p class="text-gray-600 dark:text-gray-300">Manage and track your business expenses</p>
       </div>
       <button 
         @click="showAddForm = true"
@@ -17,49 +17,49 @@
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-      <div class="bg-white p-4 rounded-lg shadow border">
+      <div class="bg-white p-4 rounded-lg shadow border dark:bg-slate-800 dark:border-slate-700 dark:text-white">
         <div class="flex items-center">
-          <div class="bg-blue-100 p-3 rounded-lg mr-4">
+          <div class="bg-blue-100 p-3 rounded-lg mr-4 dark:bg-blue-900/20">
             <span class="material-icons text-blue-600">receipt</span>
           </div>
           <div>
-            <p class="text-2xl font-bold text-gray-900">{{ expenses.length }}</p>
-            <p class="text-gray-600">Total Expenses</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ expenses.length }}</p>
+            <p class="text-gray-600 dark:text-gray-300">Total Expenses</p>
           </div>
         </div>
       </div>
       
-      <div class="bg-white p-4 rounded-lg shadow border">
+      <div class="bg-white p-4 rounded-lg shadow border dark:bg-slate-800 dark:border-slate-700 dark:text-white">
         <div class="flex items-center">
-          <div class="bg-green-100 p-3 rounded-lg mr-4">
+          <div class="bg-green-100 p-3 rounded-lg mr-4 dark:bg-green-900/20">
             <span class="material-icons text-green-600">payments</span>
           </div>
           <div>
-            <p class="text-2xl font-bold text-gray-900">Rs. {{ totalAmount.toLocaleString() }}</p>
-            <p class="text-gray-600">Total Amount</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">Rs. {{ totalAmount.toLocaleString() }}</p>
+            <p class="text-gray-600 dark:text-gray-300">Total Amount</p>
           </div>
         </div>
       </div>
       
-      <div class="bg-white p-4 rounded-lg shadow border">
+      <div class="bg-white p-4 rounded-lg shadow border dark:bg-slate-800 dark:border-slate-700 dark:text-white">
         <div class="flex items-center">
-          <div class="bg-purple-100 p-3 rounded-lg mr-4">
+          <div class="bg-purple-100 p-3 rounded-lg mr-4 dark:bg-purple-900/20">
             <span class="material-icons text-purple-600">category</span>
           </div>
           <div>
-            <p class="text-2xl font-bold text-gray-900">{{ categories.length }}</p>
-            <p class="text-gray-600">Categories</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ categories.length }}</p>
+            <p class="text-gray-600 dark:text-gray-300">Categories</p>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Filters -->
-    <div class="bg-white p-4 rounded-lg shadow border mb-6">
+    <div class="bg-white p-4 rounded-lg shadow border mb-6 dark:bg-slate-800 dark:border-slate-700">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-          <select v-model="filters.category" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Category</label>
+          <select v-model="filters.category" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
             <option value="">All Categories</option>
             <option v-for="category in categories" :key="category" :value="category">
               {{ category }}
@@ -68,22 +68,22 @@
         </div>
         
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">From Date</label>
-          <input type="date" v-model="filters.startDate" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">From Date</label>
+          <input type="date" v-model="filters.startDate" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
         </div>
         
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">To Date</label>
-          <input type="date" v-model="filters.endDate" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">To Date</label>
+          <input type="date" v-model="filters.endDate" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
         </div>
         
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Search</label>
           <input 
             type="text" 
             v-model="filters.search" 
             placeholder="Search expenses..."
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
           >
         </div>
       </div>
@@ -91,7 +91,7 @@
       <div class="flex justify-end mt-4">
         <button 
           @click="clearFilters"
-          class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+          class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 dark:bg-gray-600"
         >
           Clear Filters
         </button>
@@ -99,13 +99,13 @@
     </div>
 
     <!-- Expenses Table -->
-    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 dark:bg-slate-800 dark:border-slate-700">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-semibold text-gray-800 ">Expense Records</h2>
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Expense Records</h2>
         <div class="flex gap-2">
           <button 
             @click="refreshData"
-            class="bg-gray-200 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-300 flex items-center"
+            class="bg-gray-200 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-300 flex items-center dark:bg-slate-700 dark:text-white"
           >
             <span class="material-icons text-sm mr-1">refresh</span>
             Refresh
@@ -115,7 +115,7 @@
 
       <table class="w-full border-collapse">
         <thead>
-          <tr class="bg-blue-500 text-left">
+          <tr class="bg-blue-500 text-left text-white dark:bg-blue-700">
             <th class="p-3 border-b">#</th>
             <th class="p-3 border-b">Expense Name</th>
             <th class="p-3 border-b">Category</th>
@@ -129,38 +129,38 @@
           <tr
             v-for="(expense, index) in filteredExpenses"
             :key="expense.id"
-            class="hover:bg-gray-50"
+            class="hover:bg-gray-50 dark:hover:bg-slate-700"
           >
             <td class="p-3 border-b">{{ index + 1 }}</td>
             <td class="p-3 border-b">
               <div>
-                <p class="font-medium">{{ expense.name }}</p>
-                <p class="text-sm text-gray-500" v-if="expense.description">{{ expense.description }}</p>
+                <p class="font-medium dark:text-white">{{ expense.name }}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-300" v-if="expense.description">{{ expense.description }}</p>
               </div>
             </td>
             <td class="p-3 border-b">
-              <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+              <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full dark:bg-blue-900/30 dark:text-blue-200">
                 {{ expense.category }}
               </span>
             </td>
-            <td class="p-3 border-b text-green-700 font-semibold">
+            <td class="p-3 border-b text-green-700 dark:text-green-400 font-semibold">
               Rs. {{ expense.amount.toLocaleString() }}
             </td>
-            <td class="p-3 border-b text-black">
+            <td class="p-3 border-b text-slate-800 dark:text-white">
               {{ formatDate(expense.date) }}
             </td>
             <td class="p-3 border-b">
               <div class="flex gap-2">
                 <button 
                   @click="editExpense(expense)"
-                  class="text-blue-600 hover:text-blue-800"
+                  class="text-blue-600 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-100"
                   title="Edit"
                 >
                   <span class="material-icons text-sm">edit</span>
                 </button>
                 <button 
                   @click="deleteExpense(expense.id)"
-                  class="text-red-600 hover:text-red-800"
+                  class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                   title="Delete"
                 >
                   <span class="material-icons text-sm">delete</span>
@@ -171,9 +171,9 @@
         </tbody>
 
         <tfoot v-if="filteredExpenses.length">
-          <tr class="bg-blue-50 font-semibold">
-            <td colspan="3" class="p-3 border-t text-right text-black">Total:</td>
-            <td class="p-3 border-t text-green-700 font-bold">
+          <tr class="bg-blue-50 font-semibold dark:bg-slate-900 dark:text-white">
+            <td colspan="3" class="p-3 border-t text-right text-black dark:text-white">Total:</td>
+            <td class="p-3 border-t text-green-700 dark:text-green-400 font-bold">
               Rs. {{ totalAmount.toLocaleString() }}
             </td>
             <td colspan="2" class="p-3 border-t"></td>
@@ -182,12 +182,12 @@
       </table>
 
       <div v-if="!filteredExpenses.length" class="text-center py-8">
-        <span class="material-icons text-4xl text-gray-400 mb-2">receipt</span>
-        <p class="text-gray-500">No expenses found.</p>
-        <p class="text-gray-400 text-sm mt-1">Try adjusting your filters or add a new expense</p>
+        <span class="material-icons text-4xl text-gray-400 dark:text-gray-400 mb-2">receipt</span>
+        <p class="text-gray-500 dark:text-gray-300">No expenses found.</p>
+        <p class="text-gray-400 dark:text-gray-400 text-sm mt-1">Try adjusting your filters or add a new expense</p>
         <button 
           @click="showAddForm = true"
-          class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 mt-4"
+          class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 mt-4 dark:bg-blue-700 dark:hover:bg-blue-600"
         >
           Add New Expense
         </button>
@@ -196,31 +196,31 @@
 
     <!-- Add/Edit Expense Modal -->
     <div v-if="showAddForm || editingExpense" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
-        <div class="flex justify-between items-center p-6 border-b">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full dark:bg-slate-800 dark:text-white">
+        <div class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-slate-700">
           <h3 class="text-lg font-semibold">
             {{ editingExpense ? 'Edit Expense' : 'Add New Expense' }}
           </h3>
-          <button @click="closeModal" class="text-gray-400 hover:text-gray-600">
+          <button @click="closeModal" class="text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-white">
             <span class="material-icons">close</span>
           </button>
         </div>
         
         <form @submit.prevent="saveExpense" class="p-6 space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Expense Name *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Expense Name *</label>
             <input 
               type="text" 
               v-model="expenseForm.name" 
               required
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
               placeholder="Enter expense name"
             >
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Category *</label>
-            <select v-model="expenseForm.category" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Category *</label>
+            <select v-model="expenseForm.category" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
               <option value="">Select Category</option>
               <option v-for="category in categories" :key="category" :value="category">
                 {{ category }}
@@ -229,34 +229,34 @@
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Amount (Rs.) *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Amount (Rs.) *</label>
             <input 
               type="number" 
               v-model="expenseForm.amount" 
               required
               min="0"
               step="0.01"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
               placeholder="0.00"
             >
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Date *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Date *</label>
             <input 
               type="date" 
               v-model="expenseForm.date" 
               required
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
             >
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Description</label>
             <textarea 
               v-model="expenseForm.description" 
               rows="3"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
               placeholder="Add any additional details..."
             ></textarea>
           </div>
@@ -265,13 +265,13 @@
             <button 
               type="button" 
               @click="closeModal"
-              class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+              class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700"
             >
               Cancel
             </button>
             <button 
               type="submit" 
-              class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+              class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600"
             >
               {{ editingExpense ? 'Update Expense' : 'Add Expense' }}
             </button>

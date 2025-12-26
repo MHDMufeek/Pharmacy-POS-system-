@@ -1,5 +1,5 @@
 <template>
-    <div class="container mx-auto p-6">
+    <div class="container mx-auto p-6 dark:bg-slate-900 dark:text-white">
       <!-- Header -->
       <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-blue-900">Sales Bill</h1>
@@ -13,7 +13,7 @@
       </div>
   
       <!-- Sales Bill Form -->
-      <div class="bg-white rounded-lg shadow p-6 mb-6">
+      <div class="bg-white rounded-lg shadow p-6 mb-6 dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Bill Number</label>
@@ -214,7 +214,7 @@
       </div>
   
       <!-- Recent Bills -->
-      <div class="bg-white rounded-lg shadow p-6">
+      <div class="bg-white rounded-lg shadow p-6 dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700">
         <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Sales Bills</h3>
         
         <div class="overflow-x-auto">

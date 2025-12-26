@@ -1,21 +1,21 @@
 <template>
-    <div class="container mx-auto p-6">
+    <div class="container mx-auto p-6 dark:bg-slate-900 dark:text-white">
       <!-- Header -->
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-blue-900">Supplier Management</h1>
-          <p class="text-gray-600 mt-1">Manage your suppliers and invoices in one place</p>
+          <h1 class="text-2xl font-bold text-blue-900 dark:text-blue-300">Supplier Management</h1>
+          <p class="text-gray-600 mt-1 dark:text-gray-300">Manage your suppliers and invoices in one place</p>
         </div>
       
       </div>
 
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500 dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Total Suppliers</p>
-              <p class="text-2xl font-bold text-gray-900 mt-1">{{ suppliers.length }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Suppliers</p>
+              <p class="text-2xl font-bold text-gray-900 mt-1 dark:text-white">{{ suppliers.length }}</p>
             </div>
             <div class="bg-blue-100 p-3 rounded-full">
               <span class="material-icons text-blue-600">business</span>
@@ -23,7 +23,7 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500 dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">Active Invoices</p>
@@ -35,7 +35,7 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-red-500">
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-red-500 dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">Overdue</p>
@@ -47,7 +47,7 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500 dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">Total Amount</p>
@@ -61,15 +61,15 @@
       </div>
   
       <!-- Main Content Tabs -->
-      <div class="bg-white rounded-lg shadow mb-6">
+      <div class="bg-white rounded-lg shadow mb-6 dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700">
         <div class="border-b">
           <nav class="flex -mb-px">
             <button 
               @click="activeTab = 'invoices'"
               :class="['py-4 px-6 text-sm font-medium border-b-2 transition-colors', 
                       activeTab === 'invoices' 
-                        ? 'border-blue-500 text-blue-600' 
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300']"
+                        ? 'border-blue-500 text-blue-600 dark:border-blue-300 dark:text-blue-300' 
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-slate-600']"
             >
               <span class="material-icons align-middle mr-2 text-base">receipt</span>
               Supplier Invoices
@@ -102,19 +102,19 @@
           <!-- Invoices Tab -->
           <div v-if="activeTab === 'invoices'">
             <!-- Filters and Actions -->
-            <div class="bg-gray-50 p-4 rounded-lg mb-6">
+            <div class="bg-gray-50 p-4 rounded-lg mb-6 dark:bg-slate-800 dark:text-gray-300">
               <div class="flex flex-col md:flex-row gap-4 items-end">
                 <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Supplier</label>
-                    <select v-model="filters.supplier" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select v-model="filters.supplier" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
                       <option value="">All Suppliers</option>
                       <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">{{ supplier.name }}</option>
                     </select>
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                    <select v-model="filters.status" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select v-model="filters.status" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
                       <option value="">All Status</option>
                       <option value="pending">Pending</option>
                       <option value="paid">Paid</option>
@@ -127,7 +127,7 @@
                     <input 
                       type="date" 
                       v-model="filters.fromDate" 
-                      class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                     >
                   </div>
                   <div>
@@ -135,7 +135,7 @@
                     <input 
                       type="date" 
                       v-model="filters.toDate" 
-                      class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                     >
                   </div>
                 </div>
@@ -144,7 +144,7 @@
                     <span class="material-icons text-sm mr-1">search</span>
                     Search
                   </button>
-                  <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg flex items-center transition-colors" @click="resetFilters">
+                  <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg flex items-center transition-colors dark:bg-slate-700 dark:text-gray-200 dark:hover:bg-slate-600" @click="resetFilters">
                     <span class="material-icons text-sm mr-1">refresh</span>
                     Reset
                   </button>
@@ -164,7 +164,7 @@
                
               </div>
               <div class="flex gap-2">
-                <div class="flex items-center bg-white border border-gray-300 rounded-lg px-3 py-2">
+                <div class="flex items-center bg-white border border-gray-300 rounded-lg px-3 py-2 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
                   <span class="material-icons text-gray-400 mr-2">search</span>
                   <input
                     type="text"
@@ -177,9 +177,9 @@
             </div>
       
             <!-- Invoices Table -->
-            <div class="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
+            <div class="bg-white rounded-lg shadow overflow-hidden border border-gray-200 dark:bg-slate-800 dark:border-slate-700 dark:text-white">
               <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+                <thead class="bg-gray-50 dark:bg-slate-700">
                   <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Invoice #
@@ -204,21 +204,21 @@
                     </th>
                   </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                  <tr v-for="invoice in filteredInvoices" :key="invoice.id" class="hover:bg-gray-50 transition-colors">
+                <tbody class="bg-white divide-y divide-gray-200 dark:bg-transparent dark:divide-slate-700">
+                  <tr v-for="invoice in filteredInvoices" :key="invoice.id" class="hover:bg-gray-50 transition-colors dark:hover:bg-slate-700">
                     <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-blue-600">INV-{{ invoice.id }}</div>
+                      <div class="text-sm font-medium text-blue-600 dark:text-blue-300">INV-{{ invoice.id }}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">{{ getSupplierName(invoice.supplierId) }}</div>
+                      <div class="text-sm font-medium text-gray-900 dark:text-white">{{ getSupplierName(invoice.supplierId) }}</div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                       {{ formatDate(invoice.date) }}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                       {{ formatDate(invoice.dueDate) }}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                       ${{ invoice.totalAmount.toFixed(2) }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
@@ -232,13 +232,13 @@
                         <button type="button" class="password-toggle" @click="showPassword = !showPassword">
   <span class="text-lg">{{ showPassword ? '🙈' : '👁️' }}</span>
 </button>
-                        <button class="text-green-600 hover:text-green-900 transition-colors" @click="editInvoice(invoice)" v-if="invoice.status === 'pending'" title="Edit Invoice">
+                        <button class="text-green-600 hover:text-green-900 transition-colors dark:text-green-300 dark:hover:text-green-100" @click="editInvoice(invoice)" v-if="invoice.status === 'pending'" title="Edit Invoice">
                           <span class="material-icons text-base">edit</span>
                         </button>
-                        <button class="text-red-600 hover:text-red-900 transition-colors" @click="deleteInvoice(invoice)" v-if="invoice.status === 'pending'" title="Delete Invoice">
+                        <button class="text-red-600 hover:text-red-900 transition-colors dark:text-red-300 dark:hover:text-red-100" @click="deleteInvoice(invoice)" v-if="invoice.status === 'pending'" title="Delete Invoice">
                           <span class="material-icons text-base">delete</span>
                         </button>
-                        <button class="text-purple-600 hover:text-purple-900 transition-colors" @click="markAsPaid(invoice)" v-if="invoice.status === 'pending'" title="Mark as Paid">
+                        <button class="text-purple-600 hover:text-purple-900 transition-colors dark:text-purple-300 dark:hover:text-purple-100" @click="markAsPaid(invoice)" v-if="invoice.status === 'pending'" title="Mark as Paid">
                           <span class="material-icons text-base">payments</span>
                         </button>
                       </div>
@@ -249,15 +249,15 @@
               
               <!-- Empty State -->
               <div v-if="filteredInvoices.length === 0" class="text-center py-12">
-                <span class="material-icons text-gray-300 text-6xl">receipt</span>
-                <p class="mt-4 text-gray-500">No invoices found</p>
+                <span class="material-icons text-gray-300 text-6xl dark:text-gray-500">receipt</span>
+                <p class="mt-4 text-gray-500 dark:text-gray-400">No invoices found</p>
                 <button class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors" @click="showCreateInvoiceModal">
                   Create Your First Invoice
                 </button>
               </div>
               
               <!-- Summary -->
-              <div v-if="filteredInvoices.length > 0" class="bg-gray-50 px-6 py-4 border-t">
+              <div v-if="filteredInvoices.length > 0" class="bg-gray-50 px-6 py-4 border-t dark:bg-slate-800 dark:text-gray-300">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
                   <div>
                     <span class="font-medium">Total Invoices:</span> {{ filteredInvoices.length }}
@@ -287,7 +287,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div v-for="supplier in suppliers" :key="supplier.id" class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow p-6">
+              <div v-for="supplier in suppliers" :key="supplier.id" class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow p-6 dark:bg-slate-800 dark:border-slate-700 dark:text-white">
                 <div class="flex items-start justify-between mb-4">
                   <div class="bg-blue-100 p-3 rounded-lg">
                     <span class="material-icons text-blue-600">business</span>
@@ -301,8 +301,8 @@
                     </button>
                   </div>
                 </div>
-                <h4 class="text-lg font-semibold text-gray-900 mb-2">{{ supplier.name }}</h4>
-                <div class="space-y-2 text-sm text-gray-600">
+                <h4 class="text-lg font-semibold text-gray-900 mb-2 dark:text-white">{{ supplier.name }}</h4>
+                <div class="space-y-2 text-sm text-gray-600 dark:text-gray-300">
                   <div class="flex items-center">
                     <span class="material-icons text-gray-400 text-base mr-2">person</span>
                     <span>{{ supplier.contactPerson || 'N/A' }}</span>
@@ -334,8 +334,8 @@
           <div v-if="activeTab === 'analytics'">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <!-- Invoice Status Chart -->
-              <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Invoice Status Distribution</h3>
+              <div class="bg-white p-6 rounded-lg shadow border border-gray-200 dark:bg-slate-800 dark:text-white dark:border-slate-700">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 dark:text-white">Invoice Status Distribution</h3>
                 <div class="space-y-3">
                   <div v-for="status in invoiceStatusStats" :key="status.name" class="flex items-center justify-between">
                     <div class="flex items-center">
@@ -351,19 +351,19 @@
               </div>
 
               <!-- Top Suppliers -->
-              <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Top Suppliers by Invoice Volume</h3>
+              <div class="bg-white p-6 rounded-lg shadow border border-gray-200 dark:bg-slate-800 dark:text-white dark:border-slate-700">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 dark:text-white">Top Suppliers by Invoice Volume</h3>
                 <div class="space-y-4">
                   <div v-for="supplier in topSuppliers" :key="supplier.id" class="flex items-center justify-between">
                     <div class="flex items-center">
-                      <div class="bg-blue-100 p-2 rounded-lg mr-3">
-                        <span class="material-icons text-blue-600 text-sm">business</span>
+                      <div class="bg-blue-100 p-2 rounded-lg mr-3 dark:bg-slate-700">
+                        <span class="material-icons text-blue-600 text-sm dark:text-blue-300">business</span>
                       </div>
-                      <span class="text-sm font-medium text-gray-900">{{ supplier.name }}</span>
+                      <span class="text-sm font-medium text-gray-900 dark:text-white">{{ supplier.name }}</span>
                     </div>
                     <div class="text-right">
-                      <div class="text-sm font-medium text-gray-900">{{ supplier.invoiceCount }} invoices</div>
-                      <div class="text-xs text-gray-500">${{ supplier.totalAmount.toFixed(2) }}</div>
+                      <div class="text-sm font-medium text-gray-900 dark:text-white">{{ supplier.invoiceCount }} invoices</div>
+                      <div class="text-xs text-gray-500 dark:text-gray-300">${{ supplier.totalAmount.toFixed(2) }}</div>
                     </div>
                   </div>
                 </div>
@@ -371,24 +371,24 @@
             </div>
 
             <!-- Monthly Summary -->
-            <div class="bg-white p-6 rounded-lg shadow border border-gray-200 mt-6">
-              <h3 class="text-lg font-semibold text-gray-900 mb-4">Monthly Invoice Summary</h3>
+            <div class="bg-white p-6 rounded-lg shadow border border-gray-200 mt-6 dark:bg-slate-800 dark:text-white dark:border-slate-700">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4 dark:text-white">Monthly Invoice Summary</h3>
               <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="text-center p-4 bg-blue-50 rounded-lg">
-                  <div class="text-2xl font-bold text-blue-600">{{ currentMonthInvoices }}</div>
-                  <div class="text-sm text-gray-600">This Month</div>
+                <div class="text-center p-4 bg-blue-50 rounded-lg dark:bg-slate-800 dark:text-white">
+                  <div class="text-2xl font-bold text-blue-600 dark:text-blue-300">{{ currentMonthInvoices }}</div>
+                  <div class="text-sm text-gray-600 dark:text-gray-300">This Month</div>
                 </div>
-                <div class="text-center p-4 bg-green-50 rounded-lg">
-                  <div class="text-2xl font-bold text-green-600">${{ currentMonthAmount.toFixed(2) }}</div>
-                  <div class="text-sm text-gray-600">Month Amount</div>
+                <div class="text-center p-4 bg-green-50 rounded-lg dark:bg-slate-800 dark:text-white">
+                  <div class="text-2xl font-bold text-green-600 dark:text-green-300">${{ currentMonthAmount.toFixed(2) }}</div>
+                  <div class="text-sm text-gray-600 dark:text-gray-300">Month Amount</div>
                 </div>
-                <div class="text-center p-4 bg-orange-50 rounded-lg">
-                  <div class="text-2xl font-bold text-orange-600">{{ lastMonthInvoices }}</div>
-                  <div class="text-sm text-gray-600">Last Month</div>
+                <div class="text-center p-4 bg-orange-50 rounded-lg dark:bg-slate-800 dark:text-white">
+                  <div class="text-2xl font-bold text-orange-600 dark:text-orange-300">{{ lastMonthInvoices }}</div>
+                  <div class="text-sm text-gray-600 dark:text-gray-300">Last Month</div>
                 </div>
-                <div class="text-center p-4 bg-purple-50 rounded-lg">
-                  <div class="text-2xl font-bold text-purple-600">${{ lastMonthAmount.toFixed(2) }}</div>
-                  <div class="text-sm text-gray-600">Last Month Amount</div>
+                <div class="text-center p-4 bg-purple-50 rounded-lg dark:bg-slate-800 dark:text-white">
+                  <div class="text-2xl font-bold text-purple-600 dark:text-purple-300">${{ lastMonthAmount.toFixed(2) }}</div>
+                  <div class="text-sm text-gray-600 dark:text-gray-300">Last Month Amount</div>
                 </div>
               </div>
             </div>
@@ -397,20 +397,20 @@
       </div>
   
       <!-- Create/Edit Invoice Modal -->
-      <div v-if="showInvoiceModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 p-4 text-black">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-screen overflow-y-auto">
+      <div v-if="showInvoiceModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-screen overflow-y-auto dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700">
           <div class="px-6 py-4 border-b">
-            <h3 class="text-lg font-semibold text-gray-900">{{ isEditing ? 'Edit' : 'Create' }} Invoice</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ isEditing ? 'Edit' : 'Create' }} Invoice</h3>
           </div>
           <div class="px-6 py-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Supplier *</label>
-                <select v-model="currentInvoice.supplierId" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none" required>
+                <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Supplier *</label>
+                <select v-model="currentInvoice.supplierId" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600" required>
                   <option value="">Select Supplier</option>
                   <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">{{ supplier.name }}</option>
                 </select>
-                <div v-if="supplierDetails" class="mt-2 p-3 bg-white border rounded text-sm text-gray-700">
+                <div v-if="supplierDetails" class="mt-2 p-3 bg-white border rounded text-sm text-gray-700 dark:bg-slate-900 dark:text-gray-200 dark:border dark:border-slate-700">
                   <div class="font-semibold mb-1">Supplier Details</div>
                   <div class="text-xs">Name: {{ supplierDetails.name }}</div>
                   <div class="text-xs">Contact: {{ supplierDetails.contactPerson || '-' }}</div>
@@ -448,10 +448,10 @@
             </div>
 
             <!-- Invoice Items -->
-            <div class="mb-6 text-black">
+            <div class="mb-6 text-gray-900 dark:text-gray-100">
               <div class="flex justify-between items-center mb-4">
-                <h4 class="font-medium text-gray-700">Invoice Items</h4>
-                <button type="button" @click="addInvoiceItem" class="text-blue-600 hover:text-blue-800 flex items-center">
+                <h4 class="font-medium text-gray-700 dark:text-gray-300">Invoice Items</h4>
+                <button type="button" @click="addInvoiceItem" class="text-blue-600 hover:text-blue-800 dark:text-blue-300 flex items-center">
                   <span class="material-icons text-sm mr-1">add</span>
                   Add Item
                 </button>
@@ -463,7 +463,7 @@
                     type="text" 
                     v-model="item.description" 
                     placeholder="Item description"
-                    class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
+                    class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white"
                   >
                 </div>
                 <div class="col-span-2">
@@ -508,8 +508,8 @@
               <div class="flex justify-end">
                 <div class="w-64">
                   <div class="flex justify-between mb-2">
-                    <span class="text-sm text-gray-600">Subtotal:</span>
-                    <span class="font-medium">${{ currentInvoice.subtotal.toFixed(2) }}</span>
+                    <span class="text-sm text-gray-600 dark:text-gray-300">Subtotal:</span>
+                    <span class="font-medium dark:text-white">${{ currentInvoice.subtotal.toFixed(2) }}</span>
                   </div>
                   <div class="flex justify-between mb-2">
                     <span class="text-sm text-gray-600">Tax (10%):</span>
@@ -528,25 +528,25 @@
             </div>
 
             <div class="mt-6">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Notes</label>
               <textarea 
                 v-model="currentInvoice.notes" 
-                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none text-black"
+                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white"
                 placeholder="Additional notes for this invoice"
                 rows="2"
               ></textarea>
             </div>
           </div>
-          <div class="px-6 py-4 border-t flex justify-end gap-3">
-            <button @click="showInvoiceModal = false" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg">Cancel</button>
-            <button @click="saveInvoice" class="px-4 py-2 text-white bg-blue-600 rounded-lg">{{ isEditing ? 'Update' : 'Create' }} Invoice</button>
+          <div class="px-6 py-4 border-t flex justify-end gap-3 dark:bg-slate-800 dark:border-t dark:border-slate-700">
+            <button @click="showInvoiceModal = false" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg dark:bg-slate-700 dark:text-white">Cancel</button>
+            <button @click="saveInvoice" class="px-4 py-2 text-white bg-blue-600 rounded-lg dark:bg-blue-600">{{ isEditing ? 'Update' : 'Create' }} Invoice</button>
           </div>
         </div>
       </div>
 
       <!-- Add Supplier Modal -->
       <div v-if="showSupplierModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-screen overflow-y-auto">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-screen overflow-y-auto dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700">
           <div class="px-6 py-4 border-b">
             <h3 class="text-lg font-semibold text-gray-900">Add New Supplier</h3>
           </div>
@@ -554,17 +554,17 @@
             <form @submit.prevent="saveSupplier" class="space-y-6">
               <!-- Basic Information -->
               <div>
-                <h4 class="text-md font-medium text-gray-700 mb-4">Basic Information</h4>
+                <h4 class="text-md font-medium text-gray-700 mb-4 dark:text-gray-300">Basic Information</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                    <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
                       Company Name <span class="text-red-500">*</span>
                     </label>
                     <input
                       v-model="newSupplier.name"
                       type="text"
                       required
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors dark:bg-slate-700 dark:text-white dark:border-slate-600"
                       placeholder="Enter company name"
                     >
                   </div>
@@ -1032,11 +1032,11 @@
   
   function getStatusClass(status) {
     switch (status) {
-      case 'paid': return 'bg-green-100 text-green-800'
-      case 'pending': return 'bg-yellow-100 text-yellow-800'
-      case 'overdue': return 'bg-red-100 text-red-800'
-      case 'cancelled': return 'bg-gray-100 text-gray-800'
-      default: return 'bg-gray-100 text-gray-800'
+      case 'paid': return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'
+      case 'pending': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300'
+      case 'overdue': return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300'
+      case 'cancelled': return 'bg-gray-100 text-gray-800 dark:bg-slate-700 dark:text-gray-300'
+      default: return 'bg-gray-100 text-gray-800 dark:bg-slate-700 dark:text-gray-300'
     }
   }
   

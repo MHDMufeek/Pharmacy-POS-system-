@@ -1,5 +1,5 @@
 <template>
-  <div class="page-container">
+  <div class="page-container dark:bg-slate-900 dark:text-white">
     
     <h2 class="page-header">Create User Account</h2>
     
@@ -400,93 +400,93 @@ select.form-input {
 }
 
 /* Dark mode styles */
-.page-container.dark {
+.dark .page-container {
   background: #1f2937;
   color: #f9fafb;
 }
 
-.page-container.dark .page-header {
+.dark .page-container .page-header {
   color: #60a5fa;
   border-bottom-color: #374151;
 }
 
-.page-container.dark .form-label {
+.dark .page-container .form-label {
   color: #d1d5db;
 }
 
-.page-container.dark .form-input {
+.dark .page-container .form-input {
   background-color: #374151;
   border-color: #4b5563;
   color: #f9fafb;
 }
 
-.page-container.dark .form-input:focus {
+.dark .page-container .form-input:focus {
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
   background-color: #4b5563;
 }
 
-.page-container.dark select.form-input {
+.dark .page-container select.form-input {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
 }
 
-.page-container.dark .btn-secondary {
+.dark .page-container .btn-secondary {
   background-color: #6b7280;
   color: #f9fafb;
 }
 
-.page-container.dark .btn-secondary:hover {
+.dark .page-container .btn-secondary:hover {
   background-color: #4b5563;
 }
 
-.page-container.dark .alert-success {
+.dark .page-container .alert-success {
   background-color: #065f46;
   color: #d1fae5;
   border-color: #047857;
 }
 
-.page-container.dark .alert-error {
+.dark .page-container .alert-error {
   background-color: #7f1d1d;
   color: #fecaca;
   border-color: #991b1b;
 }
 
-.page-container.dark .password-toggle {
+.dark .page-container .password-toggle {
   color: #9ca3af;
 }
 
-.page-container.dark .password-hint {
+.dark .page-container .password-hint {
   color: #9ca3af;
 }
 
-.page-container.dark .permission-text,
-.page-container.dark .status-text {
+.dark .page-container .permission-text,
+.dark .page-container .status-text {
   color: #d1d5db;
 }
 
-.page-container.dark .theme-toggle-btn {
+.dark .page-container .theme-toggle-btn {
   background: #374151;
   border-color: #4b5563;
   color: #d1d5db;
 }
 
-.page-container.dark .theme-toggle-btn:hover {
+.dark .page-container .theme-toggle-btn:hover {
   background: #4b5563;
 }
 
 /* Checkbox and Radio styles for dark mode */
-.page-container.dark .checkbox-input,
-.page-container.dark .radio-input {
+.dark .page-container .checkbox-input,
+.dark .page-container .radio-input {
   filter: brightness(0.8);
 }
 
 /* Placeholder text for dark mode */
-.page-container.dark .form-input::placeholder {
+.dark .page-container .form-input::placeholder {
   color: #9ca3af;
 }
 
 /* Selection styles */
-.page-container.dark .form-input option {
+.dark .page-container .form-input option {
   background-color: #374151;
   color: #f9fafb;
 }

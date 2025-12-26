@@ -1,12 +1,13 @@
 <template>
   <aside
     :class="[
-      'bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white flex flex-col fixed top-0 left-0 h-screen z-50 transition-all duration-300 shadow-2xl border-r border-slate-700/50'
+      'flex flex-col fixed top-0 left-0 h-screen z-50 transition-all duration-300 shadow-2xl border-r',
+      'bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white border-slate-700/50'
     ]"
     :style="{ width: sidebarOpen ? '280px' : '80px' }"
   >
     <!-- Logo as Dashboard Button -->
-    <div class="flex items-center gap-4 p-6 border-b border-slate-700/50 bg-slate-800/50 backdrop-blur-sm">
+      <div class="flex items-center gap-4 p-6 border-b border-slate-700/50 bg-slate-900/60 backdrop-blur-sm">
       <router-link 
         to="/dashboard" 
         custom
@@ -91,7 +92,7 @@
     </nav>
 
     <!-- Sidebar Footer -->
-    <div v-show="sidebarOpen" class="p-4 border-t border-slate-700/50 bg-slate-800/30">
+    <div v-show="sidebarOpen" class="p-4 border-t border-slate-700/50 bg-slate-900/60 text-slate-400">
       <div class="flex items-center gap-3 text-xs text-slate-400">
         <span class="material-icons-round text-sm">info</span>
         <span>Version 2.1.0</span>

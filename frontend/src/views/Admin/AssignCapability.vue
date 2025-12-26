@@ -1,5 +1,5 @@
 <template>
-  <div class="page-container">
+  <div class="page-container dark:bg-slate-900 dark:text-white">
     <div class="header-actions">
       <h2 class="page-header">Assign Capability</h2>
       <!-- Theme controls removed; use main navbar theme toggle -->
@@ -678,7 +678,7 @@ onMounted(() => {
   margin-bottom: 1.5rem;
 }
 
-.dark-theme .alert-info {
+.dark .alert-info {
   background-color: #1e3a8a;
   color: #dbeafe;
   border-color: #3b82f6;
@@ -706,15 +706,15 @@ textarea:disabled {
   color: #ea580c;
 }
 
-.dark-theme .text-green-600 {
+.dark .text-green-600 {
   color: #34d399;
 }
 
-.dark-theme .text-red-600 {
+.dark .text-red-600 {
   color: #f87171;
 }
 
-.dark-theme .text-orange-600 {
+.dark .text-orange-600 {
   color: #fb923c;
 }
 
@@ -1043,158 +1043,244 @@ select.form-input {
 }
 
 /* Dark Mode */
-.dark-theme .page-container {
+.dark .page-container {
   background: #1f2937;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-.dark-theme .page-header {
+/* Also support Tailwind 'dark' class on document root */
+.dark .page-container {
+  background: #1f2937;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.dark .page-header {
   color: #60a5fa;
 }
 
-.dark-theme .header-actions {
+.dark .page-header {
+  color: #60a5fa;
+}
+
+.dark .header-actions {
   border-bottom-color: #374151;
 }
 
-.dark-theme .theme-toggle-container {
+.dark .theme-toggle-container {
   background: #374151;
   border-color: #4b5563;
 }
 
-.dark-theme .theme-btn:hover {
+.dark .theme-btn:hover {
   background: #4b5563;
 }
 
-.dark-theme .theme-btn.active {
+.dark .theme-btn.active {
   background: #6b7280;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-.dark-theme .theme-btn.active .theme-icon {
+.dark .theme-btn.active .theme-icon {
   color: #60a5fa;
 }
 
-.dark-theme .form-label {
+.dark .form-label {
   color: #d1d5db;
 }
 
-.dark-theme .form-input {
+.dark .form-input {
   background-color: #374151;
   border-color: #4b5563;
   color: #f9fafb;
 }
 
-.dark-theme .form-input:focus {
+.dark .form-input:focus {
   border-color: #60a5fa;
   box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
 }
 
-.dark-theme .form-input::placeholder {
+.dark .form-input::placeholder {
   color: #9ca3af;
 }
 
-.dark-theme select.form-input {
+.dark select.form-input {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
 }
 
-.dark-theme .btn-primary {
+.dark .btn-primary { background-color: #2563eb; }
+.dark .btn-primary:hover:not(:disabled) { background-color: #1d4ed8; }
+
+.dark .btn-secondary { background-color: #4b5563; }
+.dark .btn-secondary:hover:not(:disabled) { background-color: #374151; }
+
+.dark .btn-danger { background-color: #dc2626; }
+.dark .btn-danger:hover:not(:disabled) { background-color: #b91c1c; }
+
+.dark .alert-success { background-color: #064e3b; color: #a7f3d0; border-color: #047857; }
+.dark .alert-error { background-color: #7f1d1d; color: #fecaca; border-color: #b91c1c; }
+
+.dark .capability-module { background-color: #374151; border-color: #4b5563; }
+.dark .module-header { color: #f9fafb; }
+.dark .capability-item { color: #d1d5db; }
+.dark .capability-item:hover { background-color: #4b5563; }
+.dark .checkbox-input, .dark .radio-input { background-color: #4b5563; border-color: #6b7280; }
+.dark .duration-option { color: #d1d5db; }
+.dark .duration-option:hover { background-color: #4b5563; }
+.dark .permission-hint { color: #9ca3af; }
+.dark .section-title { color: #f9fafb; }
+.dark .assignments-container { background-color: #374151; border-color: #4b5563; }
+.dark .assignment-card { background-color: #4b5563; border-color: #6b7280; }
+.dark .assignment-user { color: #f9fafb; }
+.dark .assignment-detail { color: #d1d5db; }
+.dark .detail-label { color: #e5e7eb; }
+.dark .no-assignments { background-color: #374151; color: #9ca3af; }
+
+/* Alert info */
+.dark .alert-info { background-color: #1e3a8a; color: #dbeafe; border-color: #3b82f6; }
+
+.dark .header-actions {
+  border-bottom-color: #374151;
+}
+
+.dark .theme-toggle-container {
+  background: #374151;
+  border-color: #4b5563;
+}
+
+.dark .theme-btn:hover {
+  background: #4b5563;
+}
+
+.dark .theme-btn.active {
+  background: #6b7280;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.dark .theme-btn.active .theme-icon {
+  color: #60a5fa;
+}
+
+.dark .form-label {
+  color: #d1d5db;
+}
+
+.dark .form-input {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #f9fafb;
+}
+
+.dark .form-input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+
+.dark .form-input::placeholder {
+  color: #9ca3af;
+}
+
+.dark select.form-input {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+}
+
+.dark .btn-primary {
   background-color: #2563eb;
 }
 
-.dark-theme .btn-primary:hover:not(:disabled) {
+.dark .btn-primary:hover:not(:disabled) {
   background-color: #1d4ed8;
 }
 
-.dark-theme .btn-secondary {
+.dark .btn-secondary {
   background-color: #4b5563;
 }
 
-.dark-theme .btn-secondary:hover:not(:disabled) {
+.dark .btn-secondary:hover:not(:disabled) {
   background-color: #374151;
 }
 
-.dark-theme .btn-danger {
+.dark .btn-danger {
   background-color: #dc2626;
 }
 
-.dark-theme .btn-danger:hover:not(:disabled) {
+.dark .btn-danger:hover:not(:disabled) {
   background-color: #b91c1c;
 }
 
-.dark-theme .alert-success {
+.dark .alert-success {
   background-color: #064e3b;
   color: #a7f3d0;
   border-color: #047857;
 }
 
-.dark-theme .alert-error {
+.dark .alert-error {
   background-color: #7f1d1d;
   color: #fecaca;
   border-color: #b91c1c;
 }
 
-.dark-theme .capability-module {
+.dark .capability-module {
   background-color: #374151;
   border-color: #4b5563;
 }
 
-.dark-theme .module-header {
+.dark .module-header {
   color: #f9fafb;
 }
 
-.dark-theme .capability-item {
+.dark .capability-item {
   color: #d1d5db;
 }
 
-.dark-theme .capability-item:hover {
+.dark .capability-item:hover {
   background-color: #4b5563;
 }
 
-.dark-theme .checkbox-input,
-.dark-theme .radio-input {
+.dark .checkbox-input,
+.dark .radio-input {
   background-color: #4b5563;
   border-color: #6b7280;
 }
 
-.dark-theme .duration-option {
+.dark .duration-option {
   color: #d1d5db;
 }
 
-.dark-theme .duration-option:hover {
+.dark .duration-option:hover {
   background-color: #4b5563;
 }
 
-.dark-theme .permission-hint {
+.dark .permission-hint {
   color: #9ca3af;
 }
 
-.dark-theme .section-title {
+.dark .section-title {
   color: #f9fafb;
 }
 
-.dark-theme .assignments-container {
+.dark .assignments-container {
   background-color: #374151;
   border-color: #4b5563;
 }
 
-.dark-theme .assignment-card {
+.dark .assignment-card {
   background-color: #4b5563;
   border-color: #6b7280;
 }
 
-.dark-theme .assignment-user {
+.dark .assignment-user {
   color: #f9fafb;
 }
 
-.dark-theme .assignment-detail {
+.dark .assignment-detail {
   color: #d1d5db;
 }
 
-.dark-theme .detail-label {
+.dark .detail-label {
   color: #e5e7eb;
 }
 
-.dark-theme .no-assignments {
+.dark .no-assignments {
   background-color: #374151;
   color: #9ca3af;
 }

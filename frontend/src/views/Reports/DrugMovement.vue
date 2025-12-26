@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto p-6">
+  <div class="container mx-auto p-6 dark:bg-slate-900 dark:text-white">
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
       <div>
@@ -17,13 +17,13 @@
 
     <!-- Quick Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-      <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+      <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500 dark:bg-slate-800 dark:border-slate-700 dark:text-white">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-600">Total Transactions</p>
-            <p class="text-2xl font-bold text-gray-900 mt-1">{{ totalTransactions }}</p>
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Transactions</p>
+            <p class="text-2xl font-bold text-gray-900 mt-1 dark:text-white">{{ totalTransactions }}</p>
           </div>
-          <div class="bg-blue-100 p-3 rounded-full">
+          <div class="bg-blue-100 p-3 rounded-full dark:bg-blue-900/20">
             <span class="material-icons text-blue-600">swap_horiz</span>
           </div>
         </div>
@@ -33,13 +33,13 @@
         </div>
       </div>
 
-      <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
+      <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500 dark:bg-slate-800 dark:border-slate-700 dark:text-white">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-600">Items Sold</p>
-            <p class="text-2xl font-bold text-gray-900 mt-1">{{ itemsSold }}</p>
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Items Sold</p>
+            <p class="text-2xl font-bold text-gray-900 mt-1 dark:text-white">{{ itemsSold }}</p>
           </div>
-          <div class="bg-green-100 p-3 rounded-full">
+          <div class="bg-green-100 p-3 rounded-full dark:bg-green-900/20">
             <span class="material-icons text-green-600">point_of_sale</span>
           </div>
         </div>
@@ -49,13 +49,13 @@
         </div>
       </div>
 
-      <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
+      <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500 dark:bg-slate-800 dark:border-slate-700 dark:text-white">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-600">Total Revenue</p>
-            <p class="text-2xl font-bold text-gray-900 mt-1">Rs.{{ totalRevenue.toFixed(2) }}</p>
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Revenue</p>
+            <p class="text-2xl font-bold text-gray-900 mt-1 dark:text-white">Rs.{{ totalRevenue.toFixed(2) }}</p>
           </div>
-          <div class="bg-purple-100 p-3 rounded-full">
+          <div class="bg-purple-100 p-3 rounded-full dark:bg-purple-900/20">
             <span class="material-icons text-purple-600">payments</span>
           </div>
         </div>
@@ -65,13 +65,13 @@
         </div>
       </div>
 
-      <div class="bg-white rounded-lg shadow p-6 border-l-4 border-orange-500">
+      <div class="bg-white rounded-lg shadow p-6 border-l-4 border-orange-500 dark:bg-slate-800 dark:border-slate-700 dark:text-white">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-600">Low Stock Items</p>
-            <p class="text-2xl font-bold text-gray-900 mt-1">{{ lowStockItems }}</p>
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Low Stock Items</p>
+            <p class="text-2xl font-bold text-gray-900 mt-1 dark:text-white">{{ lowStockItems }}</p>
           </div>
-          <div class="bg-orange-100 p-3 rounded-full">
+          <div class="bg-orange-100 p-3 rounded-full dark:bg-orange-900/20">
             <span class="material-icons text-orange-600">warning</span>
           </div>
         </div>
@@ -83,15 +83,15 @@
     </div>
 
     <!-- Main Content Tabs -->
-    <div class="bg-white rounded-lg shadow mb-6">
+    <div class="bg-white rounded-lg shadow mb-6 dark:bg-slate-800 dark:text-white">
       <div class="border-b">
         <nav class="flex -mb-px overflow-x-auto">
           <button 
             @click="activeTab = 'overview'"
             :class="['py-4 px-6 text-sm font-medium border-b-2 transition-colors whitespace-nowrap', 
                     activeTab === 'overview' 
-                      ? 'border-blue-500 text-blue-600' 
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300']"
+                      ? 'border-blue-500 text-blue-600 dark:text-blue-300 dark:border-blue-400' 
+                      : 'border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-slate-600']"
           >
             <span class="material-icons align-middle mr-2 text-base">dashboard</span>
             Overview
@@ -100,8 +100,8 @@
             @click="activeTab = 'transactions'"
             :class="['py-4 px-6 text-sm font-medium border-b-2 transition-colors whitespace-nowrap', 
                     activeTab === 'transactions' 
-                      ? 'border-blue-500 text-blue-600' 
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300']"
+                      ? 'border-blue-500 text-blue-600 dark:text-blue-300 dark:border-blue-400' 
+                      : 'border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-slate-600']"
           >
             <span class="material-icons align-middle mr-2 text-base">receipt_long</span>
             All Transactions
@@ -110,8 +110,8 @@
             @click="activeTab = 'stock'"
             :class="['py-4 px-6 text-sm font-medium border-b-2 transition-colors whitespace-nowrap', 
                     activeTab === 'stock' 
-                      ? 'border-blue-500 text-blue-600' 
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300']"
+                      ? 'border-blue-500 text-blue-600 dark:text-blue-300 dark:border-blue-400' 
+                      : 'border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-slate-600']"
           >
             <span class="material-icons align-middle mr-2 text-base">inventory</span>
             Stock Movement
@@ -120,8 +120,8 @@
             @click="activeTab = 'analytics'"
             :class="['py-4 px-6 text-sm font-medium border-b-2 transition-colors whitespace-nowrap', 
                     activeTab === 'analytics' 
-                      ? 'border-blue-500 text-blue-600' 
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300']"
+                      ? 'border-blue-500 text-blue-600 dark:text-blue-300 dark:border-blue-400' 
+                      : 'border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-slate-600']"
           >
             <span class="material-icons align-middle mr-2 text-base">analytics</span>
             Analytics
@@ -130,8 +130,8 @@
             @click="activeTab = 'reports'"
             :class="['py-4 px-6 text-sm font-medium border-b-2 transition-colors whitespace-nowrap', 
                     activeTab === 'reports' 
-                      ? 'border-blue-500 text-blue-600' 
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300']"
+                      ? 'border-blue-500 text-blue-600 dark:text-blue-300 dark:border-blue-400' 
+                      : 'border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-slate-600']"
           >
             <span class="material-icons align-middle mr-2 text-base">summarize</span>
             Reports
@@ -148,8 +148,8 @@
             <div class="flex flex-col md:flex-row gap-4 items-end">
               <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
-                  <select v-model="dateRange" class="w-full bg-black border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Date Range</label>
+                  <select v-model="dateRange" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
                     <option value="today">Today</option>
                     <option value="yesterday">Yesterday</option>
                     <option value="week">This Week</option>
@@ -160,25 +160,24 @@
                   </select>
                 </div>
                 <div v-if="dateRange === 'custom'">
-                  <label class="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+                  <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">From Date</label>
                   <input 
                     type="date" 
                     v-model="customStartDate" 
-                    class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                   >
                 </div>
                 <div v-if="dateRange === 'custom'">
-                  <label class="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+                  <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">To Date</label>
                   <input 
                     type="date" 
                     v-model="customEndDate" 
-                    class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                   >
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Transaction Type</label>
-                  <select v-model="transactionType" class="w-full bg-black
-                   border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Transaction Type</label>
+                  <select v-model="transactionType" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
                     <option value="all">All Types</option>
                     <option value="sale">Sales</option>
                     <option value="purchase">Purchases</option>
@@ -192,7 +191,7 @@
                   <span class="material-icons text-sm mr-1">search</span>
                   Apply
                 </button>
-                <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg flex items-center transition-colors" @click="resetFilters">
+                <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg flex items-center transition-colors dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600" @click="resetFilters">
                   <span class="material-icons text-sm mr-1">refresh</span>
                   Reset
                 </button>
@@ -203,10 +202,10 @@
           <!-- Charts and Metrics -->
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <!-- Sales Trend Chart -->
-            <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
-              <h3 class="text-lg font-semibold text-gray-900 mb-4">Sales Trend</h3>
-              <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-                <div class="text-center text-gray-500">
+            <div class="bg-white p-6 rounded-lg shadow border border-gray-200 dark:bg-slate-800 dark:border-slate-700 dark:text-white">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Sales Trend</h3>
+              <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg dark:bg-slate-700">
+                <div class="text-center text-gray-500 dark:text-gray-300">
                   <span class="material-icons text-4xl mb-2">bar_chart</span>
                   <p>Sales Chart Visualization</p>
                   <p class="text-sm">(Chart would be implemented with a charting library)</p>
@@ -215,22 +214,22 @@
             </div>
 
             <!-- Top Selling Drugs -->
-            <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
-              <h3 class="text-lg font-semibold text-gray-900 mb-4">Top Selling Drugs</h3>
+            <div class="bg-white p-6 rounded-lg shadow border border-gray-200 dark:bg-slate-800 dark:border-slate-700 dark:text-white">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Top Selling Drugs</h3>
               <div class="space-y-4">
-                <div v-for="(drug, index) in topSellingDrugs" :key="drug.id" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div v-for="(drug, index) in topSellingDrugs" :key="drug.id" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg dark:bg-slate-700">
                   <div class="flex items-center">
-                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3 dark:bg-blue-900/20">
                       <span class="text-blue-600 font-bold text-sm">{{ index + 1 }}</span>
                     </div>
                     <div>
-                      <div class="text-sm font-medium text-gray-900">{{ drug.name }}</div>
-                      <div class="text-xs text-gray-500">{{ drug.category }}</div>
+                      <div class="text-sm font-medium text-gray-900 dark:text-white">{{ drug.name }}</div>
+                      <div class="text-xs text-gray-500 dark:text-gray-300">{{ drug.category }}</div>
                     </div>
                   </div>
                   <div class="text-right">
-                    <div class="text-sm font-medium text-gray-900">{{ drug.quantity }} sold</div>
-                    <div class="text-xs text-gray-500">Rs.{{ drug.revenue.toFixed(2) }}</div>
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ drug.quantity }} sold</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-300">Rs.{{ drug.revenue.toFixed(2) }}</div>
                   </div>
                 </div>
               </div>
@@ -239,8 +238,8 @@
 
           <!-- Quick Summary Cards -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
-              <h4 class="text-md font-semibold text-gray-900 mb-3">Transaction Summary</h4>
+            <div class="bg-white p-6 rounded-lg shadow border border-gray-200 dark:bg-slate-800 dark:border-slate-700 dark:text-white">
+              <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-3">Transaction Summary</h4>
               <div class="space-y-2">
                 <div class="flex justify-between text-sm">
                   <span class="text-gray-600">Total Sales:</span>
@@ -257,8 +256,8 @@
               </div>
             </div>
 
-            <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
-              <h4 class="text-md font-semibold text-gray-900 mb-3">Inventory Status</h4>
+            <div class="bg-white p-6 rounded-lg shadow border border-gray-200 dark:bg-slate-800 dark:border-slate-700 dark:text-white">
+              <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-3">Inventory Status</h4>
               <div class="space-y-2">
                 <div class="flex justify-between text-sm">
                   <span class="text-gray-600">Total Items:</span>
@@ -275,8 +274,8 @@
               </div>
             </div>
 
-            <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
-              <h4 class="text-md font-semibold text-gray-900 mb-3">Movement Activity</h4>
+            <div class="bg-white p-6 rounded-lg shadow border border-gray-200 dark:bg-slate-800 dark:border-slate-700 dark:text-white">
+              <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-3">Movement Activity</h4>
               <div class="space-y-2">
                 <div class="flex justify-between text-sm">
                   <span class="text-gray-600">Today's Transactions:</span>
@@ -312,11 +311,11 @@
           </div>
 
           <!-- Transactions Table -->
-          <div class="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
+          <div class="bg-white rounded-lg shadow overflow-hidden border border-gray-200 dark:bg-slate-800 dark:border-slate-700">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+              <thead class="bg-gray-50 dark:bg-slate-900">
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transaction ID</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Transaction ID</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Drug Name</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
@@ -325,12 +324,12 @@
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 </tr>
               </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <tr v-for="transaction in filteredTransactions" :key="transaction.id" class="hover:bg-gray-50 transition-colors">
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+              <tbody class="bg-white divide-y divide-gray-200 dark:bg-transparent dark:divide-slate-700">
+                <tr v-for="transaction in filteredTransactions" :key="transaction.id" class="hover:bg-gray-50 transition-colors dark:hover:bg-slate-700">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 dark:text-blue-300">
                     {{ transaction.id }}
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                     {{ transaction.drugName }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
@@ -338,13 +337,13 @@
                       {{ transaction.type }}
                     </span>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                     {{ transaction.quantity }}
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                     Rs.{{ transaction.amount.toFixed(2) }}
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                     {{ formatDate(transaction.date) }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
@@ -362,14 +361,14 @@
         <div v-if="activeTab === 'stock'">
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Stock Alerts -->
-            <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
-              <h3 class="text-lg font-semibold text-gray-900 mb-4">Stock Alerts</h3>
+            <div class="bg-white p-6 rounded-lg shadow border border-gray-200 dark:bg-slate-800 dark:border-slate-700 dark:text-white">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Stock Alerts</h3>
               <div class="space-y-3">
-                <div v-for="alert in stockAlerts" :key="alert.id" class="p-3 border-l-4 rounded bg-red-50 border-red-400">
+                <div v-for="alert in stockAlerts" :key="alert.id" class="p-3 border-l-4 rounded bg-red-50 border-red-400 dark:bg-red-900/10 dark:border-red-700">
                   <div class="flex justify-between items-start">
                     <div>
-                      <div class="text-sm font-medium text-gray-900">{{ alert.drugName }}</div>
-                      <div class="text-xs text-gray-600 mt-1">Current Stock: {{ alert.currentStock }}</div>
+                      <div class="text-sm font-medium text-gray-900 dark:text-white">{{ alert.drugName }}</div>
+                      <div class="text-xs text-gray-600 dark:text-gray-300 mt-1">Current Stock: {{ alert.currentStock }}</div>
                     </div>
                     <span class="material-icons text-red-500 text-sm">warning</span>
                   </div>
@@ -378,24 +377,24 @@
             </div>
 
             <!-- Recent Stock Movements -->
-            <div class="bg-white p-6 rounded-lg shadow border border-gray-200 lg:col-span-2">
-              <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Stock Movements</h3>
+            <div class="bg-white p-6 rounded-lg shadow border border-gray-200 lg:col-span-2 dark:bg-slate-800 dark:border-slate-700 dark:text-white">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Stock Movements</h3>
               <div class="space-y-4">
-                <div v-for="movement in recentMovements" :key="movement.id" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div v-for="movement in recentMovements" :key="movement.id" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg dark:bg-slate-700">
                   <div class="flex items-center">
                     <div :class="['w-10 h-10 rounded-full flex items-center justify-center mr-3', getMovementIconClass(movement.type)]">
                       <span class="material-icons text-white text-sm">{{ getMovementIcon(movement.type) }}</span>
                     </div>
                     <div>
-                      <div class="text-sm font-medium text-gray-900">{{ movement.drugName }}</div>
-                      <div class="text-xs text-gray-500">{{ movement.type }} • {{ formatDate(movement.date) }}</div>
+                      <div class="text-sm font-medium text-gray-900 dark:text-white">{{ movement.drugName }}</div>
+                      <div class="text-xs text-gray-500 dark:text-gray-300">{{ movement.type }} • {{ formatDate(movement.date) }}</div>
                     </div>
                   </div>
                   <div class="text-right">
                     <div class="text-sm font-medium" :class="getMovementTextClass(movement.type)">
                       {{ movement.quantity > 0 ? '+' : '' }}{{ movement.quantity }}
                     </div>
-                    <div class="text-xs text-gray-500">Stock: {{ movement.newStock }}</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-300">Stock: {{ movement.newStock }}</div>
                   </div>
                 </div>
               </div>
@@ -407,8 +406,8 @@
         <div v-if="activeTab === 'analytics'">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Performance Metrics -->
-            <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
-              <h3 class="text-lg font-semibold text-gray-900 mb-4">Performance Metrics</h3>
+            <div class="bg-white p-6 rounded-lg shadow border border-gray-200 dark:bg-slate-800 dark:border-slate-700 dark:text-white">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Performance Metrics</h3>
               <div class="space-y-4">
                 <div v-for="metric in performanceMetrics" :key="metric.name" class="flex items-center justify-between">
                   <div>
@@ -428,7 +427,7 @@
             </div>
 
             <!-- Category Distribution -->
-            <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
+            <div class="bg-white p-6 rounded-lg shadow border border-gray-200 dark:bg-slate-800 dark:border-slate-700 dark:text-white">
               <h3 class="text-lg font-semibold text-gray-900 mb-4">Sales by Category</h3>
               <div class="space-y-3">
                 <div v-for="category in categorySales" :key="category.name" class="flex items-center justify-between">
@@ -449,20 +448,20 @@
         <!-- Reports Tab -->
         <div v-if="activeTab === 'reports'">
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div v-for="report in availableReports" :key="report.id" class="bg-white p-6 rounded-lg shadow border border-gray-200 hover:shadow-md transition-shadow">
+            <div v-for="report in availableReports" :key="report.id" class="bg-white p-6 rounded-lg shadow border border-gray-200 hover:shadow-md transition-shadow dark:bg-slate-800 dark:border-slate-700 dark:text-white">
               <div class="flex items-start justify-between mb-4">
                 <div :class="['p-3 rounded-lg', report.iconBg]">
                   <span class="material-icons text-white" :class="report.iconColor">{{ report.icon }}</span>
                 </div>
-                <button class="text-blue-600 hover:text-blue-800">
+                <button class="text-blue-600 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-100">
                   <span class="material-icons">download</span>
                 </button>
               </div>
-              <h4 class="text-lg font-semibold text-gray-900 mb-2">{{ report.title }}</h4>
-              <p class="text-sm text-gray-600 mb-4">{{ report.description }}</p>
-              <div class="flex justify-between items-center text-xs text-gray-500">
+              <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{ report.title }}</h4>
+              <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">{{ report.description }}</p>
+              <div class="flex justify-between items-center text-xs text-gray-500 dark:text-gray-300">
                 <span>Last generated: {{ report.lastGenerated }}</span>
-                <button class="text-blue-600 hover:text-blue-800 font-medium">Generate</button>
+                <button class="text-blue-600 hover:text-blue-800 font-medium dark:text-blue-300">Generate</button>
               </div>
             </div>
           </div>
