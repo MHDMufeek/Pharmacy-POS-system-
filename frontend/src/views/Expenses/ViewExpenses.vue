@@ -1,3 +1,4 @@
+
 <template>
   <div class="p-6 bg-gray-50 min-h-screen dark:bg-slate-900 dark:text-white">
     <!-- Header -->

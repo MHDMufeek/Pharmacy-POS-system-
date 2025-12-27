@@ -51,7 +51,7 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">Total Amount</p>
-              <p class="text-2xl font-bold text-gray-900 mt-1">${{ totalAmount.toFixed(2) }}</p>
+              <p class="text-2xl font-bold text-gray-900 mt-1">Rs.{{ totalAmount.toFixed(2) }}</p>
             </div>
             <div class="bg-purple-100 p-3 rounded-full">
               <span class="material-icons text-purple-600">payments</span>
@@ -219,7 +219,7 @@
                       {{ formatDate(invoice.dueDate) }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                      ${{ invoice.totalAmount.toFixed(2) }}
+                      Rs.{{ invoice.totalAmount.toFixed(2) }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span :class="['px-2 inline-flex text-xs leading-5 font-semibold rounded-full', 
@@ -263,7 +263,7 @@
                     <span class="font-medium">Total Invoices:</span> {{ filteredInvoices.length }}
                   </div>
                   <div>
-                    <span class="font-medium">Total Amount:</span> ${{ totalAmount.toFixed(2) }}
+                    <span class="font-medium">Total Amount:</span> Rs.{{ totalAmount.toFixed(2) }}
                   </div>
                   <div>
                     <span class="font-medium">Pending:</span> {{ pendingCount }}
@@ -363,7 +363,7 @@
                     </div>
                     <div class="text-right">
                       <div class="text-sm font-medium text-gray-900 dark:text-white">{{ supplier.invoiceCount }} invoices</div>
-                      <div class="text-xs text-gray-500 dark:text-gray-300">${{ supplier.totalAmount.toFixed(2) }}</div>
+                      <div class="text-xs text-gray-500 dark:text-gray-300">Rs.{{ supplier.totalAmount.toFixed(2) }}</div>
                     </div>
                   </div>
                 </div>
@@ -379,7 +379,7 @@
                   <div class="text-sm text-gray-600 dark:text-gray-300">This Month</div>
                 </div>
                 <div class="text-center p-4 bg-green-50 rounded-lg dark:bg-slate-800 dark:text-white">
-                  <div class="text-2xl font-bold text-green-600 dark:text-green-300">${{ currentMonthAmount.toFixed(2) }}</div>
+                  <div class="text-2xl font-bold text-green-600 dark:text-green-300">Rs.{{ currentMonthAmount.toFixed(2) }}</div>
                   <div class="text-sm text-gray-600 dark:text-gray-300">Month Amount</div>
                 </div>
                 <div class="text-center p-4 bg-orange-50 rounded-lg dark:bg-slate-800 dark:text-white">
@@ -387,7 +387,7 @@
                   <div class="text-sm text-gray-600 dark:text-gray-300">Last Month</div>
                 </div>
                 <div class="text-center p-4 bg-purple-50 rounded-lg dark:bg-slate-800 dark:text-white">
-                  <div class="text-2xl font-bold text-purple-600 dark:text-purple-300">${{ lastMonthAmount.toFixed(2) }}</div>
+                  <div class="text-2xl font-bold text-purple-600 dark:text-purple-300">Rs.{{ lastMonthAmount.toFixed(2) }}</div>
                   <div class="text-sm text-gray-600 dark:text-gray-300">Last Month Amount</div>
                 </div>
               </div>
@@ -420,26 +420,26 @@
                 </div>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Invoice Date *</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Invoice Date *</label>
                 <input 
                   type="date" 
                   v-model="currentInvoice.date" 
-                  class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
+                  class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
                   required
                 >
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Due Date *</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Due Date *</label>
                 <input 
                   type="date" 
                   v-model="currentInvoice.dueDate" 
-                  class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
+                  class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
                   required
                 >
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <select v-model="currentInvoice.status" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none">
+                <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Status</label>
+                <select v-model="currentInvoice.status" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600">
                   <option value="pending">Pending</option>
                   <option value="paid">Paid</option>
                   <option value="overdue">Overdue</option>
@@ -472,7 +472,7 @@
                     v-model="item.quantity" 
                     placeholder="Qty"
                     min="1"
-                    class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
+                    class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
                     @input="calculateItemTotal(item)"
                   >
                 </div>
@@ -483,16 +483,16 @@
                     placeholder="Unit Price"
                     min="0"
                     step="0.01"
-                    class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
+                    class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
                     @input="calculateItemTotal(item)"
                   >
                 </div>
                 <div class="col-span-2">
                   <input 
                     type="text" 
-                    :value="'$' + (item.total || 0).toFixed(2)" 
+                    :value="'Rs.' + (item.total || 0).toFixed(2)" 
                     disabled
-                    class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none"
+                    class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
                   >
                 </div>
                 <div class="col-span-1">
@@ -511,17 +511,33 @@
                     <span class="text-sm text-gray-600 dark:text-gray-300">Subtotal:</span>
                     <span class="font-medium dark:text-white">${{ currentInvoice.subtotal.toFixed(2) }}</span>
                   </div>
+                  
                   <div class="flex justify-between mb-2">
-                    <span class="text-sm text-gray-600">Tax (10%):</span>
-                    <span class="font-medium">${{ currentInvoice.tax.toFixed(2) }}</span>
-                  </div>
-                  <div class="flex justify-between mb-2">
-                    <span class="text-sm text-gray-600">Discount:</span>
-                    <span class="font-medium">-${{ currentInvoice.discount.toFixed(2) }}</span>
-                  </div>
+                        <span class="text-sm text-gray-600 dark:text-gray-300">Discount (%):</span>
+                          <div class="flex items-center space-x-2">
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              v-model.number="currentInvoice.discountPercent"
+                              @input="onDiscountPercentInput"
+                              class="w-20 bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
+                            />
+                            <span class="text-sm text-gray-600 dark:text-gray-300">Amount:</span>
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              v-model.number="currentInvoice.discount"
+                              @input="onDiscountAmountInput"
+                              class="w-28 bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
+                            />
+                            <span class="font-medium dark:text-white">- Rs.{{ currentInvoice.discount.toFixed(2) }}</span>
+                          </div>
+                      </div>
                   <div class="flex justify-between border-t pt-2">
-                    <span class="text-lg font-bold text-gray-800">Total:</span>
-                    <span class="text-lg font-bold text-blue-600">${{ currentInvoice.totalAmount.toFixed(2) }}</span>
+                    <span class="text-lg font-bold text-gray-800 dark:text-white">Total:</span>
+                    <span class="text-lg font-bold text-blue-600 dark:text-blue-300">Rs.{{ currentInvoice.totalAmount.toFixed(2) }}</span>
                   </div>
                 </div>
               </div>
@@ -760,6 +776,7 @@
   const showSupplierModal = ref(false)
   const isEditing = ref(false)
   const activeTab = ref('invoices')
+  const lastEditedDiscount = ref('percent')
   const filters = ref({
     supplier: '',
     status: '',
@@ -779,6 +796,7 @@
     subtotal: 0,
     tax: 0,
     discount: 0,
+    discountPercent: 0,
     totalAmount: 0,
     notes: ''
   })
@@ -1012,9 +1030,62 @@
     return invoices.value.filter(inv => inv.supplierId === supplierId).length
   }
   
-  function loadInvoices() {
-    // In a real application, this would fetch data from an API
-    console.log('Loading invoices...')
+  function persistInvoices() {
+    try {
+      localStorage.setItem('invoices', JSON.stringify(invoices.value || []))
+    } catch (err) {
+      console.error('Failed to persist invoices', err)
+    }
+  }
+
+  async function loadInvoices() {
+    // Prefer server-backed invoices when a token is available
+    invoices.value = []
+    if (token) {
+      try {
+        const res = await axios.get(`${API_BASE}/invoices`, { headers: { Authorization: `Bearer ${token}` } })
+        if (res.data && Array.isArray(res.data.data)) {
+          invoices.value = res.data.data.map(i => ({
+            ...i,
+            id: i._id || i.id,
+            subtotal: Number(i.subtotal || 0),
+            tax: Number(i.tax || 0),
+              discount: Number(i.discount || 0),
+              discountPercent: Number(i.discountPercent || 0),
+            totalAmount: Number(i.totalAmount || 0)
+          }))
+          console.log('Loaded', invoices.value.length, 'invoices from API')
+          return
+        }
+      } catch (err) {
+        console.warn('Could not load invoices from API, falling back to localStorage', err)
+      }
+    }
+
+    // Load persisted invoices from localStorage so data survives page refresh
+    try {
+      const raw = localStorage.getItem('invoices')
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed)) {
+        invoices.value = parsed.map(i => ({
+            ...i,
+            subtotal: Number(i.subtotal || 0),
+            tax: Number(i.tax || 0),
+            discount: Number(i.discount || 0),
+            discountPercent: Number(i.discountPercent || 0),
+            totalAmount: Number(i.totalAmount || 0)
+          }))
+          console.log('Loaded', invoices.value.length, 'invoices from localStorage')
+          return
+        }
+      }
+    } catch (err) {
+      console.warn('Could not load invoices from localStorage', err)
+    }
+
+    invoices.value = []
+    console.log('No persisted invoices found; starting with empty list')
   }
   
   function formatDate(dateString) {
@@ -1054,9 +1125,11 @@
       subtotal: 0,
       tax: 0,
       discount: 0,
+      discountPercent: 0,
       totalAmount: 0,
       notes: ''
     }
+    lastEditedDiscount.value = 'percent'
     showInvoiceModal.value = true
   }
 
@@ -1132,12 +1205,41 @@
   function calculateTotals() {
     currentInvoice.value.subtotal = currentInvoice.value.items.reduce((sum, item) => sum + (item.total || 0), 0)
     currentInvoice.value.tax = currentInvoice.value.subtotal * 0.1 // 10% tax
+    // compute discount based on last edited field
+    if (lastEditedDiscount.value === 'percent') {
+      const pct = Number(currentInvoice.value.discountPercent || 0)
+      currentInvoice.value.discount = +(currentInvoice.value.subtotal * (pct / 100))
+    } else {
+      // amount was edited last -> update percent (avoid division by zero)
+      currentInvoice.value.discountPercent = currentInvoice.value.subtotal ? +(currentInvoice.value.discount / currentInvoice.value.subtotal * 100) : 0
+    }
     currentInvoice.value.totalAmount = currentInvoice.value.subtotal + currentInvoice.value.tax - currentInvoice.value.discount
+  }
+
+  function onDiscountPercentInput() {
+    lastEditedDiscount.value = 'percent'
+    // ensure discount amount follows percent
+    const pct = Number(currentInvoice.value.discountPercent || 0)
+    currentInvoice.value.discount = +(currentInvoice.value.subtotal * (pct / 100))
+    calculateTotals()
+  }
+
+  function onDiscountAmountInput() {
+    lastEditedDiscount.value = 'amount'
+    // update percent based on entered amount
+    const amt = Number(currentInvoice.value.discount || 0)
+    currentInvoice.value.discountPercent = currentInvoice.value.subtotal ? +(amt / currentInvoice.value.subtotal * 100) : 0
+    calculateTotals()
   }
   
   function editInvoice(invoice) {
     isEditing.value = true
     currentInvoice.value = { ...invoice }
+    if (typeof currentInvoice.value.discountPercent === 'undefined') currentInvoice.value.discountPercent = 0
+    if (typeof currentInvoice.value.discount === 'undefined') currentInvoice.value.discount = 0
+    // prefer percent if it was provided, otherwise treat amount as last-edited
+    lastEditedDiscount.value = (currentInvoice.value.discountPercent && Number(currentInvoice.value.discountPercent) > 0) ? 'percent' : 'amount'
+    calculateTotals()
     showInvoiceModal.value = true
   }
   
@@ -1146,18 +1248,46 @@
     // In a real application, this would show a detailed view or PDF
   }
   
-  function deleteInvoice(invoice) {
-    if (confirm(`Are you sure you want to delete invoice INV-${invoice.id}?`)) {
+  async function deleteInvoice(invoice) {
+    if (!confirm(`Are you sure you want to delete invoice INV-${invoice.id}?`)) return
+
+    if (token && (invoice._id || (invoice.id && invoice.id.match(/^[0-9a-fA-F]{24}$/)))) {
+      const id = invoice._id || invoice.id
+      try {
+        await axios.delete(`${API_BASE}/invoices/${id}`, { headers: { Authorization: `Bearer ${token}` } })
+        invoices.value = invoices.value.filter(inv => inv._id !== id && inv.id !== id)
+      } catch (err) {
+        console.warn('Failed to delete invoice on server, removing locally', err)
+        invoices.value = invoices.value.filter(inv => inv.id !== invoice.id)
+      }
+    } else {
       invoices.value = invoices.value.filter(inv => inv.id !== invoice.id)
-      alert('Invoice deleted successfully')
     }
+
+    persistInvoices()
+    alert('Invoice deleted successfully')
   }
   
-  function markAsPaid(invoice) {
-    if (confirm(`Mark invoice INV-${invoice.id} as paid?`)) {
+  async function markAsPaid(invoice) {
+    if (!confirm(`Mark invoice INV-${invoice.id} as paid?`)) return
+
+    if (token && (invoice._id || (invoice.id && invoice.id.match(/^[0-9a-fA-F]{24}$/)))) {
+      const id = invoice._id || invoice.id
+      try {
+        const res = await axios.put(`${API_BASE}/invoices/${id}`, { status: 'paid' }, { headers: { Authorization: `Bearer ${token}` } })
+        const updated = res.data
+        const idx = invoices.value.findIndex(inv => inv._id === id || inv.id === id)
+        if (idx !== -1) invoices.value[idx] = { ...updated, id: updated._id || updated.id }
+      } catch (err) {
+        console.warn('Failed to mark invoice paid on server, marking locally', err)
+        invoice.status = 'paid'
+      }
+    } else {
       invoice.status = 'paid'
-      alert('Invoice marked as paid')
     }
+
+    persistInvoices()
+    alert('Invoice marked as paid')
   }
   
   function applyFilters() {
@@ -1175,7 +1305,7 @@
     searchQuery.value = ''
   }
   
-  function saveInvoice() {
+  async function saveInvoice() {
     if (!currentInvoice.value.supplierId) {
       alert('Please select a supplier')
       return
@@ -1185,27 +1315,64 @@
       alert('Please fill in all required fields')
       return
     }
-  
+
+    // ensure totals up-to-date
+    calculateTotals()
+
     if (isEditing.value) {
       // Update existing invoice
-      const index = invoices.value.findIndex(inv => inv.id === currentInvoice.value.id)
-      if (index !== -1) {
-        invoices.value[index] = { ...currentInvoice.value }
+      if (token && currentInvoice.value._id) {
+        try {
+          const res = await axios.put(`${API_BASE}/invoices/${currentInvoice.value._id}`, currentInvoice.value, { headers: { Authorization: `Bearer ${token}` } })
+          const updated = res.data
+          const idx = invoices.value.findIndex(inv => inv._id === (currentInvoice.value._id) || inv.id === (currentInvoice.value.id))
+          if (idx !== -1) invoices.value[idx] = { ...updated, id: updated._id || updated.id }
+        } catch (err) {
+          console.warn('Failed to update invoice on server, falling back to local update', err)
+          const index = invoices.value.findIndex(inv => inv.id === currentInvoice.value.id)
+          if (index !== -1) invoices.value[index] = { ...currentInvoice.value }
+        }
+      } else {
+        const index = invoices.value.findIndex(inv => inv.id === currentInvoice.value.id)
+        if (index !== -1) invoices.value[index] = { ...currentInvoice.value }
       }
     } else {
       // Add new invoice - include supplier details snapshot
       const sd = supplierDetails || null
-      const invoiceToSave = {
+      let invoiceToSave = {
         ...currentInvoice.value,
-        supplierName: sd ? sd.name : getSupplierName(currentInvoice.value.supplierId),
-        supplierContact: sd ? sd.contactPerson : '',
-        supplierEmail: sd ? sd.email : '',
-        supplierPhone: sd ? sd.phone : '',
-        supplierAddress: sd ? sd.address : ''
+        supplierName: sd ? sd.name : getSupplierName(currentInvoice.value.supplierId)
       }
-      invoices.value.push(invoiceToSave)
+
+      if (token) {
+        try {
+          const res = await axios.post(`${API_BASE}/invoices`, invoiceToSave, { headers: { Authorization: `Bearer ${token}` } })
+          const created = res.data
+          created.id = created._id || created.id
+          invoices.value.unshift(created)
+        } catch (err) {
+          console.warn('Failed to create invoice on server, saving locally', err)
+          invoiceToSave.id = invoiceToSave.id || String(1000 + (invoices.value.length || 0) + 1)
+          invoices.value.unshift(invoiceToSave)
+        }
+      } else {
+        invoiceToSave.id = invoiceToSave.id || String(1000 + (invoices.value.length || 0) + 1)
+        invoices.value.unshift(invoiceToSave)
+      }
+
+      // Reset filters/search so the newly created invoice is visible
+      filters.value = { supplier: '', status: '', fromDate: '', toDate: '' }
+      searchQuery.value = ''
+      activeTab.value = 'invoices'
     }
-  
+
+    // Persist changes so they survive refresh
+    try {
+      persistInvoices()
+    } catch (e) {
+      console.warn('Could not persist invoices locally', e)
+    }
+
     showInvoiceModal.value = false
     alert(`Invoice ${isEditing.value ? 'updated' : 'created'} successfully`)
   }

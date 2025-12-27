@@ -1,8 +1,8 @@
 <template>
-  <div class="container mx-auto p-6 dark:bg-slate-900 dark:text-white">
+  <div class="container mx-auto p-6">
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold text-blue-900 dark:text-blue-300">Item Details</h1>
+      <h1 class="text-2xl font-bold text-blue-900">Item Details</h1>
       
     </div>
 
@@ -11,10 +11,10 @@
 
     <!-- Quick Stats -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-      <div class="bg-white p-4 rounded-lg shadow dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700">
+      <div class="bg-white p-4 rounded-lg shadow">
         <div class="flex items-center">
-          <div class="bg-blue-100 p-3 rounded-lg mr-4 dark:bg-blue-900/20">
-            <span class="material-icons text-blue-600 dark:text-blue-300">inventory</span>
+          <div class="bg-blue-100 p-3 rounded-lg mr-4">
+            <span class="material-icons text-blue-600">inventory</span>
           </div>
           <div>
             <p class="text-gray-500 text-sm">Total Items</p>
@@ -22,10 +22,10 @@
           </div>
         </div>
       </div>
-      <div class="bg-white p-4 rounded-lg shadow dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700">
+      <div class="bg-white p-4 rounded-lg shadow">
         <div class="flex items-center">
-          <div class="bg-red-100 p-3 rounded-lg mr-4 dark:bg-red-900/20">
-            <span class="material-icons text-red-600 dark:text-red-300">warning</span>
+          <div class="bg-red-100 p-3 rounded-lg mr-4">
+            <span class="material-icons text-red-600">warning</span>
           </div>
           <div>
             <p class="text-gray-500 text-sm">Low Stock Items</p>
@@ -33,10 +33,10 @@
           </div>
         </div>
       </div>
-      <div class="bg-white p-4 rounded-lg shadow dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700">
+      <div class="bg-white p-4 rounded-lg shadow">
         <div class="flex items-center">
-          <div class="bg-green-100 p-3 rounded-lg mr-4 dark:bg-green-900/10">
-            <span class="material-icons text-green-600 dark:text-green-300">attach_money</span>
+          <div class="bg-green-100 p-3 rounded-lg mr-4">
+            <span class="material-icons text-green-600">attach_money</span>
           </div>
           <div>
             <p class="text-gray-500 text-sm">Total Stock Value</p>
@@ -47,9 +47,9 @@
     </div>
 
     <!-- Table -->
-    <div class="bg-white rounded-lg shadow overflow-hidden dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700">
+    <div class="bg-white rounded-lg shadow overflow-hidden">
       <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50 dark:bg-slate-900">
+        <thead class="bg-gray-50">
           <tr>
             <th class="px-6 py-3 text-left text-2xl font-bold text-gray-500 uppercase tracking-wider ">Item</th>
             <th class="px-6 py-3 text-left text-2xl font-bold text-gray-500 uppercase tracking-wider">Category</th>
@@ -58,23 +58,23 @@
             <th class="px-6 py-3 text-left text-2xl font-medium text-gray-500 uppercase tracking-wider">Status</th>
           </tr>
         </thead>
-        <tbody class="bg-white divide-y divide-gray-200 text-black dark:bg-transparent dark:divide-slate-700 dark:text-gray-200">
-          <tr v-for="item in paginatedItems" :key="item.id" class="cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700" @click="showItemDetails(item)">
+        <tbody class="bg-white divide-y divide-gray-200 text-black">
+          <tr v-for="item in paginatedItems" :key="item.id" class="cursor-pointer hover:bg-gray-50" @click="showItemDetails(item)">
             <td class="px-6 py-4">
               <div class="flex items-center">
                 <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
                   <span class="material-icons text-blue-600 text-sm">inventory_2</span>
                 </div>
                 <div class="ml-4">
-                  <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.name }}</div>
-                  <div v-if="item.code" class="text-xs text-gray-500 dark:text-gray-300">Code: {{ item.code }}</div>
+                  <div class="text-sm font-medium text-gray-900">{{ item.name }}</div>
+                  <div v-if="item.code" class="text-xs text-gray-500">Code: {{ item.code }}</div>
                 </div>
               </div>
             </td>
-            <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ item.category }}</td>
+            <td class="px-6 py-4 text-sm text-gray-600">{{ item.category }}</td>
             <td class="px-6 py-4">
-              <div class="text-sm text-gray-900 dark:text-gray-200">{{ item.currentStock }} units</div>
-              <div v-if="item.maxLevel" class="text-xs text-gray-500 dark:text-gray-300">
+              <div class="text-sm text-gray-900">{{ item.currentStock }} units</div>
+              <div v-if="item.maxLevel" class="text-xs text-gray-500">
                 Max: {{ item.maxLevel }} units
               </div>
             </td>
@@ -100,11 +100,11 @@
 
       <!-- Empty State -->
       <div v-if="!loadingItems && stockItems.length === 0" class="text-center py-12">
-        <div class="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4 dark:bg-slate-800">
-          <span class="material-icons text-gray-400 text-2xl dark:text-gray-300">inventory_2</span>
+        <div class="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+          <span class="material-icons text-gray-400 text-2xl">inventory_2</span>
         </div>
-        <h3 class="text-lg font-medium text-gray-900 mb-2 dark:text-white">No items found</h3>
-        <p class="text-gray-500 mb-4 dark:text-gray-300">Add your first item to get started</p>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">No items found</h3>
+        <p class="text-gray-500 mb-4">Add your first item to get started</p>
         <button 
           @click="showAddItemModal = true"
           class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg inline-flex items-center"
@@ -115,7 +115,7 @@
       </div>
 
       <!-- Your Specific Pagination Panel -->
-      <div v-if="stockItems.length > 0" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 dark:bg-slate-800 dark:border-t dark:border-slate-700 dark:text-gray-300">
+      <div v-if="stockItems.length > 0" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
         <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
           <div>
             <p class="text-sm text-gray-700">
@@ -212,10 +212,10 @@
     </div>
 
     <!-- Item Details Modal (redesigned) -->
-    <div v-if="showDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 text-black dark:text-white">
-      <div class="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-3xl dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700">
+    <div v-if="showDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 text-black">
+      <div class="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-3xl">
         <h3 class="text-lg font-semibold mb-4">Item Details</h3>
-        <div class="flex flex-col md:flex-row gap-4 items-start text-sm text-gray-700 dark:text-gray-300">
+        <div class="flex flex-col md:flex-row gap-4 items-start text-sm text-gray-700">
           <div class="w-full md:w-44 flex-shrink-0">
             <div class="w-full h-44 bg-gray-100 rounded-md overflow-hidden border flex items-center justify-center">
               <img v-if="selectedItem.image" :src="selectedItem.image" :alt="selectedItem.name" class="w-full h-full object-cover" />
@@ -658,10 +658,6 @@ th, td {
 tbody tr:hover {
   background-color: #f9fafb;
 }
-
-/* Dark mode table overrides */
-.dark th, .dark td { border-bottom-color: #0f172a; color: #e2e8f0; }
-.dark tbody tr:hover { background-color: #0f172a; }
 
 /* Custom styles for pagination */
 nav button:focus {
