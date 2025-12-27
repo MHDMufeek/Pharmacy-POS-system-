@@ -54,6 +54,13 @@
               >
                 <span class="material-icons text-sm">swap_vert</span>
               </button>
+              <button
+                class="text-indigo-600 hover:text-indigo-800 mr-3 dark:text-indigo-300 dark:hover:text-indigo-100"
+                @click.stop="adjustPrice(item)"
+                title="Adjust Price"
+              >
+                <span class="material-icons text-sm">price_change</span>
+              </button>
               <button 
                 class="text-purple-600 hover:text-purple-800 dark:text-purple-300 dark:hover:text-purple-100"
                 @click="showItemHistory(item)"
@@ -489,8 +496,9 @@
         <input 
           type="number"
           v-model="adjustmentQuantity"
-          class="w-full border rounded-lg px-3 py-2 text-sm mb-4 dark:bg-slate-700 dark:text-white dark:border-slate-600"
+          class="w-full border rounded-lg px-3 py-2 text-sm mb-3 dark:bg-slate-700 dark:text-white dark:border-slate-600"
         />
+        <!-- Price is adjusted in a separate modal -->
         <div class="flex justify-end gap-2">
           <button class="px-4 py-2 bg-gray-200 rounded-lg dark:bg-slate-700 dark:text-white" @click="showUpdateModal = false">Cancel</button>
           <button class="px-4 py-2 bg-blue-600 text-white rounded-lg dark:bg-blue-600" @click="updateStock">Save</button>
@@ -616,6 +624,26 @@
       </div>
     </div>
   </div>
+
+    <!-- Adjust Price Modal -->
+    <div v-if="showPriceModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg shadow-lg p-6 w-96 dark:bg-slate-800 dark:text-white">
+        <h3 class="text-lg font-semibold mb-4 dark:text-white">Adjust Price</h3>
+        <p class="mb-2 text-sm text-gray-700 dark:text-gray-300">Item: {{ selectedItem.name }}</p>
+        <label class="block text-sm text-gray-700 mb-1 dark:text-gray-300">New Price (Rs.)</label>
+        <input
+          type="number"
+          step="0.01"
+          min="0"
+          v-model.number="adjustmentPrice"
+          class="w-full border rounded-lg px-3 py-2 text-sm mb-4 dark:bg-slate-700 dark:text-white dark:border-slate-600"
+        />
+        <div class="flex justify-end gap-2">
+          <button class="px-4 py-2 bg-gray-200 rounded-lg dark:bg-slate-700 dark:text-white" @click="showPriceModal = false">Cancel</button>
+          <button class="px-4 py-2 bg-blue-600 text-white rounded-lg dark:bg-blue-600" @click="updatePrice">Save</button>
+        </div>
+      </div>
+    </div>
 </template>
 
 <script setup>
@@ -697,6 +725,14 @@ const showUpdateModal = ref(false);
 const selectedItem = ref({});
 const adjustmentType = ref("add");
 const adjustmentQuantity = ref(0);
+
+// Price adjustment modal state
+const showPriceModal = ref(false);
+const adjustmentPrice = ref(0);
+
+
+// UI hint: whether the entered adjustmentPrice differs from the current item price
+// (priceChanged removed — price handled in separate modal)
 
 // History Modal
 const showHistoryModal = ref(false);
@@ -981,6 +1017,12 @@ function adjustStock(item) {
   showUpdateModal.value = true;
 }
 
+function adjustPrice(item) {
+  selectedItem.value = { ...item };
+  adjustmentPrice.value = selectedItem.value.price ?? selectedItem.value.sellingPrice ?? selectedItem.value.costPrice ?? 0;
+  showPriceModal.value = true;
+}
+
 function confirmDeleteItem(item) {
   selectedItem.value = { ...item };
   if (confirm(`Are you sure you want to delete "${item.name}"? This action cannot be undone.`)) {
@@ -1034,10 +1076,29 @@ async function updateStock() {
 
   const id = stockItems.value[index]._id || stockItems.value[index].id;
   try {
-    const res = await api.put(`/items/${id}`, { stock: newStock });
-    // update local stock from server response when available
-    const updated = res.data || {};
+    // Only send `price` when the user actually changed the price input (backend stores `price`)
+    const payload = { stock: newStock };
+    const currentPrice = Number(stockItems.value[index].price ?? stockItems.value[index].sellingPrice ?? 0);
+    const newPrice = Number(adjustmentPrice.value);
+    if (!isNaN(newPrice) && newPrice !== currentPrice) payload.price = newPrice;
+    const res = await api.put(`/items/${id}`, payload);
+    // Prefer authoritative server copy: fetch the item after update
+    let serverItem = null
+    try {
+      const fresh = await api.get(`/items/${id}`);
+      serverItem = fresh.data || null;
+    } catch (e) {
+      // fallback to PUT response if GET fails
+      serverItem = res.data || null;
+    }
+
+    const updated = serverItem || {};
     stockItems.value[index].currentStock = updated.stock ?? updated.currentStock ?? newStock;
+    if (typeof updated.price !== 'undefined') {
+      stockItems.value[index].price = Number(updated.price);
+    } else if (typeof payload.price !== 'undefined') {
+      stockItems.value[index].price = Number(payload.price);
+    }
 
     // Add to history
     const historyEntry = {
@@ -1057,12 +1118,57 @@ async function updateStock() {
     // Notify navbar and other listeners to refresh low-stock alerts
     try { window.dispatchEvent(new CustomEvent('low-stock-updated', { detail: { id, newStock: stockItems.value[index].currentStock } })); } catch(e) {}
 
+    // Determine final price to send in the update event so other views can refresh reliably
+    const finalPrice = Number(stockItems.value[index].price ?? stockItems.value[index].sellingPrice ?? adjustmentPrice.value ?? 0)
+
+    // Notify other views (sales, dashboards) that an item was updated (price/stock)
+    try {
+      window.dispatchEvent(new CustomEvent('item-updated', { detail: { id, _id: id, sellingPrice: finalPrice, price: finalPrice, newStock: stockItems.value[index].currentStock } }));
+    } catch (e) {}
+
     showUpdateModal.value = false;
     adjustmentQuantity.value = 0;
   } catch (e) {
     console.error('Failed to persist stock update', e);
     alert(e.response?.data?.message || 'Failed to update stock (check auth)');
     // reload items to restore consistent state
+    await loadItems();
+  }
+}
+
+// Update only the price for the selected item
+async function updatePrice() {
+  const id = selectedItem.value._id || selectedItem.value.id;
+  if (!id) return;
+  try {
+    const newPrice = Number(adjustmentPrice.value);
+    if (isNaN(newPrice)) {
+      alert('Please enter a valid price');
+      return;
+    }
+    const res = await api.put(`/items/${id}`, { price: newPrice });
+    // Fetch authoritative item
+    let serverItem = null;
+    try {
+      const fresh = await api.get(`/items/${id}`);
+      serverItem = fresh.data || null;
+    } catch (e) {
+      serverItem = res.data || null;
+    }
+    const updated = serverItem || {};
+    const index = stockItems.value.findIndex(i => (i._id || i.id) === id);
+    if (index !== -1) {
+      stockItems.value[index].price = Number(updated.price ?? newPrice);
+    }
+
+    // Dispatch update event
+    const finalPrice = Number(updated.price ?? newPrice);
+    try { window.dispatchEvent(new CustomEvent('item-updated', { detail: { id, _id: id, sellingPrice: finalPrice, price: finalPrice, newStock: updated.stock ?? updated.currentStock } })); } catch(e) {}
+
+    showPriceModal.value = false;
+  } catch (e) {
+    console.error('Failed to update price', e);
+    alert(e.response?.data?.message || 'Failed to update price');
     await loadItems();
   }
 }
