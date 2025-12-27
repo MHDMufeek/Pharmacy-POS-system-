@@ -378,12 +378,10 @@
         <div class="space-y-2 pt-2">
           <button
             @click="processPayment"
-            :disabled="cart.length === 0 || (selectedPaymentMethod === 'cash' && ((Number(amountPaid) || 0) < totalAmount))"
+            :disabled="isPayDisabled"
             :class="[
               'w-full py-2 rounded-lg shadow-md transition font-medium',
-              cart.length === 0 || (selectedPaymentMethod === 'cash' && amountPaid < totalAmount)
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : getPaymentButtonClass()
+              isPayDisabled ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : getPaymentButtonClass()
             ]"
           >
             {{ getPaymentButtonText() }}
@@ -749,8 +747,21 @@ function clearCart() {
 async function processPayment() {
   if (cart.value.length === 0) return
   
-  if (selectedPaymentMethod.value === 'cash' && amountPaid.value < totalAmount.value) {
-    alert('Amount paid is less than total amount!')
+  // Validate required upfront payment for the selected method
+  const required = Number(requiredPaid.value || 0)
+  const paidNow = Number(amountPaid.value || 0)
+  if (paidNow < required) {
+    if (selectedPaymentMethod.value === 'cash') {
+      alert('Amount paid is less than total amount!')
+    } else {
+      alert(`Please enter at least Rs. ${formatMoney(required)} to proceed.`)
+    }
+    return
+  }
+
+  // Ensure a creditor is selected when doing a credit sale
+  if (selectedPaymentMethod.value === 'credit' && (!selectedSupplier.value || String(selectedSupplier.value).trim() === '')) {
+    alert('Please select a creditor for credit sales.')
     return
   }
 
@@ -846,6 +857,22 @@ const currentPaid = computed(() => {
 })
 
 const creditRemaining = computed(() => Math.max(0, (totalAmount.value || 0) - currentPaid.value))
+
+// Required minimum upfront payment to allow completing the sale
+const requiredPaid = computed(() => {
+  if (selectedPaymentMethod.value === 'cash') return totalAmount.value
+  if (selectedPaymentMethod.value === 'credit' && creditPaymentMode.value === 'half') return (totalAmount.value || 0) / 2
+  // full credit requires no upfront payment, but requires a creditor selected
+  return 0
+})
+
+const isPayDisabled = computed(() => {
+  if (cart.value.length === 0) return true
+  // require creditor selection for credit sales
+  if (selectedPaymentMethod.value === 'credit' && (!selectedSupplier.value || String(selectedSupplier.value).trim() === '')) return true
+  const paid = Number(amountPaid.value) || 0
+  return paid < Number(requiredPaid.value || 0)
+})
 
 const categorySummary = computed(() => {
   const summary = {}
