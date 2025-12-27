@@ -22,7 +22,7 @@
               v-model="searchQuery"
               type="text"
               placeholder="Search by name, category,genaric name , product name"
-              class="bg-transparent outline-none w-full text-sm text-black"
+              class="bg-transparent outline-none w-full text-sm text-black focus:outline-none focus:ring-1 focus:ring-gray-300"
             />
           </div>
 
