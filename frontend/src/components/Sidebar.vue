@@ -95,7 +95,7 @@
     <div v-show="sidebarOpen" class="p-4 border-t border-slate-700/50 bg-slate-900/60 text-slate-400">
       <div class="flex items-center gap-3 text-xs text-slate-400">
         <span class="material-icons-round text-sm">info</span>
-        <span>Version 2.1.0</span>
+        <span>Proxima Technology (pvt) Ltd</span>
       </div>
     </div>
   </aside>

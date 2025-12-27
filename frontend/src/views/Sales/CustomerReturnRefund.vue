@@ -93,14 +93,22 @@
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="form-label dark:text-gray-300">Customer</label>
-                <select v-model="returnForm.customer" class="form-input bg-white dark:bg-slate-700 dark:text-white" required>
-                  <option value="">Select customer</option>
-                  <option v-for="c in customers" :key="c.id" :value="c.name">{{ c.name }}</option>
-                  <option value="Other">Other (specify)</option>
-                </select>
+                <div class="relative">
+                  <input
+                    type="text"
+                    v-model="returnForm.customer"
+                    @input="showCustomerSuggestions = true"
+                    @focus="showCustomerSuggestions = true"
+                    @blur="hideCustomerSuggestions"
+                    placeholder="Type customer name..."
+                    class="form-input bg-white dark:bg-slate-700 dark:text-white"
+                    required
+                    autocomplete="off"
+                  />
 
-                <div v-if="isOtherCustomer" class="mt-2">
-                  <input type="text" v-model="returnForm.customerOther" placeholder="Enter customer name" class="form-input bg-white dark:bg-slate-700 dark:text-white" />
+                  <ul v-if="showCustomerSuggestions && filteredCustomerSuggestions.length > 0" class="suggestion-list absolute z-50 mt-1 w-full text-black dark:text-white">
+                    <li v-for="c in filteredCustomerSuggestions" :key="c.id" @mousedown.prevent="selectCustomer(c.name)" class="suggestion-item">{{ c.name }}</li>
+                  </ul>
                 </div>
               </div>
 
@@ -236,15 +244,27 @@ const medicines = ref([
 
 const returns = ref([])
 
-const returnForm = ref({ customer: '', customerOther: '', medicine: '', qty: 1, reason: '', saleRef: '' })
+const returnForm = ref({ customer: '', medicine: '', qty: 1, reason: '', saleRef: '' })
 const newCustomer = ref({ name: '', phone: '', email: '', address: '', nic: '', type: '', notes: '' })
+
+const showCustomerSuggestions = ref(false)
+const filteredCustomerSuggestions = computed(() => {
+  const q = (returnForm.value.customer || '').toLowerCase().trim()
+  if (!q) return customers.value.slice(0, 5)
+  return customers.value.filter(c => c.name.toLowerCase().includes(q)).slice(0, 5)
+})
+function selectCustomer(name) {
+  returnForm.value.customer = name
+  showCustomerSuggestions.value = false
+}
+function hideCustomerSuggestions() {
+  setTimeout(() => { showCustomerSuggestions.value = false }, 150)
+}
 
 const filteredReturns = computed(() => {
   if (!searchQuery.value) return returns.value
   return returns.value.filter(r => r.customer.toLowerCase().includes(searchQuery.value.toLowerCase()))
 })
-
-const isOtherCustomer = computed(() => returnForm.value.customer === 'Other')
 
 async function fetchReturns() {
   try {
@@ -297,7 +317,7 @@ async function fetchItems() {
 }
 
 async function submitReturn() {
-  if ((!returnForm.value.customer || returnForm.value.customer === '') && !returnForm.value.customerOther) {
+  if (!returnForm.value.customer || !returnForm.value.customer.trim()) {
     alert('Please fill required fields')
     return
   }
@@ -307,7 +327,7 @@ async function submitReturn() {
     const token = localStorage.getItem('token')
     const selectedMedicine = medicines.value.find(m => m.name === returnForm.value.medicine)
     
-    const customerName = returnForm.value.customer === 'Other' ? (returnForm.value.customerOther || 'Other') : returnForm.value.customer
+    const customerName = (returnForm.value.customer || '').trim()
 
     const payload = {
       customer: customerName,
@@ -371,4 +391,9 @@ onMounted(() => {
 .dark .form-label { color: #cbd5e1; }
 .dark .form-input { background-color: #0f172a; color: #e2e8f0; border-color: #334155; }
 .dark .form-input:focus { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12); border-color: #1d4ed8; }
+
+.suggestion-list { border: 1px solid #d1d5db; border-radius: 6px; background-color: #ffffff; max-height: 160px; overflow-y: auto; }
+.suggestion-item { padding: 8px 12px; cursor: pointer; }
+.suggestion-item:hover { background-color: #f3f4f6; }
+.dark .suggestion-item:hover { background-color: #334155; }
 </style>
