@@ -51,7 +51,7 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600">Total Amount</p>
-              <p class="text-2xl font-bold text-gray-900 mt-1">${{ totalAmount.toFixed(2) }}</p>
+              <p class="text-2xl font-bold text-gray-900 mt-1">Rs.{{ totalAmount.toFixed(2) }}</p>
             </div>
             <div class="bg-purple-100 p-3 rounded-full">
               <span class="material-icons text-purple-600">payments</span>
@@ -219,7 +219,7 @@
                       {{ formatDate(invoice.dueDate) }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                      ${{ invoice.totalAmount.toFixed(2) }}
+                      Rs.{{ invoice.totalAmount.toFixed(2) }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span :class="['px-2 inline-flex text-xs leading-5 font-semibold rounded-full', 
@@ -263,7 +263,7 @@
                     <span class="font-medium">Total Invoices:</span> {{ filteredInvoices.length }}
                   </div>
                   <div>
-                    <span class="font-medium">Total Amount:</span> ${{ totalAmount.toFixed(2) }}
+                    <span class="font-medium">Total Amount:</span> Rs.{{ totalAmount.toFixed(2) }}
                   </div>
                   <div>
                     <span class="font-medium">Pending:</span> {{ pendingCount }}
@@ -363,7 +363,7 @@
                     </div>
                     <div class="text-right">
                       <div class="text-sm font-medium text-gray-900 dark:text-white">{{ supplier.invoiceCount }} invoices</div>
-                      <div class="text-xs text-gray-500 dark:text-gray-300">${{ supplier.totalAmount.toFixed(2) }}</div>
+                      <div class="text-xs text-gray-500 dark:text-gray-300">Rs.{{ supplier.totalAmount.toFixed(2) }}</div>
                     </div>
                   </div>
                 </div>
@@ -379,7 +379,7 @@
                   <div class="text-sm text-gray-600 dark:text-gray-300">This Month</div>
                 </div>
                 <div class="text-center p-4 bg-green-50 rounded-lg dark:bg-slate-800 dark:text-white">
-                  <div class="text-2xl font-bold text-green-600 dark:text-green-300">${{ currentMonthAmount.toFixed(2) }}</div>
+                  <div class="text-2xl font-bold text-green-600 dark:text-green-300">Rs.{{ currentMonthAmount.toFixed(2) }}</div>
                   <div class="text-sm text-gray-600 dark:text-gray-300">Month Amount</div>
                 </div>
                 <div class="text-center p-4 bg-orange-50 rounded-lg dark:bg-slate-800 dark:text-white">
@@ -387,7 +387,7 @@
                   <div class="text-sm text-gray-600 dark:text-gray-300">Last Month</div>
                 </div>
                 <div class="text-center p-4 bg-purple-50 rounded-lg dark:bg-slate-800 dark:text-white">
-                  <div class="text-2xl font-bold text-purple-600 dark:text-purple-300">${{ lastMonthAmount.toFixed(2) }}</div>
+                  <div class="text-2xl font-bold text-purple-600 dark:text-purple-300">Rs.{{ lastMonthAmount.toFixed(2) }}</div>
                   <div class="text-sm text-gray-600 dark:text-gray-300">Last Month Amount</div>
                 </div>
               </div>
@@ -490,7 +490,7 @@
                 <div class="col-span-2">
                   <input 
                     type="text" 
-                    :value="'$' + (item.total || 0).toFixed(2)" 
+                    :value="'Rs.' + (item.total || 0).toFixed(2)" 
                     disabled
                     class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
                   >
@@ -532,12 +532,12 @@
                               @input="onDiscountAmountInput"
                               class="w-28 bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
                             />
-                            <span class="font-medium dark:text-white">- ${{ currentInvoice.discount.toFixed(2) }}</span>
+                            <span class="font-medium dark:text-white">- Rs.{{ currentInvoice.discount.toFixed(2) }}</span>
                           </div>
                       </div>
                   <div class="flex justify-between border-t pt-2">
                     <span class="text-lg font-bold text-gray-800 dark:text-white">Total:</span>
-                    <span class="text-lg font-bold text-blue-600 dark:text-blue-300">${{ currentInvoice.totalAmount.toFixed(2) }}</span>
+                    <span class="text-lg font-bold text-blue-600 dark:text-blue-300">Rs.{{ currentInvoice.totalAmount.toFixed(2) }}</span>
                   </div>
                 </div>
               </div>

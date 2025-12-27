@@ -1,3 +1,4 @@
+
 <template>
   <div class="p-6 bg-gray-50 min-h-screen dark:bg-slate-900 dark:text-white">
     <!-- Header -->
@@ -41,8 +42,7 @@
         </div>
       </div>
       
-<<<<<<< HEAD
-=======
+
       <div class="bg-white p-4 rounded-lg shadow border dark:bg-slate-800 dark:border-slate-700 dark:text-white">
         <div class="flex items-center">
           <div class="bg-purple-100 p-3 rounded-lg mr-4 dark:bg-purple-900/20">
@@ -54,7 +54,7 @@
           </div>
         </div>
       </div>
->>>>>>> 296b82e6ae09dd8820fce6d2be42e34e86375736
+
       </div>
 
     <!-- Filters -->
