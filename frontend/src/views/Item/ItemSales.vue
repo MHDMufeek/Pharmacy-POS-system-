@@ -121,17 +121,20 @@
         <div class="border-t pt-2">
           <div v-for="(it, idx) in (receiptData && receiptData.items) || []" :key="idx" class="flex justify-between py-1">
             <div class="truncate">{{ it.qty }} {{ it.name }}</div>
-            <div class="text-right">Rs. {{ formatMoney(Number(it.price) * Number(it.qty)) }}</div>
+            <div class="text-right">Rs. {{ (Number(it.price) * Number(it.qty)).toFixed(2) }}</div>
+          </div>
+        </div>
+
         <div class="border-t pt-2 mt-2 text-sm">
-          <div class="flex justify-between"><span>Subtotal:</span><span>Rs. {{ formatMoney(receiptData && Number(receiptData.subtotal || receiptData.totalAmount)) }}</span></div>
-          <div class="flex justify-between"><span>Tax=0.00%</span><span>Rs. 0</span></div>
-          <div class="flex justify-between font-semibold mt-1"><span>TOTAL</span><span>Rs. {{ formatMoney(receiptData && Number(receiptData.totalAmount)) }}</span></div>
-          <div class="flex justify-between"><span>Paid Now</span><span>Rs. {{ formatMoney(receiptData && Number(receiptData.amountPaid || 0)) }}</span></div>
-          <div class="flex justify-between"><span>Outstanding</span><span>Rs. {{ formatMoney(receiptData && Number(receiptData.outstanding || 0)) }}</span></div>
-          <div class="flex justify-between"><span>CHARGE</span><span>Rs. {{ formatMoney(receiptData && Number(receiptData.totalAmount)) }}</span></div>
+          <div class="flex justify-between"><span>Subtotal:</span><span>Rs. {{ (receiptData && Number(receiptData.subtotal || receiptData.totalAmount) ).toFixed(2) }}</span></div>
+          <div class="flex justify-between"><span>Tax=0.00%</span><span>Rs. 0.00</span></div>
+          <div class="flex justify-between font-semibold mt-1"><span>TOTAL</span><span>Rs. {{ (receiptData && Number(receiptData.totalAmount)).toFixed(2) }}</span></div>
+          <div class="flex justify-between"><span>Paid Now</span><span>Rs. {{ receiptData && Number(receiptData.amountPaid || 0).toFixed(2) }}</span></div>
+          <div class="flex justify-between"><span>Outstanding</span><span>Rs. {{ receiptData && Number(receiptData.outstanding || 0).toFixed(2) }}</span></div>
+          <div class="flex justify-between"><span>CHARGE</span><span>Rs. {{ (receiptData && Number(receiptData.totalAmount)).toFixed(2) }}</span></div>
           <div class="mt-2">XXXXXXXXXXXXVISA 3434</div>
-          <div class="flex justify-between mt-2"><span>CHANGE</span><span>Rs. {{ formatMoney(receiptData && Number(receiptData.change || 0)) }}</span></div>
-          <div class="flex justify-between"><span>Your Total Savings</span><span>Rs. {{ formatMoney(receiptData && Number(receiptData.savings || 0)) }}</span></div>
+          <div class="flex justify-between mt-2"><span>CHANGE</span><span>Rs. {{ (receiptData && Number(receiptData.change || 0)).toFixed(2) }}</span></div>
+          <div class="flex justify-between"><span>Your Total Savings</span><span>Rs. {{ (receiptData && Number(receiptData.savings || 0)).toFixed(2) }}</span></div>
         </div>
 
         <div class="text-center mt-3 text-xs">THANKS FOR SHOPPING WITH US</div>
@@ -505,8 +508,8 @@ function formatStockDisplay(val) {
   return n <= 0 ? 'No stock available' : n
 }
 
-// Format money safely, default to nearest integer (no decimals) to avoid floating point artifacts
-function formatMoney(value, decimals = 0) {
+// Format money to two decimals safely and avoid floating point artifacts
+function formatMoney(value, decimals = 2) {
   const n = Number(value) || 0
   const factor = Math.pow(10, decimals)
   return (Math.round((n + Number.EPSILON) * factor) / factor).toFixed(decimals)
@@ -616,7 +619,7 @@ function printReceipt() {
   const data = receiptData.value
   const rn = data.rnfn || generateRNF()
   const dt = new Date(data.dateTime || Date.now())
-  const itemsHtml = (data.items || []).map(i => `<div style="display:flex;justify-content:space-between;padding:2px 0;font-family:monospace"><div>${i.qty} ${escapeHtml(i.name)}</div><div style="text-align:right">Rs. ${formatMoney(Number(i.price)*Number(i.qty))}</div></div>`).join('')
+  const itemsHtml = (data.items || []).map(i => `<div style="display:flex;justify-content:space-between;padding:2px 0;font-family:monospace"><div>${i.qty} ${escapeHtml(i.name)}</div><div style="text-align:right">Rs. ${(Number(i.price)*Number(i.qty)).toFixed(2)}</div></div>`).join('')
   const barcode = data.barcodeText || (data.sale && (data.sale._id || data.sale.id)) || String(Date.now())
   const html = `
     <html>
@@ -639,13 +642,13 @@ function printReceipt() {
         </div>
 
         <div style="border-top:1px dashed #000; margin-top:8px; padding-top:6px; font-weight:700;">
-          <div style="display:flex;justify-content:space-between"><div>Subtotal:</div><div>Rs. ${formatMoney(Number(data.subtotal || data.totalAmount))}</div></div>
-          <div style="display:flex;justify-content:space-between"><div>Tax=0.00%</div><div>Rs. 0</div></div>
-          <div style="display:flex;justify-content:space-between;margin-top:6px"><div>TOTAL</div><div>Rs. ${formatMoney(Number(data.totalAmount))}</div></div>
-          <div style="display:flex;justify-content:space-between"><div>CHARGE</div><div>Rs. ${formatMoney(Number(data.totalAmount))}</div></div>
+          <div style="display:flex;justify-content:space-between"><div>Subtotal:</div><div>Rs. ${(Number(data.subtotal || data.totalAmount)).toFixed(2)}</div></div>
+          <div style="display:flex;justify-content:space-between"><div>Tax=0.00%</div><div>Rs. 0.00</div></div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px"><div>TOTAL</div><div>Rs. ${(Number(data.totalAmount)).toFixed(2)}</div></div>
+          <div style="display:flex;justify-content:space-between"><div>CHARGE</div><div>Rs. ${(Number(data.totalAmount)).toFixed(2)}</div></div>
           
-          <div style="display:flex;justify-content:space-between;margin-top:6px"><div>CHANGE</div><div>Rs. ${formatMoney(Number(data.change || 0))}</div></div>
-          <div style="display:flex;justify-content:space-between"><div>Your Total Savings</div><div>Rs. ${formatMoney(Number(data.savings || 0))}</div></div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px"><div>CHANGE</div><div>Rs. ${(Number(data.change || 0)).toFixed(2)}</div></div>
+          <div style="display:flex;justify-content:space-between"><div>Your Total Savings</div><div>Rs. ${(Number(data.savings || 0)).toFixed(2)}</div></div>
         </div>
 
         <div style="text-align:center;margin-top:8px;">THANKS FOR SHOPPING WITH US</div>
