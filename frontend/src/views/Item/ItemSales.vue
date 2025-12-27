@@ -401,7 +401,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
@@ -476,7 +476,12 @@ const fetchItems = async () => {
     const response = await axios.get(`${API_BASE}/items`, {
       headers: { Authorization: `Bearer ${token}` }
     })
-    items.value = response.data.data || []
+    // Normalize price field so UI uses the latest sellingPrice when present
+    const raw = response.data.data || []
+    items.value = raw.map(i => ({
+      ...i,
+      price: i.price ?? i.sellingPrice ?? i.selling_price ?? i.selling_price_local ?? 0
+    }))
   } catch (err) {
     error.value = 'Failed to load items'
     console.error('Error fetching items:', err)
@@ -490,6 +495,45 @@ onMounted(() => {
   fetchItems()
   fetchCreditors()
 })
+
+// Listen for item updates (stock/price) from other parts of the app
+function handleItemUpdated(e) {
+  const d = (e && e.detail) || {}
+  const id = d._id || d.id || d.itemId
+  if (!id) return
+  const newPrice = (typeof d.sellingPrice !== 'undefined') ? Number(d.sellingPrice) : (typeof d.price !== 'undefined' ? Number(d.price) : undefined)
+  const newStock = (typeof d.newStock !== 'undefined') ? d.newStock : (typeof d.stock !== 'undefined' ? d.stock : undefined)
+
+  // Update items list
+  let changed = false
+  items.value = items.value.map(it => {
+    const match = (it._id || it.id) === id
+    if (!match) return it
+    changed = true
+    return {
+      ...it,
+      price: (typeof newPrice !== 'undefined') ? newPrice : it.price,
+      stock: (typeof newStock !== 'undefined') ? newStock : it.stock,
+      currentStock: (typeof newStock !== 'undefined') ? newStock : (it.currentStock ?? it.stock ?? it.quantity)
+    }
+  })
+
+  // Update any cart entries that reference this item so totals reflect new price
+  cart.value = cart.value.map(ci => {
+    if ((ci._id || ci.id) === id) {
+      return { ...ci, price: (typeof newPrice !== 'undefined') ? newPrice : ci.price }
+    }
+    return ci
+  })
+
+  if (changed) {
+    notifications.value.push({ id: Date.now() + Math.random(), message: 'Item updated — prices refreshed in view', type: 'info' })
+    setTimeout(() => { notifications.value = notifications.value.filter(n => n.type !== 'info') }, 3000)
+  }
+}
+
+onMounted(() => window.addEventListener('item-updated', handleItemUpdated))
+onBeforeUnmount(() => window.removeEventListener('item-updated', handleItemUpdated))
 
 // Fetch creditors from backend so the credit selector shows all creditors
 async function fetchCreditors() {
@@ -570,7 +614,7 @@ function addToCart(item) {
   if (existing) {
     existing.qty += 1
   } else {
-    const cartItem = { ...item, qty: 1, id: itemId }
+    const cartItem = { ...item, qty: 1, id: itemId, price: item.price ?? item.sellingPrice ?? item.selling_price ?? 0 }
     cart.value.push(cartItem)
   }
   // Low-stock check: estimate remaining after adding

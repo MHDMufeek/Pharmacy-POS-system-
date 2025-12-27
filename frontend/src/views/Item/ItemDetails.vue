@@ -424,6 +424,7 @@ const newItem = ref({
 const selectedItem = ref({});
 const adjustmentType = ref("add");
 const adjustmentQuantity = ref(0);
+const adjustmentPrice = ref(0);
 
 // Computed properties
 const lowStockItems = computed(() => {
@@ -555,6 +556,7 @@ function editStock(item) {
   selectedItem.value = { ...item };
   adjustmentType.value = "add";
   adjustmentQuantity.value = "";
+  adjustmentPrice.value = selectedItem.value.sellingPrice ?? selectedItem.value.costPrice ?? 0;
   showUpdateModal.value = true;
 }
 
@@ -562,6 +564,7 @@ function quickRestock(item) {
   selectedItem.value = { ...item };
   adjustmentType.value = "add";
   adjustmentQuantity.value = 50;
+  adjustmentPrice.value = selectedItem.value.sellingPrice ?? selectedItem.value.costPrice ?? 0;
   showUpdateModal.value = true;
 }
 
@@ -623,6 +626,10 @@ function updateStock() {
 
   showUpdateModal.value = false;
   adjustmentQuantity.value = 0;
+  // update selling price if price field used
+  if (typeof adjustmentPrice.value !== 'undefined') {
+    stockItems.value[index].sellingPrice = Number(adjustmentPrice.value);
+  }
 }
 
 // Initialize data
