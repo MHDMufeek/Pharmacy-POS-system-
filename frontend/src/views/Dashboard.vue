@@ -165,7 +165,7 @@ const menus = [
   {
     title: "Supplier",
     icon: "local_mall",
-    items: ["Supplier Details", "Supplier Invoice"],
+    items: ["Supplier Details", "Supplier Invoice","Supplier Return"],
   },
   {
     title: "Sales",

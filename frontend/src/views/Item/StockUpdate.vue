@@ -648,6 +648,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
+import { useRoute } from 'vue-router';
 import axios from 'axios';
 
 const api = axios.create({ baseURL: 'http://localhost:3000/api' });
@@ -1007,8 +1008,33 @@ async function fetchSuppliers() {
   }
 }
 
-onMounted(loadItems);
-onMounted(fetchSuppliers);
+const route = useRoute();
+
+async function init() {
+  await loadItems();
+  await fetchSuppliers();
+  try {
+    const qid = route && route.query && route.query.id;
+    if (qid) {
+      let it = stockItems.value.find(i => (i._id || i.id) === qid);
+      if (!it) {
+        try {
+          const res = await api.get(`/items/${qid}`);
+          const b = res.data || {};
+          it = { id: b._id, _id: b._id, name: b.name, category: b.category, currentStock: b.stock ?? b.currentStock ?? 0, minLevel: (b.metadata && b.metadata.minLevel) || b.minLevel || 0, ...b };
+          stockItems.value.unshift(it);
+        } catch (e) {
+          // ignore if fetch fails
+        }
+      }
+      if (it) adjustStock(it);
+    }
+  } catch (e) {
+    console.error('Error during init route check', e);
+  }
+}
+
+onMounted(init);
 
 function adjustStock(item) {
   selectedItem.value = { ...item };

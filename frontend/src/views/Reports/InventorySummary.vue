@@ -4,11 +4,11 @@
       <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-blue-900 dark:text-blue-300">Inventory Summary</h1>
         <div class="flex gap-2">
-          <button class="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center dark:bg-blue-500 dark:text-white">
+          <button @click="exportReport" class="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center dark:bg-blue-500 dark:text-white">
             <span class="material-icons mr-2">download</span>
             Export Report
           </button>
-          <button class="bg-green-600 text-white px-4 py-2 rounded-md flex items-center dark:bg-green-500 dark:text-white">
+          <button @click="printReport" class="bg-green-600 text-white px-4 py-2 rounded-md flex items-center dark:bg-green-500 dark:text-white">
             <span class="material-icons mr-2">print</span>
             Print
           </button>
@@ -106,10 +106,11 @@
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Unit Price</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Total Value</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200 dark:bg-transparent dark:divide-slate-700">
-              <tr v-for="(item, index) in inventoryData" :key="index">
+              <tr v-for="(item, index) in inventoryData" :key="index" class="cursor-pointer hover:bg-gray-50" @click="goToItem(item)">
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ item.code }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{{ item.name }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ item.category }}</td>
@@ -118,10 +119,13 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">Rs.{{ (item.stock * item.price).toFixed(2) }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span :class="['px-2 py-1 text-xs rounded-full', 
-                    item.status === 'In Stock' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' : 
-                    item.status === 'Low Stock' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/10 dark:text-yellow-300' : 'bg-red-100 text-red-800 dark:bg-red-900/10 dark:text-red-300']">
-                    {{ item.status }}
+                    item.stock === 0 ? 'bg-red-100 text-red-800 dark:bg-red-900/10 dark:text-red-300' : (item.stock <= (item.metadata?.minLevel || 10) ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/10 dark:text-yellow-300' : 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300') ]">
+                    {{ item.stock === 0 ? 'Out of Stock' : (item.stock <= (item.metadata?.minLevel || 10) ? 'Low Stock' : 'In Stock') }}
                   </span>
+                </td>
+                <td class="px-6 py-4 text-sm">
+                  <button class="text-blue-600 hover:text-blue-800 mr-2" @click.stop="goToItem(item)">View</button>
+                  <button class="text-green-600 hover:text-green-800" @click.stop="goToStockUpdate(item, $event)">Update Stock</button>
                 </td>
               </tr>
             </tbody>
@@ -159,51 +163,117 @@
   </template>
   
   <script setup>
-  import { ref, computed } from 'vue'
+  import { ref, computed, onMounted } from 'vue';
+  import { useRouter } from 'vue-router';
   
-  // Sample data - in a real app, this would come from an API
-  const inventoryData = ref([
-    { code: 'M001', name: 'Paracetamol 500mg', category: 'Pain Relief', stock: 150, price: 5.25, status: 'In Stock' },
-    { code: 'M002', name: 'Amoxicillin 250mg', category: 'Antibiotics', stock: 75, price: 8.50, status: 'In Stock' },
-    { code: 'M003', name: 'Ibuprofen 200mg', category: 'Pain Relief', stock: 45, price: 6.75, status: 'In Stock' },
-    { code: 'M004', name: 'Vitamin C 1000mg', category: 'Vitamins', stock: 8, price: 12.99, status: 'Low Stock' },
-    { code: 'M005', name: 'Metformin 500mg', category: 'Diabetes', stock: 0, price: 15.25, status: 'Out of Stock' },
-    { code: 'M006', name: 'Aspirin 81mg', category: 'Pain Relief', stock: 200, price: 4.50, status: 'In Stock' },
-    { code: 'M007', name: 'Lisinopril 10mg', category: 'Blood Pressure', stock: 5, price: 9.75, status: 'Low Stock' },
-    { code: 'M008', name: 'Atorvastatin 20mg', category: 'Cholesterol', stock: 60, price: 18.25, status: 'In Stock' },
-    { code: 'M009', name: 'Omeprazole 20mg', category: 'Acid Reflux', stock: 0, price: 11.50, status: 'Out of Stock' },
-    { code: 'M010', name: 'Metoprolol 50mg', category: 'Blood Pressure', stock: 30, price: 7.25, status: 'In Stock' },
-  ])
+  const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api';
   
-  const filterDate = ref('')
-  const filterCategory = ref('')
-  const filterSupplier = ref('')
+  // Real data loaded from backend
+  const inventoryData = ref([]);
+  const filterDate = ref('');
+  const filterCategory = ref('');
+  const filterSupplier = ref('');
   
-  const categories = ref(['Pain Relief', 'Antibiotics', 'Vitamins', 'Diabetes', 'Blood Pressure', 'Cholesterol', 'Acid Reflux'])
-  const suppliers = ref(['PharmaCorp', 'MediSupply', 'HealthPlus', 'DrugsDirect'])
+  const categories = ref(['Pain Relief', 'Antibiotics', 'Vitamins', 'Diabetes', 'Blood Pressure', 'Cholesterol', 'Acid Reflux']);
+  const suppliers = ref(['PharmaCorp', 'MediSupply', 'HealthPlus', 'DrugsDirect']);
   
-  // Compute summary data
-  const summaryData = computed(() => {
-    const totalItems = inventoryData.value.length
-    const inStock = inventoryData.value.filter(item => item.status === 'In Stock').length
-    const lowStock = inventoryData.value.filter(item => item.status === 'Low Stock').length
-    const outOfStock = inventoryData.value.filter(item => item.status === 'Out of Stock').length
-    
-    return {
-      totalItems,
-      inStock,
-      lowStock,
-      outOfStock
+  async function loadInventory() {
+    try {
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const params = [];
+      if (filterCategory.value) params.push(`category=${encodeURIComponent(filterCategory.value)}`);
+      if (filterSupplier.value) params.push(`supplier=${encodeURIComponent(filterSupplier.value)}`);
+      const qs = params.length ? `?${params.join('&')}` : '?limit=1000';
+      const url = `${API_BASE}/items${qs}`;
+      const res = await fetch(url, { headers });
+      if (!res.ok) throw new Error(`Failed to load items (${res.status})`);
+      const body = await res.json();
+      const items = Array.isArray(body.data) ? body.data : (Array.isArray(body) ? body : (body.data || []));
+      inventoryData.value = items.map(it => ({
+        id: it._id || it.id,
+        code: it.sku || it.code || (it._id ? String(it._id).slice(-6) : ''),
+        name: it.name || '',
+        category: it.category || '',
+        stock: it.stock ?? it.currentStock ?? 0,
+        price: Number(it.price ?? it.sellingPrice ?? 0) || 0,
+        metadata: it.metadata || {}
+      }));
+    } catch (e) {
+      console.error('Failed to load inventory', e);
     }
-  })
+  }
   
-  function applyFilters() {
-    // In a real app, this would filter the data based on the selected filters
-    console.log('Applying filters:', {
-      date: filterDate.value,
-      category: filterCategory.value,
-      supplier: filterSupplier.value
-    })
-    // You would typically make an API call here with the filter parameters
+  const applyFilters = async () => {
+    await loadInventory();
+  };
+  
+  const summaryData = computed(() => {
+    const totalItems = inventoryData.value.length;
+    const inStock = inventoryData.value.filter(item => item.stock > (item.metadata?.minLevel ?? 0)).length;
+    const lowStock = inventoryData.value.filter(item => item.stock > 0 && item.stock <= (item.metadata?.minLevel ?? 10)).length;
+    const outOfStock = inventoryData.value.filter(item => item.stock === 0).length;
+    return { totalItems, inStock, lowStock, outOfStock };
+  });
+  
+  const router = useRouter();
+  function goToItem(item) {
+    router.push({ name: 'ItemDetails', query: { id: item.id } });
+  }
+  function goToStockUpdate(item, e) {
+    if (e) e.stopPropagation();
+    router.push({ name: 'StockUpdate', query: { id: item.id } });
+  }
+  
+  onMounted(loadInventory);
+
+  function escapeCSVField(val) {
+    if (val == null) return '';
+    const s = String(val);
+    if (/[",\n]/.test(s)) {
+      return '"' + s.replace(/"/g, '""') + '"';
+    }
+    return s;
+  }
+
+  function exportReport() {
+    if (!inventoryData.value || inventoryData.value.length === 0) {
+      alert('No items to export.');
+      return;
+    }
+
+    const headers = ['Item Code','Item Name','Category','Current Stock','Unit Price','Total Value','Status'];
+    const rows = [headers];
+
+    for (const it of inventoryData.value) {
+      const price = Number(it.price) || 0;
+      const stock = Number(it.stock) || 0;
+      const status = stock === 0 ? 'Out of Stock' : (stock <= (it.metadata?.minLevel || 10) ? 'Low Stock' : 'In Stock');
+      rows.push([
+        it.code || '',
+        it.name || '',
+        it.category || '',
+        String(stock),
+        price.toFixed(2),
+        (price * stock).toFixed(2),
+        status
+      ]);
+    }
+
+    const csv = rows.map(r => r.map(c => escapeCSVField(c)).join(',')).join('\n');
+    const filename = `inventory-report-${new Date().toISOString().slice(0,10)}.csv`;
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.setAttribute('download', filename);
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function printReport() {
+    window.print();
   }
   </script>
