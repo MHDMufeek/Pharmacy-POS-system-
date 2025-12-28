@@ -128,7 +128,7 @@ const menus = [
   {
     title: "Supplier",
     icon: "local_mall",
-    items: ["Supplier Details", "Supplier Invoice"],
+    items: ["Supplier Details", "Supplier Invoice", "Supplier Returns"],
   },
   {
     title: "Sales",
@@ -169,7 +169,8 @@ function getRoutePath(menuTitle, subItem) {
     },
     'Supplier': {
       'Supplier Details': '/supplier/details',
-      'Supplier Invoice': '/supplier/invoice'
+      'Supplier Invoice': '/supplier/invoice',
+      'Supplier Returns': '/supplier/returns'
     },
     'Sales': {
       'Customer Return / Refund': '/sales/return-refund',
@@ -208,6 +209,7 @@ function canAccess(menuTitle, subItem) {
       StockUpdate: 'stock-update',
       SupplierDetails: 'supplier-details',
       SupplierInvoice: 'supply-invoice',
+      SupplierReturns: 'supplier-returns',
       CustomerReturnRefund: 'customer-return-refund',
       Creditors: 'creditors',
       DrugMovement: 'drug-movement',

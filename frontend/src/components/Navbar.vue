@@ -117,6 +117,9 @@ const currentRouteName = computed(() => route.name);
 
 // Current user (from localStorage)
 const user = ref({ name: 'Guest', role: '' });
+// handler reference so we can remove it on unmount
+let storageHandler = null;
+// custom auth event name: 'authChanged'
 const userName = computed(() => (user.value && user.value.name) ? user.value.name : 'Guest');
 const userRoleLabel = computed(() => {
   const r = (user.value && user.value.role) ? (user.value.role || '') : '';
@@ -141,6 +144,7 @@ function logout() {
   } catch (e) {
     // ignore
   }
+  try { window.dispatchEvent(new Event('authChanged')); } catch(e) {}
   router.push({ name: 'Login' });
 }
 
@@ -192,12 +196,16 @@ onMounted(() => {
   window.addEventListener('low-stock-updated', fetchNotifications);
   // watch for storage changes (other tabs or auth updates)
   loadUserFromStorage();
-  const storageHandler = (ev) => { if (ev.key === 'user') loadUserFromStorage(); };
+  // listen for cross-tab storage events
+  storageHandler = (ev) => { if (ev.key === 'user') loadUserFromStorage(); };
   window.addEventListener('storage', storageHandler);
+  // also listen for same-tab auth changes dispatched within the app
+  window.addEventListener('authChanged', loadUserFromStorage);
 });
 
 onUnmounted(() => {
   window.removeEventListener('low-stock-updated', fetchNotifications);
   window.removeEventListener('storage', storageHandler);
+  window.removeEventListener('authChanged', loadUserFromStorage);
 });
 </script>

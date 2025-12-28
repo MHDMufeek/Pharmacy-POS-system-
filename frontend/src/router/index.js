@@ -85,6 +85,12 @@ const routes = [
     component: () => import("../views/Supplier/SupplierInvoice.vue"),
     meta: { requiresAuth: true },
   },
+  {
+    path: "/supplier/returns",
+    name: "SupplierReturns",
+    component: () => import("../views/Supplier/SupplierReturns.vue"),
+    meta: { requiresAuth: true },
+  },
 
   // 🔵 Sales Routes
   {
@@ -180,6 +186,7 @@ router.beforeEach(async (to, from) => {
           StockUpdate: 'stock-update',
           SupplierDetails: 'supplier-details',
           SupplierInvoice: 'supply-invoice',
+          SupplierReturns: 'supplier-returns',
           CustomerReturnRefund: 'customer-return-refund',
           Creditors: 'creditors',
           DrugMovement: 'drug-movement',

@@ -16,6 +16,7 @@ export default {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     console.log('✓ Cleared localStorage');
+    try { window.dispatchEvent(new Event('authChanged')); } catch(e) {}
     
     // Redirect to login after 1 second
     setTimeout(() => {

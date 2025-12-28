@@ -40,7 +40,6 @@ test('create and fetch invoice', async () => {
     dueDate: '2025-01-15',
     items: [{ description: 'Item 1', quantity: 2, unitPrice: 5, total: 10 }],
     subtotal: 10,
-    tax: 0,
     discount: 0,
     totalAmount: 10,
     status: 'pending'

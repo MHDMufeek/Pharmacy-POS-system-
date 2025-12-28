@@ -135,6 +135,9 @@ export default {
           if (data.token) localStorage.setItem('token', data.token);
           if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
 
+          // notify other components in same tab to refresh auth state
+          try { window.dispatchEvent(new Event('authChanged')); } catch(e) {}
+
           this.successMessage = "Login successful 🎉 Redirecting...";
           setTimeout(() => {
             this.$router.push("/dashboard");

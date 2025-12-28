@@ -59,7 +59,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // POST /api/invoices - create
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const { supplierId, supplierName, date, dueDate, status, items = [], subtotal = 0, tax = 0, discount = 0, totalAmount = 0, notes } = req.body;
+    const { supplierId, supplierName, date, dueDate, status, items = [], subtotal = 0, discount = 0, totalAmount = 0, notes } = req.body;
     if (!supplierId || !date) return res.status(400).json({ message: 'Missing required fields (supplierId, date)' });
 
     const invoice = new Invoice({
@@ -70,7 +70,6 @@ router.post('/', authMiddleware, async (req, res) => {
       status: status || 'pending',
       items,
       subtotal: Number(subtotal || 0),
-      tax: Number(tax || 0),
       discount: Number(discount || 0),
       totalAmount: Number(totalAmount || 0),
       notes,
@@ -92,7 +91,6 @@ router.put('/:id', authMiddleware, async (req, res) => {
     if (updates.date) updates.date = new Date(updates.date);
     if (updates.dueDate) updates.dueDate = new Date(updates.dueDate);
     if (updates.subtotal != null) updates.subtotal = Number(updates.subtotal);
-    if (updates.tax != null) updates.tax = Number(updates.tax);
     if (updates.discount != null) updates.discount = Number(updates.discount);
     if (updates.totalAmount != null) updates.totalAmount = Number(updates.totalAmount);
 

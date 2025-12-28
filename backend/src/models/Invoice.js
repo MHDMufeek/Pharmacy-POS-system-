@@ -16,7 +16,6 @@ const InvoiceSchema = new mongoose.Schema(
     status: { type: String, enum: ['pending', 'paid', 'overdue', 'cancelled'], default: 'pending' },
     items: { type: [InvoiceItemSchema], default: [] },
     subtotal: { type: Number, default: 0 },
-    tax: { type: Number, default: 0 },
     discount: { type: Number, default: 0 },
     totalAmount: { type: Number, default: 0 },
     notes: { type: String },

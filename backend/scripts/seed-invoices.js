@@ -25,7 +25,6 @@ async function seedInvoices() {
       status: 'pending',
       items: items.length ? items.map(it => ({ description: it.name, quantity: 2, unitPrice: it.price || 1, total: (it.price || 1) * 2 })) : [{ description: 'Sample Item', quantity: 1, unitPrice: 10, total: 10 }],
       subtotal: items.length ? items.reduce((s, it) => s + ((it.price || 1) * 2), 0) : 10,
-      tax: 0,
       discount: 0,
       totalAmount: items.length ? items.reduce((s, it) => s + ((it.price || 1) * 2), 0) : 10,
       notes: 'Seed invoice'

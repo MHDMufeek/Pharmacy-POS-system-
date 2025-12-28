@@ -462,14 +462,16 @@
                   <input 
                     type="text" 
                     v-model="item.description" 
-                    placeholder="Item description"
+                    :name="`item-name-${index}`"
+                    placeholder="Name"
+                    aria-label="Item name"
                     class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white"
                   >
                 </div>
                 <div class="col-span-2">
                   <input 
                     type="number" 
-                    v-model="item.quantity" 
+                    v-model.number="item.quantity" 
                     placeholder="Qty"
                     min="1"
                     class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
@@ -479,7 +481,7 @@
                 <div class="col-span-2">
                   <input 
                     type="number" 
-                    v-model="item.unitPrice" 
+                    v-model.number="item.unitPrice" 
                     placeholder="Unit Price"
                     min="0"
                     step="0.01"
@@ -509,32 +511,30 @@
                 <div class="w-64">
                   <div class="flex justify-between mb-2">
                     <span class="text-sm text-gray-600 dark:text-gray-300">Subtotal:</span>
-                    <span class="font-medium dark:text-white">${{ currentInvoice.subtotal.toFixed(2) }}</span>
+                    <span class="font-medium dark:text-white">Rs.{{ currentInvoice.subtotal.toFixed(2) }}</span>
                   </div>
-                  
+
+
                   <div class="flex justify-between mb-2">
-                        <span class="text-sm text-gray-600 dark:text-gray-300">Discount (%):</span>
-                          <div class="flex items-center space-x-2">
-                            <input
-                              type="number"
-                              min="0"
-                              max="100"
-                              v-model.number="currentInvoice.discountPercent"
-                              @input="onDiscountPercentInput"
-                              class="w-20 bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
-                            />
-                            <span class="text-sm text-gray-600 dark:text-gray-300">Amount:</span>
-                            <input
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              v-model.number="currentInvoice.discount"
-                              @input="onDiscountAmountInput"
-                              class="w-28 bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
-                            />
-                            <span class="font-medium dark:text-white">- Rs.{{ currentInvoice.discount.toFixed(2) }}</span>
-                          </div>
-                      </div>
+                    <span class="text-sm text-gray-600 dark:text-gray-300">Discount</span>
+                    <div class="flex items-center space-x-2">
+                      <select v-model="discountMode" class="w-28 bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600">
+                        <option value="percent">Percent</option>
+                        <option value="amount">Amount</option>
+                      </select>
+                      <input
+                        type="number"
+                        :min="discountMode === 'percent' ? 0 : 0"
+                        :max="discountMode === 'percent' ? 100 : null"
+                        step="0.01"
+                        v-model.number="discountInput"
+                        @change="() => {}"
+                        class="w-36 bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
+                      />
+                      <span class="font-medium dark:text-white">- Rs.{{ currentInvoice.discount.toFixed(2) }}</span>
+                    </div>
+                  </div>
+
                   <div class="flex justify-between border-t pt-2">
                     <span class="text-lg font-bold text-gray-800 dark:text-white">Total:</span>
                     <span class="text-lg font-bold text-blue-600 dark:text-blue-300">Rs.{{ currentInvoice.totalAmount.toFixed(2) }}</span>
@@ -777,6 +777,7 @@
   const isEditing = ref(false)
   const activeTab = ref('invoices')
   const lastEditedDiscount = ref('percent')
+  const discountMode = ref('percent')
   const filters = ref({
     supplier: '',
     status: '',
@@ -794,11 +795,30 @@
       { description: '', quantity: 1, unitPrice: 0, total: 0 }
     ],
     subtotal: 0,
-    tax: 0,
     discount: 0,
     discountPercent: 0,
     totalAmount: 0,
     notes: ''
+  })
+
+  // single input abstraction: either percent or amount depending on `discountMode`
+  const discountInput = computed({
+    get() {
+      return discountMode.value === 'percent' ? (currentInvoice.value.discountPercent || 0) : (currentInvoice.value.discount || 0)
+    },
+    set(v) {
+      const val = Number(v || 0)
+      if (discountMode.value === 'percent') {
+        lastEditedDiscount.value = 'percent'
+        currentInvoice.value.discountPercent = val
+        currentInvoice.value.discount = +(currentInvoice.value.subtotal * (val / 100))
+      } else {
+        lastEditedDiscount.value = 'amount'
+        currentInvoice.value.discount = val
+        currentInvoice.value.discountPercent = currentInvoice.value.subtotal ? +(val / currentInvoice.value.subtotal * 100) : 0
+      }
+      calculateTotals()
+    }
   })
 
   // New supplier form data
@@ -1049,9 +1069,8 @@
             ...i,
             id: i._id || i.id,
             subtotal: Number(i.subtotal || 0),
-            tax: Number(i.tax || 0),
-              discount: Number(i.discount || 0),
-              discountPercent: Number(i.discountPercent || 0),
+            discount: Number(i.discount || 0),
+            discountPercent: Number(i.discountPercent || 0),
             totalAmount: Number(i.totalAmount || 0)
           }))
           console.log('Loaded', invoices.value.length, 'invoices from API')
@@ -1071,7 +1090,6 @@
         invoices.value = parsed.map(i => ({
             ...i,
             subtotal: Number(i.subtotal || 0),
-            tax: Number(i.tax || 0),
             discount: Number(i.discount || 0),
             discountPercent: Number(i.discountPercent || 0),
             totalAmount: Number(i.totalAmount || 0)
@@ -1123,7 +1141,6 @@
         { description: '', quantity: 1, unitPrice: 0, total: 0 }
       ],
       subtotal: 0,
-      tax: 0,
       discount: 0,
       discountPercent: 0,
       totalAmount: 0,
@@ -1204,7 +1221,7 @@
   
   function calculateTotals() {
     currentInvoice.value.subtotal = currentInvoice.value.items.reduce((sum, item) => sum + (item.total || 0), 0)
-    currentInvoice.value.tax = currentInvoice.value.subtotal * 0.1 // 10% tax
+    // No tax field — tax removed entirely
     // compute discount based on last edited field
     if (lastEditedDiscount.value === 'percent') {
       const pct = Number(currentInvoice.value.discountPercent || 0)
@@ -1213,7 +1230,8 @@
       // amount was edited last -> update percent (avoid division by zero)
       currentInvoice.value.discountPercent = currentInvoice.value.subtotal ? +(currentInvoice.value.discount / currentInvoice.value.subtotal * 100) : 0
     }
-    currentInvoice.value.totalAmount = currentInvoice.value.subtotal + currentInvoice.value.tax - currentInvoice.value.discount
+    // total is subtotal minus discount (tax removed)
+    currentInvoice.value.totalAmount = currentInvoice.value.subtotal - currentInvoice.value.discount
   }
 
   function onDiscountPercentInput() {
@@ -1239,6 +1257,7 @@
     if (typeof currentInvoice.value.discount === 'undefined') currentInvoice.value.discount = 0
     // prefer percent if it was provided, otherwise treat amount as last-edited
     lastEditedDiscount.value = (currentInvoice.value.discountPercent && Number(currentInvoice.value.discountPercent) > 0) ? 'percent' : 'amount'
+    discountMode.value = lastEditedDiscount.value
     calculateTotals()
     showInvoiceModal.value = true
   }
@@ -1321,15 +1340,27 @@
 
     if (isEditing.value) {
       // Update existing invoice
-      if (token && currentInvoice.value._id) {
+      const idToUse = currentInvoice.value._id || currentInvoice.value.id
+      if (token && idToUse) {
         try {
-          const res = await axios.put(`${API_BASE}/invoices/${currentInvoice.value._id}`, currentInvoice.value, { headers: { Authorization: `Bearer ${token}` } })
+          const res = await axios.put(`${API_BASE}/invoices/${idToUse}`, currentInvoice.value, { headers: { Authorization: `Bearer ${token}` } })
           const updated = res.data
-          const idx = invoices.value.findIndex(inv => inv._id === (currentInvoice.value._id) || inv.id === (currentInvoice.value.id))
-          if (idx !== -1) invoices.value[idx] = { ...updated, id: updated._id || updated.id }
+          const normalized = {
+            ...updated,
+            id: updated._id || updated.id,
+            _id: updated._id || updated._id,
+            subtotal: Number(updated.subtotal || currentInvoice.value.subtotal || 0),
+            discount: Number(updated.discount || currentInvoice.value.discount || 0),
+            discountPercent: Number(updated.discountPercent || currentInvoice.value.discountPercent || 0),
+            totalAmount: Number(updated.totalAmount || currentInvoice.value.totalAmount || 0),
+            date: updated.date ? new Date(updated.date).toISOString().split('T')[0] : (currentInvoice.value.date || ''),
+            dueDate: updated.dueDate ? new Date(updated.dueDate).toISOString().split('T')[0] : (currentInvoice.value.dueDate || '')
+          }
+          const idx = invoices.value.findIndex(inv => inv._id === idToUse || inv.id === idToUse || inv.id === currentInvoice.value.id)
+          if (idx !== -1) invoices.value[idx] = normalized
         } catch (err) {
           console.warn('Failed to update invoice on server, falling back to local update', err)
-          const index = invoices.value.findIndex(inv => inv.id === currentInvoice.value.id)
+          const index = invoices.value.findIndex(inv => inv.id === currentInvoice.value.id || inv._id === currentInvoice.value._id)
           if (index !== -1) invoices.value[index] = { ...currentInvoice.value }
         }
       } else {
@@ -1338,7 +1369,7 @@
       }
     } else {
       // Add new invoice - include supplier details snapshot
-      const sd = supplierDetails || null
+      const sd = supplierDetails.value || null
       let invoiceToSave = {
         ...currentInvoice.value,
         supplierName: sd ? sd.name : getSupplierName(currentInvoice.value.supplierId)
@@ -1348,8 +1379,19 @@
         try {
           const res = await axios.post(`${API_BASE}/invoices`, invoiceToSave, { headers: { Authorization: `Bearer ${token}` } })
           const created = res.data
-          created.id = created._id || created.id
-          invoices.value.unshift(created)
+          // normalize created invoice shape
+          const normalized = {
+            ...created,
+            id: created._id || created.id,
+            _id: created._id || created._id,
+            subtotal: Number(created.subtotal || invoiceToSave.subtotal || 0),
+            discount: Number(created.discount || invoiceToSave.discount || 0),
+            discountPercent: Number(created.discountPercent || invoiceToSave.discountPercent || 0),
+            totalAmount: Number(created.totalAmount || invoiceToSave.totalAmount || 0),
+            date: created.date ? new Date(created.date).toISOString().split('T')[0] : (invoiceToSave.date || new Date().toISOString().split('T')[0]),
+            dueDate: created.dueDate ? new Date(created.dueDate).toISOString().split('T')[0] : (invoiceToSave.dueDate || '')
+          }
+          invoices.value.unshift(normalized)
         } catch (err) {
           console.warn('Failed to create invoice on server, saving locally', err)
           invoiceToSave.id = invoiceToSave.id || String(1000 + (invoices.value.length || 0) + 1)
