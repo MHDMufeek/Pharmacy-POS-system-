@@ -103,6 +103,40 @@ router.put('/:id', authMiddleware, async (req, res) => {
   }
 });
 
+// POST /api/invoices/:id/pay - record a payment and update invoice status
+router.post('/:id/pay', authMiddleware, async (req, res) => {
+  try {
+    const { amount, date, method, reference, notes } = req.body;
+    const payAmount = Number(amount || 0);
+    if (!payAmount || payAmount <= 0) return res.status(400).json({ message: 'Invalid payment amount' });
+
+    const inv = await Invoice.findById(req.params.id);
+    if (!inv) return res.status(404).json({ message: 'Invoice not found' });
+
+    const payment = {
+      amount: payAmount,
+      date: date ? new Date(date) : new Date(),
+      method: method || 'cash',
+      reference: reference || '',
+      notes: notes || '',
+      createdBy: req.user ? req.user._id : undefined
+    };
+
+    inv.payments.push(payment);
+
+    const totalPaid = inv.payments.reduce((s, p) => s + (p.amount || 0), 0);
+    if (totalPaid >= (inv.totalAmount || 0)) {
+      inv.status = 'paid';
+    }
+
+    await inv.save();
+    return res.json({ message: 'Payment recorded', data: inv });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // DELETE /api/invoices/:id
 router.delete('/:id', authMiddleware, async (req, res) => {
   try {

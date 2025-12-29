@@ -238,7 +238,7 @@
                         <button class="text-red-600 hover:text-red-900 transition-colors dark:text-red-300 dark:hover:text-red-100" @click="deleteInvoice(invoice)" v-if="invoice.status === 'pending'" title="Delete Invoice">
                           <span class="material-icons text-base">delete</span>
                         </button>
-                        <button class="text-purple-600 hover:text-purple-900 transition-colors dark:text-purple-300 dark:hover:text-purple-100" @click="markAsPaid(invoice)" v-if="invoice.status === 'pending'" title="Mark as Paid">
+                        <button class="text-purple-600 hover:text-purple-900 transition-colors dark:text-purple-300 dark:hover:text-purple-100" @click="openPaymentModal(invoice)" v-if="invoice.status === 'pending'" title="Mark as Paid">
                           <span class="material-icons text-base">payments</span>
                         </button>
                       </div>
@@ -280,10 +280,7 @@
           <div v-if="activeTab === 'suppliers'">
             <div class="flex justify-between items-center mb-6">
               <h3 class="text-lg font-semibold text-gray-900">Supplier Directory</h3>
-              <button @click="showAddSupplierModal" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
-                <span class="material-icons text-sm mr-1">add</span>
-                Add New Supplier
-              </button>
+             
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -317,7 +314,7 @@
                   </div>
                   <div class="flex items-center">
                     <span class="material-icons text-gray-400 text-base mr-2">location_on</span>
-                    <span>{{ supplier.city || 'N/A' }}, {{ supplier.country || 'N/A' }}</span>
+                    <span>{{ (supplier.city || supplier.address) ? (supplier.city || supplier.address) : 'N/A' }}{{ supplier.country ? ', ' + supplier.country : '' }}</span>
                   </div>
                 </div>
                 <div class="mt-4 pt-4 border-t border-gray-200">
@@ -761,6 +758,98 @@
           </div>
         </div>
       </div>
+
+      <!-- Invoice Details Modal -->
+      <div v-if="showInvoiceDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-screen overflow-y-auto dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700">
+          <div class="px-6 py-4 border-b">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Invoice Details</h3>
+          </div>
+          <div class="px-6 py-4">
+            <div v-if="loadingInvoiceDetails" class="text-center py-12">
+              <span class="material-icons animate-spin text-gray-400 text-4xl">hourglass_empty</span>
+              <p class="mt-4 text-gray-500">Loading...</p>
+            </div>
+            <div v-else-if="invoiceDetails">
+              <div class="mb-4">
+                <div class="text-sm text-gray-600">Invoice ID: <span class="font-medium">{{ invoiceDetails._id || invoiceDetails.id }}</span></div>
+                <div class="text-sm text-gray-600">Supplier: <span class="font-medium">{{ invoiceDetails.supplierName || getSupplierName(invoiceDetails.supplierId) }}</span></div>
+                <div class="text-sm text-gray-600">Date: <span class="font-medium">{{ formatDate(invoiceDetails.date) }}</span></div>
+                <div class="text-sm text-gray-600">Due Date: <span class="font-medium">{{ formatDate(invoiceDetails.dueDate) }}</span></div>
+                <div class="text-sm text-gray-600">Status: <span class="font-medium">{{ invoiceDetails.status }}</span></div>
+              </div>
+
+              <div class="mb-4">
+                <h4 class="font-medium mb-2">Items</h4>
+                <div class="space-y-2">
+                  <div v-for="(it, idx) in invoiceDetails.items || []" :key="idx" class="flex items-center justify-between border rounded p-3">
+                    <div class="text-sm">
+                      <div class="font-medium">{{ it.description }}</div>
+                      <div class="text-xs text-gray-500">Qty: {{ it.quantity }}, Unit: Rs.{{ (it.unitPrice || 0).toFixed(2) }}</div>
+                    </div>
+                    <div class="text-sm font-medium">Rs.{{ ((it.total || (it.quantity*(it.unitPrice||0)))||0).toFixed(2) }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="border-t pt-4 text-right">
+                <div class="text-sm text-gray-600">Subtotal: <span class="font-medium">Rs.{{ (invoiceDetails.subtotal || 0).toFixed(2) }}</span></div>
+                <div class="text-sm text-gray-600">Discount: <span class="font-medium">Rs.{{ (invoiceDetails.discount || 0).toFixed(2) }}</span></div>
+                <div class="text-lg font-bold mt-2">Total: <span class="text-blue-600">Rs.{{ (invoiceDetails.totalAmount || 0).toFixed(2) }}</span></div>
+              </div>
+            </div>
+
+            <div v-else class="text-center py-12 text-gray-500">No details available</div>
+          </div>
+          <div class="px-6 py-4 border-t flex justify-end gap-3 dark:bg-slate-800 dark:border-t dark:border-slate-700">
+            <button @click="closeInvoiceDetails" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg dark:bg-slate-700 dark:text-white">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Modal -->
+      <div v-if="showPaymentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-screen overflow-y-auto dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700">
+          <div class="px-6 py-4 border-b">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Record Payment</h3>
+          </div>
+          <div class="px-6 py-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                <input type="number" v-model.number="paymentForm.amount" min="0" step="0.01" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                <input type="date" v-model="paymentForm.date" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Method</label>
+                <select v-model="paymentForm.method" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white">
+                  <option value="cash">Cash</option>
+                  <option value="card">Card</option>
+                  <option value="bank">Bank Transfer</option>
+                  <option value="cheque">Cheque</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Reference</label>
+                <input type="text" v-model="paymentForm.reference" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white" />
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                <textarea v-model="paymentForm.notes" rows="3" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white"></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="px-6 py-4 border-t flex justify-end gap-3 dark:bg-slate-800 dark:border-t dark:border-slate-700">
+            <button @click="closePaymentModal" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg dark:bg-slate-700 dark:text-white">Cancel</button>
+            <button @click="payInvoice" class="px-4 py-2 text-white bg-blue-600 rounded-lg">Pay & Print</button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </template>
   
@@ -774,6 +863,13 @@
   const searchQuery = ref('')
   const showInvoiceModal = ref(false)
   const showSupplierModal = ref(false)
+  const showInvoiceDetailsModal = ref(false)
+  const loadingInvoiceDetails = ref(false)
+  const invoiceDetails = ref(null)
+  // Payment modal state
+  const showPaymentModal = ref(false)
+  const paymentForm = ref({ amount: 0, date: new Date().toISOString().split('T')[0], method: 'cash', reference: '', notes: '' })
+  const invoiceToPrint = ref(null)
   const isEditing = ref(false)
   const activeTab = ref('invoices')
   const lastEditedDiscount = ref('percent')
@@ -883,18 +979,36 @@
       const res = await axios.get(`${API_BASE}/suppliers`, { headers: { Authorization: `Bearer ${token}` } })
       if (res.data && Array.isArray(res.data.data) && res.data.data.length > 0) {
         // map backend suppliers to expected shape (use _id as id)
-        suppliers.value = res.data.data.map(s => ({
-          id: s._id || s.id,
-          name: s.name,
-          contactPerson: s.contactName || s.contactPerson || '',
-          email: s.email || '',
-          phone: s.phone || '',
-          address: s.address || '',
-          city: s.city || '',
-          state: s.state || '',
-          zipCode: s.zipCode || s.postalCode || '',
-          country: s.country || ''
-        }))
+        suppliers.value = res.data.data.map(s => {
+          const addressRaw = s.address || s.fullAddress || (s.location && typeof s.location === 'string' ? s.location : '') || ''
+          let parsedCity = s.city || ''
+          let parsedCountry = s.country || ''
+          if (typeof addressRaw === 'string' && addressRaw.includes(',')) {
+            const parts = addressRaw.split(',').map(p => p.trim()).filter(Boolean)
+            if (parts.length >= 2) {
+              parsedCountry = parsedCountry || parts[parts.length - 1]
+              parsedCity = parsedCity || parts[parts.length - 2]
+            } else if (parts.length === 1) {
+              parsedCity = parsedCity || parts[0]
+            }
+          } else if (addressRaw && typeof addressRaw === 'object') {
+            parsedCity = parsedCity || addressRaw.city || ''
+            parsedCountry = parsedCountry || addressRaw.country || ''
+          }
+
+          return {
+            id: s._id || s.id,
+            name: s.name,
+            contactPerson: s.contactName || s.contactPerson || '',
+            email: s.email || '',
+            phone: s.phone || '',
+            address: addressRaw || '',
+            city: parsedCity,
+            state: s.state || '',
+            zipCode: s.zipCode || s.postalCode || '',
+            country: parsedCountry
+          }
+        })
       }
     } catch (err) {
       console.warn('Could not fetch suppliers, using sample data', err)
@@ -1263,10 +1377,9 @@
   }
   
   function viewInvoice(invoice) {
-    alert(`Viewing invoice INV-${invoice.id} for ${getSupplierName(invoice.supplierId)}`)
-    // In a real application, this would show a detailed view or PDF
+    openInvoiceDetails(invoice)
   }
-  
+
   async function deleteInvoice(invoice) {
     if (!confirm(`Are you sure you want to delete invoice INV-${invoice.id}?`)) return
 
@@ -1287,26 +1400,125 @@
     alert('Invoice deleted successfully')
   }
   
-  async function markAsPaid(invoice) {
-    if (!confirm(`Mark invoice INV-${invoice.id} as paid?`)) return
+  function openInvoiceDetails(invoice) {
+    const id = invoice._id || invoice.id
+    if (!id) {
+      alert('Invoice ID not found')
+      return
+    }
+    loadingInvoiceDetails.value = true
+    invoiceDetails.value = null
+    showInvoiceDetailsModal.value = true
+    axios.get(`${API_BASE}/invoices/${id}`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(res => {
+        invoiceDetails.value = res.data && res.data.data ? res.data.data : res.data
+      })
+      .catch(err => {
+        console.error('Failed to load invoice details', err)
+        alert(err?.response?.data?.message || 'Failed to load invoice details')
+        showInvoiceDetailsModal.value = false
+      })
+      .finally(() => {
+        loadingInvoiceDetails.value = false
+      })
+  }
 
-    if (token && (invoice._id || (invoice.id && invoice.id.match(/^[0-9a-fA-F]{24}$/)))) {
-      const id = invoice._id || invoice.id
-      try {
-        const res = await axios.put(`${API_BASE}/invoices/${id}`, { status: 'paid' }, { headers: { Authorization: `Bearer ${token}` } })
-        const updated = res.data
-        const idx = invoices.value.findIndex(inv => inv._id === id || inv.id === id)
-        if (idx !== -1) invoices.value[idx] = { ...updated, id: updated._id || updated.id }
-      } catch (err) {
-        console.warn('Failed to mark invoice paid on server, marking locally', err)
-        invoice.status = 'paid'
-      }
-    } else {
-      invoice.status = 'paid'
+  function closeInvoiceDetails() {
+    showInvoiceDetailsModal.value = false
+    invoiceDetails.value = null
+    loadingInvoiceDetails.value = false
+  }
+
+  function openPaymentModal(invoice) {
+    // prefill payment form
+    paymentForm.value = {
+      amount: invoice.totalAmount || 0,
+      date: new Date().toISOString().split('T')[0],
+      method: 'cash',
+      reference: '',
+      notes: ''
+    }
+    paymentForm.value._invoiceId = invoice._id || invoice.id
+    invoiceToPrint.value = null
+    showPaymentModal.value = true
+  }
+
+  function closePaymentModal() {
+    showPaymentModal.value = false
+    paymentForm.value = { amount: 0, date: new Date().toISOString().split('T')[0], method: 'cash', reference: '', notes: '' }
+  }
+
+  async function payInvoice() {
+    const invId = paymentForm.value._invoiceId
+    if (!invId) {
+      alert('Invoice id missing')
+      return
     }
 
-    persistInvoices()
-    alert('Invoice marked as paid')
+    const payload = {
+      amount: Number(paymentForm.value.amount || 0),
+      date: paymentForm.value.date,
+      method: paymentForm.value.method,
+      reference: paymentForm.value.reference,
+      notes: paymentForm.value.notes
+    }
+
+    if (token) {
+      try {
+        const res = await axios.post(`${API_BASE}/invoices/${invId}/pay`, payload, { headers: { Authorization: `Bearer ${token}` } })
+        const updated = res.data && res.data.data ? res.data.data : res.data
+        const idx = invoices.value.findIndex(inv => (inv._id === updated._id) || (inv.id === updated._id) || (inv.id === updated.id))
+        if (idx !== -1) invoices.value[idx] = { ...invoices.value[idx], ...updated, id: updated._id || updated.id }
+        invoiceToPrint.value = { invoice: updated, payment: payload }
+        closePaymentModal()
+        printInvoice(invoiceToPrint.value)
+      } catch (err) {
+        console.error('Payment failed', err)
+        alert(err?.response?.data?.message || 'Payment failed')
+      }
+    } else {
+      // offline: mark local invoice as paid
+      const idx = invoices.value.findIndex(inv => inv.id === invId || inv._id === invId)
+      if (idx !== -1) {
+        invoices.value[idx].status = 'paid'
+        invoices.value[idx].payments = invoices.value[idx].payments || []
+        invoices.value[idx].payments.push(payload)
+        invoiceToPrint.value = { invoice: invoices.value[idx], payment: payload }
+      }
+      closePaymentModal()
+      persistInvoices()
+      printInvoice(invoiceToPrint.value)
+    }
+  }
+
+  function printInvoice({ invoice, payment }) {
+    try {
+      const win = window.open('', '_blank')
+      if (!win) {
+        alert('Pop-up blocked. Please allow pop-ups to print the bill.')
+        return
+      }
+
+      const html = `<!doctype html><html><head><meta charset="utf-8"><title>Invoice ${invoice._id || invoice.id}</title>
+        <style>body{font-family: Arial, sans-serif;padding:20px;color:#111} .header{display:flex;justify-content:space-between;margin-bottom:20px} .items{width:100%;border-collapse:collapse} .items th,.items td{border:1px solid #ddd;padding:8px;text-align:left} .right{text-align:right}</style>
+        </head><body>
+        <div class="header"><div><h2>Supplier Invoice</h2><div>Invoice: ${invoice._id || invoice.id}</div><div>Date: ${new Date(invoice.date).toLocaleDateString()}</div></div>
+        <div class="right"><div><strong>${invoice.supplierName || getSupplierName(invoice.supplierId)}</strong></div><div>Payment: ${payment.method}</div><div>Reference: ${payment.reference || '-'}</div></div></div>
+        <table class="items"><thead><tr><th>Description</th><th>Qty</th><th>Unit</th><th class="right">Total</th></tr></thead><tbody>
+        ${ (invoice.items || []).map(i=>`<tr><td>${i.description}</td><td>${i.quantity}</td><td>Rs.${(i.unitPrice||0).toFixed(2)}</td><td class="right">Rs.${((i.total)||((i.quantity||0)*(i.unitPrice||0))).toFixed(2)}</td></tr>`).join('') }
+        </tbody></table>
+        <div style="margin-top:20px;text-align:right">Subtotal: Rs.${(invoice.subtotal||0).toFixed(2)}<br>Discount: Rs.${(invoice.discount||0).toFixed(2)}<br><strong>Total Paid: Rs.${(payment.amount||0).toFixed(2)}</strong><br><strong>Balance: Rs.${((invoice.totalAmount||0)- (payment.amount||0)).toFixed(2)}</strong></div>
+        <div style="margin-top:30px">Notes: ${payment.notes || invoice.notes || '-'}</div>
+        <script>window.onload=function(){window.print(); setTimeout(()=>window.close(), 200);}</\/script>
+        </body></html>`
+
+      win.document.open()
+      win.document.write(html)
+      win.document.close()
+    } catch (err) {
+      console.error('Print failed', err)
+      alert('Could not open print window')
+    }
   }
   
   function applyFilters() {

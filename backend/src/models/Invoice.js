@@ -7,6 +7,15 @@ const InvoiceItemSchema = new mongoose.Schema({
   total: { type: Number, default: 0 }
 });
 
+const InvoicePaymentSchema = new mongoose.Schema({
+  amount: { type: Number, required: true },
+  date: { type: Date, required: true, default: Date.now },
+  method: { type: String, enum: ['cash', 'card', 'bank', 'cheque', 'other'], default: 'cash' },
+  reference: { type: String },
+  notes: { type: String },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+});
+
 const InvoiceSchema = new mongoose.Schema(
   {
     supplierId: { type: String, required: true },
@@ -18,6 +27,7 @@ const InvoiceSchema = new mongoose.Schema(
     subtotal: { type: Number, default: 0 },
     discount: { type: Number, default: 0 },
     totalAmount: { type: Number, default: 0 },
+    payments: { type: [InvoicePaymentSchema], default: [] },
     notes: { type: String },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
   },
