@@ -290,14 +290,17 @@
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Dose
+                  DoseForm (Type)
                 </label>
                 <select v-model="newItem.dose" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                  <option value="">Select Dose</option>
+                  <option value="">Select DoseForm</option>
                   <option value="tablets">Tablets</option>
                   <option value="syrup">Syrup</option>
                   <option value="injection">Injection</option>
                   <option value="cream">Cream</option>
+                  <option value="capsule">Capsule</option>
+                  <option value="ointment">Ointment</option>
+                  <option value="eye-drops">Eye Drops</option>
                 </select>
               </div>
 
@@ -322,23 +325,6 @@
             <h3 class="text-lg font-semibold text-gray-800 mb-4 dark:text-gray-200">Stock & Pricing</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="space-y-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Initial Stock <span class="text-red-500">*</span>
-                  </label>
-                  <div class="flex items-center">
-                    <input
-                      v-model.number="newItem.currentStock"
-                      type="number"
-                      min="0"
-                      required
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="0"
-                    >
-                    <span class="ml-2 text-gray-600">units</span>
-                  </div>
-                </div>
-
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">
                     Minimum Level <span class="text-red-500">*</span>
@@ -447,16 +433,7 @@
                 </select>
               </div>
 
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Expiry Date
-                </label>
-                <input
-                  v-model="newItem.expiryDate"
-                  type="date"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-              </div>
+              <!-- Expiry fields removed from Add New Item form; manage expiry via Adjust Stock -->
             </div>
           </div>
 
@@ -498,6 +475,12 @@
           v-model="adjustmentQuantity"
           class="w-full border rounded-lg px-3 py-2 text-sm mb-3 dark:bg-slate-700 dark:text-white dark:border-slate-600"
         />
+        <div v-if="adjustmentType === 'add'" class="mb-3">
+          <label class="block text-sm text-gray-700 mb-1 dark:text-gray-300">Expiry Date</label>
+          <input type="date" v-model="updateExpiryDate" class="w-full border rounded-lg px-3 py-2 text-sm mb-2 dark:bg-slate-700 dark:text-white dark:border-slate-600" />
+          <label class="block text-sm text-gray-700 mb-1 dark:text-gray-300">Expiry Alert Date</label>
+          <input type="date" v-model="updateExpiryAlertDate" class="w-full border rounded-lg px-3 py-2 text-sm dark:bg-slate-700 dark:text-white dark:border-slate-600" />
+        </div>
         <!-- Price is adjusted in a separate modal -->
         <div class="flex justify-end gap-2">
           <button class="px-4 py-2 bg-gray-200 rounded-lg dark:bg-slate-700 dark:text-white" @click="showUpdateModal = false">Cancel</button>
@@ -567,6 +550,7 @@
               <thead class="bg-gray-50 sticky top-0">
                 <tr>
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expiry Date</th>
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Previous Stock</th>
@@ -576,7 +560,8 @@
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
                 <tr v-for="(history, index) in itemHistory" :key="index">
-                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ formatDate(history.date) }}</td>
+                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ history.date }}</td>
+                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ history.expiryDate || (history.expiryAlertDate || '-') }}</td>
                   <td class="px-4 py-3 whitespace-nowrap">
                     <span :class="[
                       'px-2 py-1 text-xs rounded-full font-medium',
@@ -663,7 +648,10 @@ api.interceptors.request.use(cfg => {
 
 const stockItems = ref([]);
 
-const categories = ref(["Pain Relief", "Antibiotics", "Supplements", "Diabetes", "Allergy", "Steroids", "Acidity", "Cold & Cough"]);
+const defaultCategories = ["Pain Relief", "Antibiotics", "Supplements", "Diabetes", "Allergy", "Steroids", "Acidity", "Cold & Cough"];
+let persisted = null;
+try { persisted = JSON.parse(localStorage.getItem('categories') || 'null'); } catch(e) { persisted = null; }
+const categories = ref(Array.isArray(persisted) && persisted.length ? persisted : defaultCategories.slice());
 const suppliers = ref([]);
 
 // Add New Item Modal
@@ -673,17 +661,15 @@ const newItem = ref({
   category: "",
   manufacturer: "",
   code: "",
-    image: "",
-    genericName: "",
+  image: "",
+  genericName: "",
   dose: "",
   packageSize: "",
-  currentStock: 0,
   minLevel: 10,
   maxLevel: "",
   costPrice: 0,
   sellingPrice: 0,
-  supplier: "",
-  expiryDate: ""
+  supplier: ""
 });
 
 // Add category helper state
@@ -704,6 +690,7 @@ function addCategory() {
     return;
   }
   categories.value.push(name);
+  try { localStorage.setItem('categories', JSON.stringify(categories.value)); } catch(e) {}
   newItem.value.category = name;
   newCategory.value = '';
   showAddCategory.value = false;
@@ -726,6 +713,8 @@ const showUpdateModal = ref(false);
 const selectedItem = ref({});
 const adjustmentType = ref("add");
 const adjustmentQuantity = ref(0);
+const updateExpiryDate = ref("");
+const updateExpiryAlertDate = ref("");
 
 // Price adjustment modal state
 const showPriceModal = ref(false);
@@ -739,22 +728,59 @@ const adjustmentPrice = ref(0);
 const showHistoryModal = ref(false);
 const itemHistory = ref([]);
 
-// Sample history data for demonstration
-const stockHistory = ref({
-  1: [
-    { date: new Date('2024-01-15'), type: 'Added', quantity: 100, previousStock: 50, newStock: 150, performedBy: 'Admin' },
-    { date: new Date('2024-01-10'), type: 'Used', quantity: -20, previousStock: 170, newStock: 150, performedBy: 'Nurse Sarah' },
-    { date: new Date('2024-01-05'), type: 'Restocked', quantity: 50, previousStock: 120, newStock: 170, performedBy: 'Manager' },
-    { date: new Date('2023-12-28'), type: 'Added', quantity: 70, previousStock: 50, newStock: 120, performedBy: 'Admin' },
-  ],
-  2: [
-    { date: new Date('2024-01-14'), type: 'Restocked', quantity: 30, previousStock: 45, newStock: 75, performedBy: 'Manager' },
-    { date: new Date('2024-01-08'), type: 'Used', quantity: -15, previousStock: 60, newStock: 45, performedBy: 'Doctor John' },
-  ],
-  3: [
-    { date: new Date('2024-01-12'), type: 'Added', quantity: 50, previousStock: 0, newStock: 50, performedBy: 'Admin' },
-    { date: new Date('2024-01-05'), type: 'Used', quantity: -30, previousStock: 50, newStock: 20, performedBy: 'Nurse Lisa' },
-  ]
+// load stock history from localStorage (date-only strings), fallback to empty object
+let persistedHistory = null;
+try { persistedHistory = JSON.parse(localStorage.getItem('stockHistory') || 'null'); } catch (e) { persistedHistory = null; }
+const stockHistory = ref(persistedHistory && typeof persistedHistory === 'object' ? persistedHistory : {});
+
+// Listen for item-updated events from other views (sales, etc.) to record history
+window.addEventListener('item-updated', (e) => {
+  try {
+    const d = e && e.detail ? e.detail : {};
+    const id = d.id || d._id;
+    if (!id) return;
+
+    // Determine performedBy from event or current user
+    let performedBy = d.performedBy || 'Unknown';
+    if ((!performedBy || performedBy === 'Unknown') && localStorage.getItem('user')) {
+      try { const u = JSON.parse(localStorage.getItem('user')); performedBy = u.name || u.email || performedBy; } catch(e) {}
+    }
+
+    // If sale event, qty is soldQty (positive) but history.quantity should be negative
+    const soldQty = Number(d.soldQty || 0);
+      if (soldQty > 0) {
+      const todayDateOnly = new Date().toISOString().slice(0,10);
+      const historyEntry = {
+        date: todayDateOnly,
+        expiryDate: undefined,
+        expiryAlertDate: undefined,
+        type: 'Used',
+        quantity: -Math.abs(soldQty),
+        previousStock: undefined,
+        newStock: d.newStock,
+        performedBy: performedBy
+      };
+
+      if (!stockHistory.value[id]) stockHistory.value[id] = [];
+      stockHistory.value[id].unshift(historyEntry);
+      try { localStorage.setItem('stockHistory', JSON.stringify(stockHistory.value)); } catch (e) { console.warn('Failed to persist stockHistory after sale event', e); }
+      // persist sale history to server (non-blocking)
+      try {
+        const historyPayload = {
+          type: historyEntry.type,
+          quantity: historyEntry.quantity,
+          date: historyEntry.date,
+          expiryDate: null,
+          expiryAlertDate: null,
+          performedBy: historyEntry.performedBy,
+          note: 'Recorded from sales UI'
+        };
+        api.post(`/items/${id}/history`, historyPayload).catch(err => { console.warn('Failed to persist sale history to server', err); });
+      } catch (err) {}
+    }
+  } catch (err) {
+    console.warn('item-updated handler error', err);
+  }
 });
 
 // Pagination
@@ -920,14 +946,13 @@ function addNewItem() {
         genericName: newItem.value.genericName || undefined,
         price: newItem.value.sellingPrice || 0,
         cost: newItem.value.costPrice || 0,
-        stock: Number(newItem.value.currentStock) || 0,
-          supplier: newItem.value.supplier || undefined,
-          manufacturer: newItem.value.manufacturer || undefined,
-          metadata: { 
-            minLevel: Number(newItem.value.minLevel) || 10,
-            dose: newItem.value.dose || undefined,
-            packageSize: newItem.value.packageSize || undefined
-          }
+        supplier: newItem.value.supplier || undefined,
+        manufacturer: newItem.value.manufacturer || undefined,
+        metadata: { 
+          minLevel: Number(newItem.value.minLevel) || 10,
+          dose: newItem.value.dose || undefined,
+          packageSize: newItem.value.packageSize || undefined
+        }
       };
           // include image if provided (base64)
           // if a URL was entered ensure it was validated by loading
@@ -959,8 +984,8 @@ function addNewItem() {
         ...created
       };
       stockItems.value.unshift(display);
-      stockHistory.value[display.id] = [{ date: new Date(), type: 'Added', quantity: display.currentStock, previousStock: 0, newStock: display.currentStock, performedBy: 'You' }];
-      newItem.value = { name: "", category: "", manufacturer: "", code: "", image: "", genericName: "", dose: "", packageSize: "", currentStock: 0, minLevel: 10, maxLevel: "", costPrice: 0, sellingPrice: 0, supplier: "", expiryDate: "" };
+      // Do not add stock or expiry on registration — registration is metadata-only
+      newItem.value = { name: "", category: "", manufacturer: "", code: "", image: "", genericName: "", dose: "", packageSize: "", minLevel: 10, maxLevel: "", costPrice: 0, sellingPrice: 0, supplier: "" };
       imageFile.value = null;
       imagePreview.value = "";
       imageUrl.value = "";
@@ -1040,6 +1065,8 @@ function adjustStock(item) {
   selectedItem.value = { ...item };
   adjustmentType.value = "add";
   adjustmentQuantity.value = 0;
+  updateExpiryDate.value = '';
+  updateExpiryAlertDate.value = '';
   showUpdateModal.value = true;
 }
 
@@ -1126,20 +1153,36 @@ async function updateStock() {
       stockItems.value[index].price = Number(payload.price);
     }
 
-    // Add to history
+    // Add to history (include batch/expiry when adding)
+    // store date as date-only string (YYYY-MM-DD) and do not include time or batchDate
+    const todayDateOnly = new Date().toISOString().slice(0,10);
+    // determine performedBy from logged in user
+    let performedBy = 'Admin';
+    try {
+      const raw = localStorage.getItem('user');
+      if (raw) {
+        const u = JSON.parse(raw);
+        performedBy = u.name || u.email || performedBy;
+      }
+    } catch (e) {}
+
     const historyEntry = {
-      date: new Date(),
+      date: todayDateOnly,
+      expiryDate: adjustmentType.value === 'add' && updateExpiryDate.value ? updateExpiryDate.value : undefined,
+      expiryAlertDate: adjustmentType.value === 'add' && updateExpiryAlertDate.value ? updateExpiryAlertDate.value : undefined,
       type: adjustmentType.value === 'add' ? 'Restocked' : (adjustmentType.value === 'set' ? 'Set' : 'Used'),
       quantity: adjustmentType.value === 'add' ? quantity : (adjustmentType.value === 'set' ? newStock - previousStock : -quantity),
       previousStock: previousStock,
       newStock: stockItems.value[index].currentStock,
-      performedBy: 'Admin'
+      performedBy: performedBy
     };
 
     if (!stockHistory.value[selectedItem.value.id]) {
       stockHistory.value[selectedItem.value.id] = [];
     }
     stockHistory.value[selectedItem.value.id].unshift(historyEntry);
+    // persist history to localStorage as date-only entries
+    try { localStorage.setItem('stockHistory', JSON.stringify(stockHistory.value)); } catch (e) { console.warn('Failed to persist stockHistory', e); }
 
     // Notify navbar and other listeners to refresh low-stock alerts
     try { window.dispatchEvent(new CustomEvent('low-stock-updated', { detail: { id, newStock: stockItems.value[index].currentStock } })); } catch(e) {}
@@ -1154,6 +1197,26 @@ async function updateStock() {
 
     showUpdateModal.value = false;
     adjustmentQuantity.value = 0;
+
+    // Persist history to server as well (non-blocking)
+    try {
+      const token = localStorage.getItem('token');
+      const historyPayload = {
+        type: historyEntry.type,
+        quantity: historyEntry.quantity,
+        date: historyEntry.date,
+        expiryDate: historyEntry.expiryDate || null,
+        expiryAlertDate: historyEntry.expiryAlertDate || null,
+        performedBy: historyEntry.performedBy || 'Admin',
+        note: `Adjusted via StockUpdate by UI`
+      };
+      // use axios instance `api` (baseURL includes /api)
+      api.post(`/items/${id}/history`, historyPayload).catch(err => {
+        console.warn('Failed to persist history to server', err?.response?.data || err.message || err);
+      });
+    } catch (err) {
+      console.warn('History persistence error', err);
+    }
   } catch (e) {
     console.error('Failed to persist stock update', e);
     alert(e.response?.data?.message || 'Failed to update stock (check auth)');

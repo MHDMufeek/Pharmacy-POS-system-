@@ -15,6 +15,7 @@ const suppliersRoutes = require('./routes/suppliers');
 const invoicesRoutes = require('./routes/invoices');
 const expensesRoutes = require('./routes/expenses');
 const creditorsRoutes = require('./routes/creditors');
+const stockHistoryRoutes = require('./routes/stockHistories');
 const errorHandler = require('./middleware/errorHandler');
 
 function createApp() {
@@ -36,6 +37,7 @@ function createApp() {
   app.use('/api/invoices', invoicesRoutes);
   app.use('/api/creditors', creditorsRoutes);
   app.use('/api/expenses', expensesRoutes);
+  app.use('/api', stockHistoryRoutes);
 
   app.get('/health', (req, res) => res.json({ ok: true }));
 

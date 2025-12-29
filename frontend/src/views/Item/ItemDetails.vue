@@ -54,8 +54,6 @@
             <th class="px-6 py-3 text-left text-2xl font-bold text-gray-500 uppercase tracking-wider ">Item</th>
             <th class="px-6 py-3 text-left text-2xl font-bold text-gray-500 uppercase tracking-wider">Category</th>
             <th class="px-6 py-3 text-left text-2xl font-bold text-gray-500 uppercase tracking-wider">Stock</th>
-            <th class="px-6 py-3 text-left text-2xl font-bold text-gray-500 uppercase tracking-wider">Min Level</th>
-            <th class="px-6 py-3 text-left text-2xl font-medium text-gray-500 uppercase tracking-wider">Status</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200 text-black">
@@ -78,22 +76,7 @@
                 Max: {{ item.maxLevel }} units
               </div>
             </td>
-            <td class="px-6 py-4 text-sm text-gray-600">{{ item.minLevel }}</td>
-            <td class="px-6 py-4">
-              <span 
-                :class="[
-                  'px-3 py-1 text-xs rounded-full font-medium',
-                  getStockStatus(item) === 'Low' ? 'bg-red-100 text-red-700' :
-                  getStockStatus(item) === 'Adequate' ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-green-100 text-green-700'
-                ]"
-              >
-                {{ getStockStatus(item) }}
-              </span>
-              <div v-if="getStockStatus(item) === 'Low'" class="text-xs text-red-500 mt-1">
-                ⚠️ Needs restock
-              </div>
-            </td>
+            
           </tr>
         </tbody>
       </table>
@@ -250,14 +233,19 @@
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
+            <div>
+              <span class="text-gray-600">Stock:</span>
+              <div class="font-bold" :class="getStockStatus(selectedItem) === 'Low' ? 'text-red-600' : 'text-green-600'">{{ selectedItem.currentStock }} units</div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mt-2">
               <div>
-                <span class="text-gray-600">Stock:</span>
-                <div class="font-bold" :class="getStockStatus(selectedItem) === 'Low' ? 'text-red-600' : 'text-green-600'">{{ selectedItem.currentStock }} units</div>
+                <span class="text-gray-600">Batch Date:</span>
+                <div class="font-bold">{{ selectedItem.metadata?.batchDate ? new Date(selectedItem.metadata.batchDate).toLocaleDateString() : (selectedItem.createdAt ? new Date(selectedItem.createdAt).toLocaleDateString() : '—') }}</div>
               </div>
               <div>
-                <span class="text-gray-600">Min Level:</span>
-                <div class="font-bold">{{ selectedItem.minLevel }}</div>
+                <span class="text-gray-600">Expiry Date:</span>
+                <div class="font-bold">{{ selectedItem.metadata?.expiryDate || selectedItem.expiryDate || selectedItem.expiry || '—' }}</div>
               </div>
             </div>
 
@@ -295,6 +283,30 @@
             <div v-if="selectedItem.supplier">
               <span class="text-gray-600">Supplier:</span>
               <div class="font-bold">{{ resolveSupplier(selectedItem.supplier) }}</div>
+            </div>
+
+            <div v-if="itemStockHistory.length" class="mt-4">
+              <span class="text-gray-600">Added Stock History:</span>
+              <div class="mt-2 bg-gray-50 rounded p-3 text-sm">
+                <table class="min-w-full text-left">
+                  <thead>
+                    <tr>
+                      <th class="text-xs text-gray-500 px-2">Date</th>
+                      <th class="text-xs text-gray-500 px-2">Expiry Date</th>
+                      <th class="text-xs text-gray-500 px-2">Quantity</th>
+                      <th class="text-xs text-gray-500 px-2">Performed By</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(h, idx) in itemStockHistory" :key="idx" class="border-t">
+                      <td class="px-2 py-1">{{ h.date }}</td>
+                      <td class="px-2 py-1">{{ h.expiryDate || h.expiryAlertDate || '—' }}</td>
+                      <td class="px-2 py-1">{{ h.quantity }}</td>
+                      <td class="px-2 py-1">{{ h.performedBy || '—' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -395,6 +407,7 @@ const itemsPerPage = 5;
 const showAddItemModal = ref(false);
 const showUpdateModal = ref(false);
 const showDetailsModal = ref(false);
+const itemStockHistory = ref([]);
 
 const emit = defineEmits(['go-back']);
 const router = useRouter();
@@ -598,6 +611,48 @@ async function loadItemDetails(item) {
   } catch (err) {
     console.error('Failed to load item details', err);
   } finally {
+    // attempt to load server-side history; fall back to localStorage
+    try {
+      const hid = selectedItem.value.id || selectedItem.value._id || selectedItem.value.code;
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const resHist = await fetch(`${API_BASE}/items/${hid}/history`, { headers });
+      if (resHist.ok) {
+        const body = await resHist.json();
+        const entries = Array.isArray(body) ? body.filter(e => (e.type || '').toLowerCase().includes('restock') || (e.type || '').toLowerCase().includes('add')) : [];
+        itemStockHistory.value = entries;
+        // if server returned an empty list, remove any stale localStorage entry for this item
+        if (Array.isArray(body) && body.length === 0) {
+          try {
+            const raw = localStorage.getItem('stockHistory');
+            const all = raw ? JSON.parse(raw) : {};
+            const hid = selectedItem.value.id || selectedItem.value._id || selectedItem.value.code;
+            if (all && all[hid]) {
+              delete all[hid];
+              localStorage.setItem('stockHistory', JSON.stringify(all));
+            }
+          } catch (e) {
+            console.warn('Failed to clear stale local stockHistory', e);
+          }
+        }
+      } else {
+        // fallback to localStorage
+        const raw = localStorage.getItem('stockHistory');
+        const all = raw ? JSON.parse(raw) : {};
+        const entries = Array.isArray(all && all[hid]) ? all[hid] : [];
+        itemStockHistory.value = entries.filter(e => (e.type || '').toLowerCase().includes('restock') || (e.type || '').toLowerCase().includes('add'));
+      }
+    } catch (e) {
+      try {
+        const hid = selectedItem.value.id || selectedItem.value._id || selectedItem.value.code;
+        const raw = localStorage.getItem('stockHistory');
+        const all = raw ? JSON.parse(raw) : {};
+        const entries = Array.isArray(all && all[hid]) ? all[hid] : [];
+        itemStockHistory.value = entries.filter(e => (e.type || '').toLowerCase().includes('restock') || (e.type || '').toLowerCase().includes('add'));
+      } catch (ex) {
+        itemStockHistory.value = [];
+      }
+    }
     showDetailsModal.value = true;
   }
 }

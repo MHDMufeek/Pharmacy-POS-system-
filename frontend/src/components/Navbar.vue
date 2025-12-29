@@ -56,8 +56,17 @@
             <div class="max-h-64 overflow-auto">
               <div v-if="notifItems.length === 0" class="p-4 text-sm text-gray-500">No alerts</div>
               <div v-for="(n, i) in notifItems" :key="n._id || i" class="p-3 hover:bg-gray-50 border-b last:border-b-0">
-                <div class="text-sm font-medium text-gray-900 dark:text-white">Low stock: {{ n.name }}</div>
-                <div class="text-xs text-gray-500">Category: {{ n.category || 'N/A' }} — Remaining stock: {{ n.stock }}</div>
+                <div v-if="n.type === 'expiry-alert'" class="flex items-center justify-between">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">Expiry alert: {{ n.name }}</div>
+                  <div v-if="(daysUntil(n.expiryDate || n.expiryAlertDate) !== null)" class="text-xs ml-2 px-2 py-0.5 rounded-full text-white" :class="daysUntil(n.expiryDate || n.expiryAlertDate) < 0 ? 'bg-red-500' : 'bg-yellow-600'">
+                    <span v-if="daysUntil(n.expiryDate || n.expiryAlertDate) < 0">Expired</span>
+                    <span v-else>{{ daysUntil(n.expiryDate || n.expiryAlertDate) }}d</span>
+                  </div>
+                </div>
+                <div v-if="n.type === 'expiry-alert'" class="text-xs text-gray-500">Expires: {{ n.expiryDate || n.expiryAlertDate || 'N/A' }} — Category: {{ n.category || 'N/A' }}</div>
+
+                <div v-if="n.type === 'low-stock'" class="text-sm font-medium text-gray-900 dark:text-white">Low stock: {{ n.name }}</div>
+                <div v-if="n.type === 'low-stock'" class="text-xs text-gray-500">Category: {{ n.category || 'N/A' }} — Remaining stock: {{ n.stock }}</div>
               </div>
             </div>
           </div>
@@ -168,17 +177,38 @@ const notifCount = computed(() => notifItems.value.length);
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api';
 
+  function parseDate(val) {
+    if (!val) return null;
+    const d = new Date(val);
+    if (isNaN(d.getTime())) return null;
+    return d;
+  }
+
+  function daysUntil(val) {
+    const d = parseDate(val);
+    if (!d) return null;
+    // compute days from today to end of day
+    const now = new Date();
+    const end = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+    const diff = end - new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  }
+
 async function fetchNotifications() {
   try {
     const token = localStorage.getItem('token');
-    const res = await fetch(`${API_BASE}/notifications/low-stock?lowStock=10&limit=10`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+    const res = await fetch(`${API_BASE}/notifications/alerts?lowStock=10&limit=10`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
     if (!res.ok) {
       const text = await res.text();
       console.error('Failed to fetch notifications', res.status, text);
       return;
     }
     const body = await res.json();
-    notifItems.value = body.items || [];
+    // normalize items: backend sets _type to 'low-stock' or 'expiry-alert'
+    notifItems.value = (body.items || []).map(it => ({
+      ...it,
+      type: it._type || it.type || 'low-stock'
+    }));
   } catch (err) {
     console.error('Error fetching notifications', err);
   }

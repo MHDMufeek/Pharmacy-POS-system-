@@ -881,6 +881,19 @@ async function processPayment() {
 
     // Refresh items to show updated stock
     await fetchItems()
+    // Notify other views (stock page) about sold items so history and UI update
+    try {
+      const raw = localStorage.getItem('user');
+      let username = 'Unknown';
+      if (raw) {
+        try { const u = JSON.parse(raw); username = u.name || u.email || username; } catch(e) {}
+      }
+      cart.value.forEach(ci => {
+        try {
+          window.dispatchEvent(new CustomEvent('item-updated', { detail: { id: ci._id || ci.id, soldQty: ci.qty, newStock: undefined, type: 'sale', performedBy: username } }));
+        } catch(e) {}
+      });
+    } catch(e) {}
     
   } catch (err) {
     console.error('Payment processing failed:', err)
