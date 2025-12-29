@@ -97,7 +97,7 @@
       <div class="bg-white rounded-lg shadow overflow-hidden dark:bg-slate-800 dark:border dark:border-slate-700 dark:text-white">
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-            <thead class="bg-gray-50 dark:bg-slate-900">
+            <thead class="bg-gray-50 dark:bg-slate-900 align-center">
               <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Item Code</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Item Name</th>
@@ -106,7 +106,7 @@
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Unit Price</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Total Value</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200 dark:bg-transparent dark:divide-slate-700">
@@ -123,10 +123,7 @@
                     {{ item.stock === 0 ? 'Out of Stock' : (item.stock <= (item.metadata?.minLevel || 10) ? 'Low Stock' : 'In Stock') }}
                   </span>
                 </td>
-                <td class="px-6 py-4 text-sm">
-                  <button class="text-blue-600 hover:text-blue-800 mr-2" @click.stop="goToItem(item)">View</button>
-                  <button class="text-green-600 hover:text-green-800" @click.stop="goToStockUpdate(item, $event)">Update Stock</button>
-                </td>
+                
               </tr>
             </tbody>
           </table>

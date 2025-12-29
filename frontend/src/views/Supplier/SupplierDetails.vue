@@ -61,22 +61,16 @@
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50 dark:bg-slate-700">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Supplier
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Contact Info
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Products
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Last Order
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -94,17 +88,11 @@
                 <div class="text-sm text-gray-500 dark:text-gray-300">{{ supplier.phone }}</div>
                 <div class="text-sm text-gray-500 dark:text-gray-300">{{ supplier.email }}</div>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                {{ supplier.productCount }} items
-              </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span :class="['px-2 inline-flex text-xs leading-5 font-semibold rounded-full', 
                              supplier.status === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300']">
                   {{ supplier.status }}
                 </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                {{ formatDate(supplier.lastOrder) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <button class="text-blue-600 hover:text-blue-900 mr-3 dark:text-blue-300 dark:hover:text-blue-100" @click="editSupplier(supplier)">
@@ -170,19 +158,7 @@
             </button>
           </div>
           <div v-if="isViewing" class="px-6 py-6 overflow-auto flex-grow">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div class="bg-blue-50 p-4 rounded-lg dark:bg-slate-800 dark:text-white">
-                <div class="flex items-center">
-                  <div class="bg-blue-100 p-2 rounded-lg mr-3 dark:bg-slate-700">
-                    <span class="material-icons text-blue-600 dark:text-blue-300">trending_up</span>
-                  </div>
-                  <div>
-                    <p class="text-gray-500 text-xs dark:text-gray-300">Total Products</p>
-                    <p class="text-lg font-bold text-blue-600 dark:text-blue-300">{{ currentSupplier.productCount || 0 }} items</p>
-                  </div>
-                </div>
-              </div>
-
+            <div class="grid grid-cols-1 md:grid-cols-1 gap-4 mb-6">
               <div class="bg-green-50 p-4 rounded-lg">
                 <div class="flex items-center">
                   <div class="bg-green-100 p-2 rounded-lg mr-3">
@@ -191,18 +167,6 @@
                   <div>
                     <p class="text-gray-500 text-xs">Status</p>
                     <p class="text-lg font-bold text-green-600">{{ currentSupplier.status || 'Active' }}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="bg-gray-50 p-4 rounded-lg">
-                <div class="flex items-center">
-                  <div class="bg-gray-100 p-2 rounded-lg mr-3">
-                    <span class="material-icons text-gray-600">history</span>
-                  </div>
-                  <div>
-                    <p class="text-gray-500 text-xs">Last Order</p>
-                    <p class="text-lg font-bold text-gray-900 dark:text-white">{{ formatDate(currentSupplier.lastOrder) }}</p>
                   </div>
                 </div>
               </div>
@@ -241,11 +205,11 @@
                 <table class="min-w-full divide-y divide-gray-200">
                   <thead class="bg-gray-50 sticky top-0 dark:bg-slate-700">
                     <tr>
-                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">Date</th>
-                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">Type</th>
-                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">Reference</th>
-                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">Amount</th>
-                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">Performed By</th>
+                      <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">Date</th>
+                      <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">Type</th>
+                      <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">Reference</th>
+                      <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">Amount</th>
+                      <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">Performed By</th>
                     </tr>
                   </thead>
                   <tbody class="bg-white divide-y divide-gray-200 dark:bg-transparent dark:divide-slate-700">
