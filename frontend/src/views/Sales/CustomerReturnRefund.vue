@@ -18,12 +18,7 @@
             New Return
           </button>
 
-          <button
-            @click="showNewCustomerForm = true"
-            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center shadow dark:bg-green-500 dark:hover:bg-green-600">
-            <span class="material-icons mr-2">person_add</span>
-            New Customer
-          </button>
+          
         </div>
 
         <input
@@ -59,7 +54,7 @@
               <td class="px-5 py-3 dark:text-gray-200">{{ ((r.totalRefund != null ? r.totalRefund : (r.items?.reduce((s,it) => s + ((it.price||0)*(it.qty||0)),0) || 0))).toFixed(2) }}</td>
               <td class="px-5 py-3">
                 <span :class="{
-                  'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300': r.status === 'Completed',
+                  'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300': r.status === 'Completed' || r.status === 'Returned',
                   'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/10 dark:text-yellow-300': r.status === 'Pending',
                   'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300': r.status === 'Processing',
                   'bg-red-100 text-red-800 dark:bg-red-900/10 dark:text-red-300': r.status === 'Rejected'
@@ -442,15 +437,19 @@ async function submitReturn() {
 
     const customerName = (returnForm.value.customer || '').trim()
 
+    const qty = parseInt(returnForm.value.qty, 10)
+    const itemId = selectedMedicine._id || selectedMedicine.id
+    const itemPrice = selectedMedicine.price || 0
     const payload = {
       customer: customerName,
       items: [{
-        itemId: selectedMedicine._id || selectedMedicine.id,
+        item: itemId,
         name: selectedMedicine.name,
-        qty: parseInt(returnForm.value.qty, 10),
+        qty: qty,
         reason: returnForm.value.reason,
-        price: selectedMedicine.price || 0
+        price: itemPrice
       }],
+      totalRefund: (itemPrice * qty),
       refundMethod: 'cash',
       notes: ''
     }
@@ -477,6 +476,8 @@ async function submitReturn() {
       alert(returnForm.value.returnId ? 'Return updated successfully!' : 'Return processed successfully!')
       closeReturnForm()
       await fetchReturns()
+      // notify other views (e.g. SupplierReturns) to refresh
+      try { window.dispatchEvent(new CustomEvent('customer-returns-changed')) } catch (e) {}
     } else {
       const err = await res.text()
       alert('Error: ' + err)
@@ -493,17 +494,7 @@ function addCustomer() {
     alert('Please enter customer name')
     return
   }
-  
-  customers.value.push({ 
-    id: Date.now(), 
-    name: newCustomer.value.name,
-    phone: newCustomer.value.phone,
-    email: newCustomer.value.email,
-    address: newCustomer.value.address,
-    nic: newCustomer.value.nic,
-    type: newCustomer.value.type
-  })
-  
+  // Do not add the new customer to the local suggestion list (avoid showing added name)
   newCustomer.value = { 
     name: '', 
     phone: '', 
@@ -514,7 +505,7 @@ function addCustomer() {
     notes: '' 
   }
   showNewCustomerForm.value = false
-  alert('Customer added successfully!')
+  alert('Customer saved')
 }
 
 function confirmDeleteReturn(returnId) {
@@ -539,12 +530,14 @@ async function deleteReturn() {
         (r._id !== returnToDelete.value && r.id !== returnToDelete.value)
       )
       alert('Return deleted successfully!')
+      await fetchReturns()
     } else if (res.status === 404) {
       // If not found on server, still remove from local
       returns.value = returns.value.filter(r => 
         (r._id !== returnToDelete.value && r.id !== returnToDelete.value)
       )
       alert('Return deleted locally!')
+      await fetchReturns()
     } else {
       const error = await res.text()
       alert('Error: ' + error)

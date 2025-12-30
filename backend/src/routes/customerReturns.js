@@ -1,5 +1,6 @@
 const express = require('express');
 const Item = require('../models/Item');
+const Supplier = require('../models/Supplier');
 const CustomerReturn = require('../models/CustomerReturn');
 const { authMiddleware } = require('../middleware/auth');
 
@@ -39,7 +40,17 @@ router.post('/', authMiddleware, async (req, res) => {
     for (const ui of updatedItems) {
       const doc = await Item.findById(ui.item).lean();
       const reason = (incomingItems.find(x => (x.itemId||x.item).toString() === ui.item.toString()) || {}).reason;
-      returnItems.push({ item: ui.item, name: doc.name, qty: ui.qty, price: doc.price || 0, reason });
+      // try to resolve supplier name if available
+      let supplierName = undefined
+      if (doc && doc.supplier) {
+        try {
+          const s = await Supplier.findById(doc.supplier).lean()
+          if (s) supplierName = s.name
+        } catch (e) {
+          supplierName = undefined
+        }
+      }
+      returnItems.push({ item: ui.item, name: doc.name, qty: ui.qty, price: doc.price || 0, reason, supplier: doc && doc.supplier ? doc.supplier : undefined, supplierName });
     }
 
     const customerReturn = await CustomerReturn.create({
@@ -86,6 +97,31 @@ router.get('/:id', authMiddleware, async (req, res) => {
     const cr = await CustomerReturn.findById(req.params.id).lean();
     if (!cr) return res.status(404).json({ message: 'Return not found' });
     return res.json(cr);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// update return (partial) - allow updating status or other fields
+router.put('/:id', authMiddleware, async (req, res) => {
+  try {
+    const updates = req.body || {}
+    const cr = await CustomerReturn.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true }).lean();
+    if (!cr) return res.status(404).json({ message: 'Return not found' });
+    return res.json(cr);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// delete return
+router.delete('/:id', authMiddleware, async (req, res) => {
+  try {
+    const cr = await CustomerReturn.findByIdAndDelete(req.params.id);
+    if (!cr) return res.status(404).json({ message: 'Return not found' });
+    return res.json({ message: 'Deleted' });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: 'Server error' });

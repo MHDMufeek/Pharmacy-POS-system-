@@ -5,7 +5,9 @@ const ReturnItemSchema = new mongoose.Schema({
   name: { type: String, required: true },
   qty: { type: Number, required: true },
   price: { type: Number, required: true },
-  reason: { type: String }
+  reason: { type: String },
+  supplier: { type: mongoose.Schema.Types.ObjectId, ref: 'Supplier' },
+  supplierName: { type: String }
 });
 
 const CustomerReturnSchema = new mongoose.Schema(
@@ -14,7 +16,7 @@ const CustomerReturnSchema = new mongoose.Schema(
     items: { type: [ReturnItemSchema], required: true },
     totalRefund: { type: Number, required: true, default: 0 },
     customer: { type: String },
-    status: { type: String, enum: ['Pending', 'Processing', 'Completed', 'Rejected'], default: 'Pending' },
+    status: { type: String, enum: ['Pending', 'Processing', 'Completed', 'Rejected', 'Returned'], default: 'Pending' },
     refundMethod: { type: String },
     notes: { type: String },
     processedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
