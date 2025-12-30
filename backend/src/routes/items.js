@@ -1,5 +1,8 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const Item = require('../models/Item');
+const Supplier = require('../models/Supplier');
+const StockHistory = require('../models/StockHistory');
 const { authMiddleware } = require('../middleware/auth');
 
 const router = express.Router();
@@ -15,6 +18,51 @@ router.get('/', authMiddleware, async (req, res) => {
       const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
       filter.$or = [{ name: re }, { sku: re }, { category: re }];
     }
+
+    // support category filter (exact match)
+    if (req.query.category) filter.category = req.query.category;
+
+    // support supplier filter: accept supplier ObjectId, supplier name, or supplier string stored on item
+    if (req.query.supplier) {
+      const sup = String(req.query.supplier).trim();
+      // if looks like an ObjectId, use it directly
+      if (mongoose.Types.ObjectId.isValid(sup)) {
+        filter.supplier = sup;
+      } else {
+        // try to find supplier(s) by name (case-insensitive partial match)
+        try {
+          const re = new RegExp(sup.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+          const matching = await Supplier.find({ name: re }).select('_id').lean();
+          const ids = (matching || []).map(m => m._id).filter(Boolean);
+          if (ids.length) {
+            filter.supplier = { $in: ids };
+          } else {
+            // fallback: maybe item.supplier is stored as a plain string with the name
+            filter.$or = filter.$or || [];
+            filter.$or.push({ supplier: sup });
+          }
+        } catch (err) {
+          console.warn('Supplier lookup failed', err);
+          // fallback to literal match
+          filter.supplier = sup;
+        }
+      }
+    }
+
+    // support asOf filter (YYYY-MM-DD) to return items that were added/restocked on or before the given date
+    if (req.query.asOf) {
+      const asOf = String(req.query.asOf);
+      try {
+        const itemIds = await StockHistory.find({ date: { $lte: asOf } }).distinct('itemId');
+        // Ensure we include items that were created before or on asOf as well
+        filter.$or = filter.$or || [];
+        filter.$or.push({ _id: { $in: itemIds } });
+        filter.$or.push({ createdAt: { $lte: new Date(asOf + 'T23:59:59.999Z') } });
+      } catch (err) {
+        console.warn('Failed to compute asOf filter', err);
+      }
+    }
+
     const total = await Item.countDocuments(filter);
     const items = await Item.find(filter)
       .sort({ name: 1 })

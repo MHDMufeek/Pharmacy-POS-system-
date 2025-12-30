@@ -54,6 +54,8 @@
             <th class="px-6 py-3 text-left text-2xl font-bold text-gray-500 uppercase tracking-wider ">Item</th>
             <th class="px-6 py-3 text-left text-2xl font-bold text-gray-500 uppercase tracking-wider">Category</th>
             <th class="px-6 py-3 text-left text-2xl font-bold text-gray-500 uppercase tracking-wider">Stock</th>
+            <th class="px-6 py-3 text-left text-2xl font-bold text-gray-500 uppercase tracking-wider">Expiry Date</th>
+            <th class="px-6 py-3 text-left text-2xl font-bold text-gray-500 uppercase tracking-wider">Add Date</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200 text-black">
@@ -76,6 +78,9 @@
                 Max: {{ item.maxLevel }} units
               </div>
             </td>
+
+            <td class="px-6 py-4 text-sm text-gray-600">{{ item.latestExpiry ? formatDate(item.latestExpiry) : (item.expiryDate || '—') }}</td>
+            <td class="px-6 py-4 text-sm text-gray-600">{{ item.addDate ? formatDate(item.addDate) : '—' }}</td>
             
           </tr>
         </tbody>
@@ -386,8 +391,14 @@ async function fetchItems(page = 1, limit = 100) {
       costPrice: it.cost ?? it.costPrice ?? 0,
       sellingPrice: it.price ?? it.sellingPrice ?? 0,
       supplier: it.supplier || '',
-      code: it.sku || it.code || ''
+      code: it.sku || it.code || '',
+      // placeholders that will be filled by fetching history
+      latestExpiry: null,
+      addDate: null
     }));
+
+    // kick off loading history for visible items (non-blocking)
+    await loadPageHistory();
   } catch (err) {
     console.error('Error fetching items', err);
     itemsError.value = 'Failed to load items';
@@ -501,17 +512,104 @@ function getStockStatus(item) {
   return "Good";
 }
 
+// Format a date string (YYYY-MM-DD or ISO) into a locale date, fall back to the original string
+function formatDate(dateStr) {
+  if (!dateStr) return '—';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString();
+  } catch (e) {
+    return dateStr;
+  }
+}
+
+// Fetch latest history for a single item and attach addDate and latestExpiry to the item object
+async function fetchAndAttachHistory(item) {
+  try {
+    const token = localStorage.getItem('token');
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const id = item.id || item._id || item.code;
+    if (!id) return;
+
+    const res = await fetch(`${API_BASE}/items/${id}/history`, { headers });
+    if (res.ok) {
+      const body = await res.json();
+      const arr = Array.isArray(body) ? body : [];
+      if (arr.length > 0) {
+        const entry = arr.find(e => (e.type || '').toLowerCase().includes('restock') || (e.type || '').toLowerCase().includes('add')) || arr[0];
+        if (entry) {
+          const rawExpiry = entry.expiryDate || entry.expiryAlertDate || null;
+          const rawAdd = entry.date || entry.createdAt || null;
+          item.latestExpiry = rawExpiry ? formatDate(rawExpiry) : null;
+          item.addDate = rawAdd ? formatDate(rawAdd) : null;
+          return;
+        }
+      }
+    }
+
+    // Fallback: check localStorage 'stockHistory' if server didn't return usable data
+    try {
+      const raw = localStorage.getItem('stockHistory');
+      const all = raw ? JSON.parse(raw) : {};
+      const entries = Array.isArray(all && all[id]) ? all[id] : [];
+      if (entries && entries.length > 0) {
+        const e = entries[0];
+        const rawExpiry = e.expiryDate || e.expiryAlertDate || null;
+        const rawAdd = e.date || e.createdAt || null;
+        item.latestExpiry = rawExpiry ? formatDate(rawExpiry) : null;
+        item.addDate = rawAdd ? formatDate(rawAdd) : null;
+      }
+    } catch (ex) {
+      // no local fallback
+    }
+  } catch (err) {
+    console.warn('Failed to fetch history for item', item.id, err);
+    // last-resort fallback to localStorage
+    try {
+      const raw = localStorage.getItem('stockHistory');
+      const all = raw ? JSON.parse(raw) : {};
+      const id = item.id || item._id || item.code;
+      const entries = Array.isArray(all && all[id]) ? all[id] : [];
+      if (entries && entries.length > 0) {
+        const e = entries[0];
+        const rawExpiry = e.expiryDate || e.expiryAlertDate || null;
+        const rawAdd = e.date || e.createdAt || null;
+        item.latestExpiry = rawExpiry ? formatDate(rawExpiry) : null;
+        item.addDate = rawAdd ? formatDate(rawAdd) : null;
+      }
+    } catch (ex2) {
+      // give up
+    }
+  }
+}
+
+// Load history for all items on the current page (non-blocking)
+async function loadPageHistory() {
+  // operate on the currently visible items to avoid fetching for entire dataset
+  const items = paginatedItems.value || [];
+  await Promise.all(items.map(i => fetchAndAttachHistory(i)));
+}
+
 function nextPage() {
-  if (currentPage.value < totalPages.value) currentPage.value++;
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+    // load history for the new page
+    loadPageHistory();
+  }
 }
 
 function prevPage() {
-  if (currentPage.value > 1) currentPage.value--;
+  if (currentPage.value > 1) {
+    currentPage.value--;
+    loadPageHistory();
+  }
 }
 
 function goToPage(page) {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page;
+    loadPageHistory();
   }
 }
 
@@ -619,8 +717,22 @@ async function loadItemDetails(item) {
       const resHist = await fetch(`${API_BASE}/items/${hid}/history`, { headers });
       if (resHist.ok) {
         const body = await resHist.json();
-        const entries = Array.isArray(body) ? body.filter(e => (e.type || '').toLowerCase().includes('restock') || (e.type || '').toLowerCase().includes('add')) : [];
-        itemStockHistory.value = entries;
+        const entries = Array.isArray(body) ? body.filter(e => (e.type || '').toLowerCase().includes('restock') || (e.type || '').toLowerCase().includes('add')).map(e => ({
+          id: e._id || e.id,
+          type: e.type || 'add',
+          date: e.date || e.createdAt || null,
+          expiryDate: e.expiryDate || e.expiryAlertDate || null,
+          quantity: e.quantity || 0,
+          performedBy: e.performedBy || null,
+          note: e.note || ''
+        })) : [];
+        // format dates for display
+        itemStockHistory.value = entries.map(e => ({
+          ...e,
+          date: e.date ? formatDate(e.date) : '—',
+          expiryDate: e.expiryDate ? formatDate(e.expiryDate) : '—'
+        }));
+
         // if server returned an empty list, remove any stale localStorage entry for this item
         if (Array.isArray(body) && body.length === 0) {
           try {
@@ -639,8 +751,20 @@ async function loadItemDetails(item) {
         // fallback to localStorage
         const raw = localStorage.getItem('stockHistory');
         const all = raw ? JSON.parse(raw) : {};
-        const entries = Array.isArray(all && all[hid]) ? all[hid] : [];
-        itemStockHistory.value = entries.filter(e => (e.type || '').toLowerCase().includes('restock') || (e.type || '').toLowerCase().includes('add'));
+        const entries = Array.isArray(all && all[hid]) ? all[hid].map(e => ({
+          id: e._id || e.id,
+          type: e.type || 'add',
+          date: e.date || e.createdAt || null,
+          expiryDate: e.expiryDate || e.expiryAlertDate || null,
+          quantity: e.quantity || 0,
+          performedBy: e.performedBy || null,
+          note: e.note || ''
+        })) : [];
+        itemStockHistory.value = entries.map(e => ({
+          ...e,
+          date: e.date ? formatDate(e.date) : '—',
+          expiryDate: e.expiryDate ? formatDate(e.expiryDate) : '—'
+        }));
       }
     } catch (e) {
       try {

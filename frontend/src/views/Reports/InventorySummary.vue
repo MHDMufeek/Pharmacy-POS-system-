@@ -33,7 +33,7 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Supplier</label>
             <select class="w-full p-2 border border-gray-300 rounded-md bg-white dark:bg-slate-700 dark:text-white border-gray-300 dark:border-slate-600" v-model="filterSupplier">
               <option value="">All Suppliers</option>
-              <option v-for="supplier in suppliers" :key="supplier" :value="supplier">{{ supplier }}</option>
+              <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">{{ supplier.name }}</option>
             </select>
           </div>
           <div class="flex items-end">
@@ -103,6 +103,7 @@
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Item Name</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Category</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Current Stock</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Supplier</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Unit Price</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Total Value</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
@@ -114,6 +115,10 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ item.code }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{{ item.name }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ item.category }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                  <a v-if="item.supplierId || item.supplierName" @click.stop.prevent="goToSupplierById(item.supplierId)" class="text-blue-600 hover:underline dark:text-blue-300 cursor-pointer">{{ item.supplierName || item.supplierId }}</a>
+                  <span v-else class="text-gray-500">—</span>
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ item.stock }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">Rs.{{ item.price.toFixed(2) }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">Rs.{{ (item.stock * item.price).toFixed(2) }}</td>
@@ -172,7 +177,34 @@
   const filterSupplier = ref('');
   
   const categories = ref(['Pain Relief', 'Antibiotics', 'Vitamins', 'Diabetes', 'Blood Pressure', 'Cholesterol', 'Acid Reflux']);
-  const suppliers = ref(['PharmaCorp', 'MediSupply', 'HealthPlus', 'DrugsDirect']);
+  // Suppliers will be loaded from backend
+  const suppliers = ref([]);
+  const suppliersMap = ref({});
+
+  async function loadSuppliers() {
+    try {
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      // fetch many suppliers so user can filter by any
+      const res = await fetch(`${API_BASE}/suppliers?limit=1000`, { headers });
+      if (!res.ok) return;
+      const body = await res.json();
+      const data = Array.isArray(body.data) ? body.data : (Array.isArray(body) ? body : (body.data || []));
+      suppliers.value = data.map(s => ({ id: s._id || s.id, name: s.name }));
+      const map = {};
+      for (const s of suppliers.value) map[s.id] = s.name;
+      suppliersMap.value = map;
+    } catch (e) {
+      console.error('Failed to load suppliers', e);
+    }
+  }
+
+  // load suppliers on mounted
+  onMounted(async () => {
+    await loadSuppliers();
+    await loadInventory();
+  });
+
   
   async function loadInventory() {
     try {
@@ -187,15 +219,52 @@
       if (!res.ok) throw new Error(`Failed to load items (${res.status})`);
       const body = await res.json();
       const items = Array.isArray(body.data) ? body.data : (Array.isArray(body) ? body : (body.data || []));
-      inventoryData.value = items.map(it => ({
-        id: it._id || it.id,
-        code: it.sku || it.code || (it._id ? String(it._id).slice(-6) : ''),
-        name: it.name || '',
-        category: it.category || '',
-        stock: it.stock ?? it.currentStock ?? 0,
-        price: Number(it.price ?? it.sellingPrice ?? 0) || 0,
-        metadata: it.metadata || {}
-      }));
+      inventoryData.value = items.map(it => {
+        const supplierRaw = it.supplier;
+        let supplierId = null;
+        let supplierName = '';
+        if (supplierRaw && typeof supplierRaw === 'object') {
+          supplierId = supplierRaw._id || supplierRaw.id || null;
+          supplierName = supplierRaw.name || '';
+        } else if (supplierRaw) {
+          supplierId = String(supplierRaw);
+          supplierName = suppliersMap.value[supplierId] || '';
+        }
+
+        return {
+          id: it._id || it.id,
+          code: it.sku || it.code || (it._id ? String(it._id).slice(-6) : ''),
+          name: it.name || '',
+          category: it.category || '',
+          stock: it.stock ?? it.currentStock ?? 0,
+          price: Number(it.price ?? it.sellingPrice ?? 0) || 0,
+          metadata: it.metadata || {},
+          supplierId,
+          supplierName
+        };
+      });
+
+      // If there are supplierIds we couldn't resolve to names yet, fetch them
+      const unresolved = inventoryData.value.map(i => i.supplierId).filter(Boolean).filter(id => !suppliersMap.value[id]);
+      if (unresolved.length) {
+        // fetch each supplier and populate the map (attempt to reduce extra requests)
+        await Promise.all(Array.from(new Set(unresolved)).map(async id => {
+          try {
+            const token = localStorage.getItem('token');
+            const headers = token ? { Authorization: `Bearer ${token}` } : {};
+            const r = await fetch(`${API_BASE}/suppliers/${id}`, { headers });
+            if (!r.ok) return;
+            const data = await r.json();
+            suppliersMap.value[data._id || data.id] = data.name;
+            // update any rows
+            inventoryData.value.forEach(row => {
+              if (row.supplierId === data._id || row.supplierId === data.id) row.supplierName = data.name;
+            });
+          } catch (e) {
+            // ignore
+          }
+        }));
+      }
     } catch (e) {
       console.error('Failed to load inventory', e);
     }
@@ -220,6 +289,11 @@
   function goToStockUpdate(item, e) {
     if (e) e.stopPropagation();
     router.push({ name: 'StockUpdate', query: { id: item.id } });
+  }
+
+  function goToSupplierById(id) {
+    if (!id) return;
+    router.push({ name: 'SupplierDetails', query: { id } });
   }
   
   onMounted(loadInventory);

@@ -796,11 +796,24 @@ async function processPayment() {
   const paidNow = Number(amountPaid.value || 0)
   if (paidNow < required) {
     if (selectedPaymentMethod.value === 'cash') {
-      alert('Amount paid is less than total amount!')
+      // Offer to send remaining balance to creditors and proceed
+      const remaining = Number(totalAmount.value) - Number(paidNow)
+      const proceed = confirm(`Amount paid (Rs. ${formatMoney(paidNow)}) is less than total (Rs. ${formatMoney(totalAmount.value)}).\nDo you want to add the remaining Rs. ${formatMoney(remaining)} to a creditor and proceed?`)
+      if (!proceed) return
+
+      // Ask for creditor name to attach the outstanding amount to
+      const creditorName = prompt('Enter creditor name to assign the outstanding balance to:')
+      if (!creditorName || String(creditorName).trim() === '') {
+        alert('Creditor name is required to record the outstanding amount.')
+        return
+      }
+
+      // mark this intent so we can create/update creditor after sale is created
+      var partialCashCreditor = String(creditorName).trim()
     } else {
       alert(`Please enter at least Rs. ${formatMoney(required)} to proceed.`)
+      return
     }
-    return
   }
 
   // Ensure a creditor is selected when doing a credit sale
@@ -855,6 +868,40 @@ async function processPayment() {
         }
       } catch (err) {
         console.error('Failed to create/update creditor:', err)
+      }
+    }
+
+    // If user chose to convert a partial cash payment into a creditor entry, handle it here
+    if (typeof partialCashCreditor !== 'undefined' && partialCashCreditor) {
+      try {
+        const creditorName = partialCashCreditor
+        const paidNow = Number(amountPaid.value) || 0
+        const outstanding = Math.max(0, totalAmount.value - paidNow)
+        if (outstanding > 0) {
+          const searchRes = await axios.get(`${API_BASE}/creditors?q=${encodeURIComponent(creditorName)}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+          const matches = (searchRes.data && searchRes.data.data) || []
+          const exact = matches.find(m => m.name === creditorName)
+          const saleId = response.data && response.data._id
+          const historyEntry = { amount: outstanding, status: 'Pending', reference: saleId }
+
+          if (exact) {
+            const updated = {
+              amount: (exact.amount || 0) + outstanding,
+              history: Array.isArray(exact.history) ? [...exact.history, historyEntry] : [historyEntry]
+            }
+            await axios.put(`${API_BASE}/creditors/${exact._id}`, updated, { headers: { Authorization: `Bearer ${token}` } })
+          } else {
+            const payload = { name: creditorName, amount: outstanding, history: [historyEntry] }
+            await axios.post(`${API_BASE}/creditors`, payload, { headers: { Authorization: `Bearer ${token}` } })
+          }
+
+          // Navigate to creditors page so user can review the outstanding balance
+          try { router.push({ name: 'Creditors' }) } catch (e) { router.push('/sales/creditors') }
+        }
+      } catch (err) {
+        console.error('Failed to create/update creditor for partial cash:', err)
       }
     }
 
