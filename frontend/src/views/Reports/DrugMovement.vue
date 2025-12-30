@@ -6,13 +6,6 @@
         <h1 class="text-2xl font-bold text-blue-900 dark:text-blue-300">Drug Movement Summary</h1>
         <p class="text-gray-600 mt-1 dark:text-gray-300">Track and analyze drug inventory movements and transactions</p>
       </div>
-      <button 
-        @click="$emit('go-back')" 
-        class="flex items-center text-blue-600 hover:text-blue-800 transition-colors dark:text-blue-300 dark:hover:text-blue-100"
-      >
-        <span class="material-icons mr-1">arrow_back</span>
-        Back to Dashboard
-      </button>
     </div>
 
     <!-- Quick Stats Cards -->
@@ -27,10 +20,7 @@
             <span class="material-icons text-blue-600">swap_horiz</span>
           </div>
         </div>
-        <div class="mt-2 text-xs text-green-600 flex items-center">
-          <span class="material-icons text-sm mr-1">trending_up</span>
-          +12% from last month
-        </div>
+        
       </div>
 
       <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500 dark:bg-slate-800 dark:border-slate-700 dark:text-white">
@@ -43,10 +33,7 @@
             <span class="material-icons text-green-600">point_of_sale</span>
           </div>
         </div>
-        <div class="mt-2 text-xs text-green-600 flex items-center">
-          <span class="material-icons text-sm mr-1">trending_up</span>
-          +8% from last month
-        </div>
+        
       </div>
 
       <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500 dark:bg-slate-800 dark:border-slate-700 dark:text-white">
@@ -59,10 +46,7 @@
             <span class="material-icons text-purple-600">payments</span>
           </div>
         </div>
-        <div class="mt-2 text-xs text-green-600 flex items-center">
-          <span class="material-icons text-sm mr-1">trending_up</span>
-          +15% from last month
-        </div>
+        
       </div>
 
       <div class="bg-white rounded-lg shadow p-6 border-l-4 border-orange-500 dark:bg-slate-800 dark:border-slate-700 dark:text-white">
@@ -75,10 +59,7 @@
             <span class="material-icons text-orange-600">warning</span>
           </div>
         </div>
-        <div class="mt-2 text-xs text-red-600 flex items-center">
-          <span class="material-icons text-sm mr-1">priority_high</span>
-          Needs attention
-        </div>
+        
       </div>
     </div>
 
@@ -126,16 +107,7 @@
             <span class="material-icons align-middle mr-2 text-base">analytics</span>
             Analytics
           </button>
-          <button 
-            @click="activeTab = 'reports'"
-            :class="['py-4 px-6 text-sm font-medium border-b-2 transition-colors whitespace-nowrap', 
-                    activeTab === 'reports' 
-                      ? 'border-blue-500 text-blue-600 dark:text-blue-300 dark:border-blue-400' 
-                      : 'border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-slate-600']"
-          >
-            <span class="material-icons align-middle mr-2 text-base">summarize</span>
-            Reports
-          </button>
+          <!-- Reports tab removed -->
         </nav>
       </div>
 
@@ -145,55 +117,26 @@
         <div v-if="activeTab === 'overview'">
           <!-- Date Range Filter -->
           <div class="bg-gray-50 p-4 rounded-lg mb-6 dark:bg-slate-800 dark:text-gray-300">
-            <div class="flex flex-col md:flex-row gap-4 items-end">
-              <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="flex flex-col md:flex-row gap-4 items-center">
+              <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Date Range</label>
-                  <select v-model="dateRange" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
-                    <option value="today">Today</option>
-                    <option value="yesterday">Yesterday</option>
-                    <option value="week">This Week</option>
-                    <option value="month" selected>This Month</option>
-                    <option value="quarter">This Quarter</option>
-                    <option value="year">This Year</option>
-                    <option value="custom">Custom Range</option>
-                  </select>
-                </div>
-                <div v-if="dateRange === 'custom'">
-                  <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">From Date</label>
-                  <input 
-                    type="date" 
-                    v-model="customStartDate" 
-                    class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
-                  >
-                </div>
-                <div v-if="dateRange === 'custom'">
-                  <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">To Date</label>
-                  <input 
-                    type="date" 
-                    v-model="customEndDate" 
-                    class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
-                  >
+                  <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">From</label>
+                  <div>
+                    <input id="startDateInput" type="date" v-model="startDate" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none text-gray-900 dark:text-white dark:bg-slate-700 dark:border-slate-600" />
+                  </div>
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Transaction Type</label>
-                  <select v-model="transactionType" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
-                    <option value="all">All Types</option>
-                    <option value="sale">Sales</option>
-                    <option value="purchase">Purchases</option>
-                    <option value="return">Returns</option>
-                    <option value="adjustment">Adjustments</option>
-                  </select>
+                  <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">To</label>
+                  <div>
+                    <input id="endDateInput" type="date" v-model="endDate" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none text-gray-900 dark:text-white dark:bg-slate-700 dark:border-slate-600" />
+                  </div>
                 </div>
+                <!-- Type selector removed per request -->
               </div>
-              <div class="flex gap-2">
-                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors" @click="applyFilters">
-                  <span class="material-icons text-sm mr-1">search</span>
-                  Apply
-                </button>
-                <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg flex items-center transition-colors dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600" @click="resetFilters">
-                  <span class="material-icons text-sm mr-1">refresh</span>
-                  Reset
+              <div class="flex gap-2 items-center">
+                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors" @click="filterByDate">
+                  <span class="material-icons text-sm mr-1">filter_list</span>
+                  Filter
                 </button>
               </div>
             </div>
@@ -201,17 +144,7 @@
 
           <!-- Charts and Metrics -->
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <!-- Sales Trend Chart -->
-            <div class="bg-white p-6 rounded-lg shadow border border-gray-200 dark:bg-slate-800 dark:border-slate-700 dark:text-white">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Sales Trend</h3>
-              <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg dark:bg-slate-700">
-                <div class="text-center text-gray-500 dark:text-gray-300">
-                  <span class="material-icons text-4xl mb-2">bar_chart</span>
-                  <p>Sales Chart Visualization</p>
-                  <p class="text-sm">(Chart would be implemented with a charting library)</p>
-                </div>
-              </div>
-            </div>
+            
 
             <!-- Top Selling Drugs -->
             <div class="bg-white p-6 rounded-lg shadow border border-gray-200 dark:bg-slate-800 dark:border-slate-700 dark:text-white">
@@ -338,7 +271,7 @@
                     </span>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {{ transaction.quantity }}
+                    {{ transaction.quantity > 0 ? '+' : '' }}{{ transaction.quantity }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                     Rs.{{ transaction.amount.toFixed(2) }}
@@ -445,27 +378,7 @@
           </div>
         </div>
 
-        <!-- Reports Tab -->
-        <div v-if="activeTab === 'reports'">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div v-for="report in availableReports" :key="report.id" class="bg-white p-6 rounded-lg shadow border border-gray-200 hover:shadow-md transition-shadow dark:bg-slate-800 dark:border-slate-700 dark:text-white">
-              <div class="flex items-start justify-between mb-4">
-                <div :class="['p-3 rounded-lg', report.iconBg]">
-                  <span class="material-icons text-white" :class="report.iconColor">{{ report.icon }}</span>
-                </div>
-                <button class="text-blue-600 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-100">
-                  <span class="material-icons">download</span>
-                </button>
-              </div>
-              <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{ report.title }}</h4>
-              <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">{{ report.description }}</p>
-              <div class="flex justify-between items-center text-xs text-gray-500 dark:text-gray-300">
-                <span>Last generated: {{ report.lastGenerated }}</span>
-                <button class="text-blue-600 hover:text-blue-800 font-medium dark:text-blue-300">Generate</button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <!-- Reports tab removed per user request -->
       </div>
     </div>
   </div>
@@ -473,135 +386,47 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import axios from 'axios'
 
-// Reactive data
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api'
+const token = localStorage.getItem('token')
+
+// UI state
 const activeTab = ref('overview')
 const dateRange = ref('month')
 const customStartDate = ref('')
 const customEndDate = ref('')
-const transactionType = ref('all')
+// transactionType removed
 const searchQuery = ref('')
+// start/end date defaults: first day of month -> today
+const today = new Date()
+const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+const startDate = ref(startOfMonth.toISOString().slice(0,10))
+const endDate = ref(today.toISOString().slice(0,10))
+const generated = ref(false)
+const generatedReports = ref({})
 
-// Sample data - in real application, this would come from API
-const transactions = ref([
-  { id: 'TXN001', drugName: 'Paracetamol 500mg', type: 'sale', quantity: 10, amount: 25.50, date: '2024-01-15', status: 'completed' },
-  { id: 'TXN002', drugName: 'Amoxicillin 250mg', type: 'purchase', quantity: 50, amount: 125.75, date: '2024-01-14', status: 'completed' },
-  { id: 'TXN003', drugName: 'Vitamin C 1000mg', type: 'sale', quantity: 5, amount: 12.25, date: '2024-01-14', status: 'completed' },
-  { id: 'TXN004', drugName: 'Ibuprofen 400mg', type: 'return', quantity: -2, amount: -5.10, date: '2024-01-13', status: 'completed' },
-  { id: 'TXN005', drugName: 'Metformin 500mg', type: 'adjustment', quantity: 25, amount: 0, date: '2024-01-13', status: 'completed' }
-])
+// store last fetched payload to include in downloads
+const lastData = ref(null)
 
-// Computed properties
-const totalTransactions = computed(() => transactions.value.length)
-const itemsSold = computed(() => transactions.value.filter(t => t.type === 'sale').reduce((sum, t) => sum + t.quantity, 0))
-const totalRevenue = computed(() => transactions.value.filter(t => t.type === 'sale').reduce((sum, t) => sum + t.amount, 0))
-const lowStockItems = computed(() => 5) // This would come from actual inventory data
+// Data from API
+const totalTransactions = ref(0)
+const itemsSold = ref(0)
+const totalRevenue = ref(0)
+const lowStockItems = ref(0)
+const topSellingDrugs = ref([])
+const salesSummary = ref({ totalSales: 0, totalPurchases: 0, netProfit: 0 })
+const inventoryStatus = ref({ totalItems: 0, lowStock: 0, outOfStock: 0 })
+const movementActivity = ref({ todayTransactions: 0, itemsMoved: 0, avgDailySales: 0 })
+const stockAlerts = ref([])
+const recentMovements = ref([])
+const performanceMetrics = ref([])
+const categorySales = ref([])
+const availableReports = ref([])
+const transactions = ref([])
 
-const filteredTransactions = computed(() => {
-  let filtered = transactions.value
+const apiHeaders = token ? { Authorization: `Bearer ${token}` } : {}
 
-  if (transactionType.value !== 'all') {
-    filtered = filtered.filter(t => t.type === transactionType.value)
-  }
-
-  // Add date filtering logic here based on dateRange
-
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    filtered = filtered.filter(t => 
-      t.drugName.toLowerCase().includes(query) || 
-      t.id.toLowerCase().includes(query)
-    )
-  }
-
-  return filtered
-})
-
-// Sample data for charts and analytics
-const topSellingDrugs = computed(() => [
-  { id: 1, name: 'Paracetamol 500mg', category: 'Pain Relief', quantity: 150, revenue: 382.50 },
-  { id: 2, name: 'Amoxicillin 250mg', category: 'Antibiotics', quantity: 89, revenue: 223.75 },
-  { id: 3, name: 'Vitamin C 1000mg', category: 'Supplements', quantity: 67, revenue: 167.50 },
-  { id: 4, name: 'Ibuprofen 400mg', category: 'Pain Relief', quantity: 54, revenue: 135.00 },
-  { id: 5, name: 'Metformin 500mg', category: 'Diabetes', quantity: 42, revenue: 105.00 }
-])
-
-const salesSummary = computed(() => ({
-  totalSales: 1250.75,
-  totalPurchases: 845.50,
-  netProfit: 405.25
-}))
-
-const inventoryStatus = computed(() => ({
-  totalItems: 245,
-  lowStock: 12,
-  outOfStock: 3
-}))
-
-const movementActivity = computed(() => ({
-  todayTransactions: 23,
-  itemsMoved: 156,
-  avgDailySales: 45
-}))
-
-const stockAlerts = computed(() => [
-  { id: 1, drugName: 'Aspirin 81mg', currentStock: 3, threshold: 10 },
-  { id: 2, drugName: 'Omeprazole 20mg', currentStock: 5, threshold: 15 },
-  { id: 3, drugName: 'Levothyroxine 50mcg', currentStock: 2, threshold: 8 }
-])
-
-const recentMovements = computed(() => [
-  { id: 1, drugName: 'Paracetamol 500mg', type: 'sale', quantity: -10, newStock: 140, date: '2024-01-15' },
-  { id: 2, drugName: 'Amoxicillin 250mg', type: 'purchase', quantity: 50, newStock: 189, date: '2024-01-14' },
-  { id: 3, drugName: 'Vitamin C 1000mg', type: 'sale', quantity: -5, newStock: 62, date: '2024-01-14' },
-  { id: 4, drugName: 'Ibuprofen 400mg', type: 'return', quantity: 2, newStock: 56, date: '2024-01-13' }
-])
-
-const performanceMetrics = computed(() => [
-  { name: 'Sales Growth', description: 'Compared to last month', value: '+15%', trend: 15 },
-  { name: 'Inventory Turnover', description: 'Items sold vs stocked', value: '2.8x', trend: 8 },
-  { name: 'Customer Retention', description: 'Repeat customers', value: '78%', trend: 5 },
-  { name: 'Profit Margin', description: 'Net profit percentage', value: '32%', trend: 3 }
-])
-
-const categorySales = computed(() => [
-  { name: 'Pain Relief', amount: 450.25, percentage: 36, color: '#3B82F6' },
-  { name: 'Antibiotics', amount: 320.50, percentage: 26, color: '#10B981' },
-  { name: 'Supplements', amount: 280.75, percentage: 22, color: '#F59E0B' },
-  { name: 'Other', amount: 199.25, percentage: 16, color: '#8B5CF6' }
-])
-
-const availableReports = computed(() => [
-  {
-    id: 1,
-    title: 'Sales Report',
-    description: 'Detailed sales analysis by product and category',
-    icon: 'point_of_sale',
-    iconBg: 'bg-blue-500',
-    iconColor: 'text-white',
-    lastGenerated: '2 days ago'
-  },
-  {
-    id: 2,
-    title: 'Inventory Report',
-    description: 'Current stock levels and movement analysis',
-    icon: 'inventory',
-    iconBg: 'bg-green-500',
-    iconColor: 'text-white',
-    lastGenerated: '1 day ago'
-  },
-  {
-    id: 3,
-    title: 'Profit & Loss',
-    description: 'Revenue, costs and profitability analysis',
-    icon: 'trending_up',
-    iconBg: 'bg-purple-500',
-    iconColor: 'text-white',
-    lastGenerated: '3 days ago'
-  }
-])
-
-// Methods
 function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString('en-US', {
     year: 'numeric',
@@ -648,21 +473,138 @@ function getMovementTextClass(type) {
   return type === 'sale' ? 'text-red-600' : 'text-green-600'
 }
 
+const filteredTransactions = computed(() => {
+  let filtered = transactions.value
+  if (searchQuery.value) {
+    const q = searchQuery.value.toLowerCase()
+    filtered = filtered.filter(t => (t.drugName || '').toLowerCase().includes(q) || (t.id || '').toLowerCase().includes(q))
+  }
+  return filtered
+})
+
+async function fetchData(opts = {}) {
+  try {
+    const params = {
+      start: opts.start || startDate.value,
+      end: opts.end || endDate.value
+    }
+    const res = await axios.get(`${API_BASE}/reports/drug-movement`, { params, headers: apiHeaders })
+    const d = res.data || {}
+    totalTransactions.value = d.totalTransactions || 0
+    itemsSold.value = d.itemsSold || 0
+    totalRevenue.value = d.totalRevenue || 0
+    lowStockItems.value = d.lowStockItems || 0
+    topSellingDrugs.value = d.topSellingDrugs || []
+    salesSummary.value = d.salesSummary || salesSummary.value
+    inventoryStatus.value = d.inventoryStatus || inventoryStatus.value
+    movementActivity.value = d.movementActivity || movementActivity.value
+    stockAlerts.value = d.stockAlerts || []
+    recentMovements.value = d.recentMovements || []
+    performanceMetrics.value = d.performanceMetrics || []
+    categorySales.value = d.categorySales || []
+    availableReports.value = d.availableReports || []
+    // store full payload for downloads
+    lastData.value = d
+    // Optionally populate transactions table from recent movements + sales
+      // populate transactions list
+      transactions.value = (d.transactions || (d.recentMovements || [])).map(r => ({ id: r.id, drugName: r.drugName, type: r.type, quantity: r.quantity, amount: r.amount || 0, date: r.date, status: r.status || 'completed' }))
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Failed to load drug movement data', err)
+  }
+}
+
 function applyFilters() {
-  console.log('Filters applied:', { dateRange: dateRange.value, transactionType: transactionType.value })
+  // TODO: support date range filters when API supports them
+  fetchData()
 }
 
 function resetFilters() {
   dateRange.value = 'month'
-  transactionType.value = 'all'
   searchQuery.value = ''
   customStartDate.value = ''
   customEndDate.value = ''
+  fetchData()
 }
 
 onMounted(() => {
-  console.log('Drug Movement Summary page loaded')
+  fetchData()
 })
+
+function downloadReport(report) {
+  if (!lastData.value) return
+  const payload = { reportTitle: report.title, generatedAt: report.lastGenerated, data: lastData.value }
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  const name = `${report.title.replace(/\s+/g, '_')}_${(new Date()).toISOString().slice(0,10)}.json`
+  a.download = name
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+}
+
+async function filterByDate() {
+  await fetchData({ start: startDate.value, end: endDate.value })
+}
+
+async function generateReport(report) {
+  await fetchData({ start: startDate.value, end: endDate.value })
+  const now = new Date().toLocaleString()
+  report.lastGenerated = now
+  generatedReports.value = { ...generatedReports.value, [report.id]: true }
+  // create PDF
+  await createPdfFromPayload(report.title, now, lastData.value || {})
+}
+
+function loadScriptOnce(src) {
+  return new Promise((resolve, reject) => {
+    if (window.html2pdf) return resolve()
+    const existing = document.querySelector(`script[src="${src}"]`)
+    if (existing) {
+      existing.addEventListener('load', () => resolve())
+      existing.addEventListener('error', (e) => reject(e))
+      return
+    }
+    const s = document.createElement('script')
+    s.src = src
+    s.onload = () => resolve()
+    s.onerror = (e) => reject(e)
+    document.head.appendChild(s)
+  })
+}
+
+async function createPdfFromPayload(title, generatedAt, payload) {
+  const container = document.createElement('div')
+  container.style.padding = '20px'
+  container.style.fontFamily = 'Arial, Helvetica, sans-serif'
+  const header = `<div style="text-align:center;margin-bottom:8px"><h2 style="margin:0;padding:0">${title}</h2><div style="font-size:12px;color:#555">Generated: ${generatedAt}</div></div><hr/>`
+  const transactionsList = payload.transactions || []
+  const rows = transactionsList.map((t, i) => `<tr><td style="padding:6px;border-bottom:1px solid #eee">${i+1}</td><td style="padding:6px;border-bottom:1px solid #eee">${t.drugName}</td><td style="padding:6px;border-bottom:1px solid #eee;text-align:right">${t.quantity}</td><td style="padding:6px;border-bottom:1px solid #eee;text-align:right">Rs.${(t.amount||0).toFixed(2)}</td></tr>`).join('')
+  const total = payload.salesSummary ? payload.salesSummary.totalSales : payload.totalRevenue || 0
+  const table = `<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr><th style="text-align:left;padding:6px;border-bottom:2px solid #ccc">#</th><th style="text-align:left;padding:6px;border-bottom:2px solid #ccc">Drug</th><th style="text-align:right;padding:6px;border-bottom:2px solid #ccc">Qty</th><th style="text-align:right;padding:6px;border-bottom:2px solid #ccc">Amount</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td></td><td style="text-align:right;font-weight:700;padding:6px">Total</td><td></td><td style="text-align:right;font-weight:700;padding:6px">Rs.${(total).toFixed(2)}</td></tr></tfoot></table>`
+  container.innerHTML = header + table
+  document.body.appendChild(container)
+  try {
+    await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js')
+    const opt = { margin: 10, filename: `${title.replace(/\s+/g,'_')}_${startDate.value || ''}_${endDate.value || ''}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }
+    // @ts-ignore
+    html2pdf().set(opt).from(container).save().then(() => { container.remove() }).catch(() => { container.remove() })
+  } catch (e) {
+    const html = buildSalesBillHtml(title, generatedAt, payload)
+    const w = window.open('', '_blank')
+    if (w) { w.document.write(html); w.document.close() }
+    container.remove()
+  }
+}
+
+function buildSalesBillHtml(title, generatedAt, payload) {
+  const items = (payload.transactions || []).map((t, i) => `<tr><td>${i+1}</td><td>${t.drugName}</td><td style="text-align:right">${t.quantity}</td><td style="text-align:right">Rs.${(t.amount||0).toFixed(2)}</td></tr>`).join('')
+  const total = payload.salesSummary ? payload.salesSummary.totalSales : payload.totalRevenue || 0
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title><style>body{font-family:Arial,Helvetica,sans-serif;padding:20px}h2{text-align:center}table{width:100%;border-collapse:collapse}th,td{padding:8px;border-bottom:1px solid #ddd}tfoot td{font-weight:bold}</style></head><body><h2>${title}</h2><div>Generated: ${generatedAt}</div><hr><table><thead><tr><th>Txn #</th><th>Drug</th><th style="text-align:right">Qty</th><th style="text-align:right">Amount</th></tr></thead><tbody>${items}</tbody><tfoot><tr><td></td><td style="text-align:right">Total</td><td></td><td style="text-align:right">Rs.${(total).toFixed(2)}</td></tr></tfoot></table><div style="margin-top:20px;text-align:center"><button onclick="window.print()">Print</button></div></body></html>`
+}
 </script>
 
 <style scoped>
