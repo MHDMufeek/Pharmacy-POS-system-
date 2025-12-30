@@ -121,17 +121,18 @@
               <button 
                 class="text-green-600 hover:text-green-900 dark:text-green-300 dark:hover:text-green-100 mr-3"
                 title="Make Payment"
+                @click="openPaymentModal(creditor)"
               >
                 <span class="material-icons">payment</span>
               </button>
               
               <!-- Delete -->
               <button 
-                class="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white cursor-pointer"
+                class="text-red-600 hover:text-red-900 dark:text-red-300 dark:hover:text-red-600"
                 title="Delete Creditor"
                 @click="deleteCreditor(creditor)"
               >
-                <span class="material-icons bg-red-100 rounded-s">delete</span>
+                <span class="material-icons">delete</span>
               </button>
             </td>
           </tr>
@@ -520,12 +521,63 @@
             Close
           </button>
           <button
+            @click="openPaymentModal(selectedCreditor)"
             class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center"
           >
             <span class="material-icons mr-2">payment</span>
             Make Payment
           </button>
         </div>
+      </div>
+    </div>
+
+    <!-- 🔹 Payment Modal -->
+    <div
+      v-if="showPaymentModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-md p-6 relative dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700">
+        <button
+          class="absolute top-3 right-3 text-gray-600 hover:text-gray-900"
+          @click="showPaymentModal = false"
+        >
+          <span class="material-icons">close</span>
+        </button>
+
+        <h2 class="text-xl font-bold mb-4">Make Payment - {{ selectedCreditor?.name }}</h2>
+
+        <form @submit.prevent="submitPayment">
+          <div class="space-y-4">
+            <div>
+              <label class="form-label">Amount <span class="text-red-500">*</span></label>
+              <div class="relative">
+                <span class="absolute left-3 top-3 text-gray-500">Rs.</span>
+                <input type="number" step="0.01" min="0" v-model.number="paymentAmount" required class="form-input pl-8" />
+              </div>
+            </div>
+
+            <div>
+              <label class="form-label">Payment Method</label>
+              <select v-model="paymentMethod" class="form-input">
+                <option value="cash">Cash</option>
+                <option value="bank">Bank Transfer</option>
+                <option value="cheque">Cheque</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="form-label">Reference</label>
+              <input type="text" v-model="paymentReference" placeholder="Optional reference" class="form-input" />
+            </div>
+
+          </div>
+
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button" @click="showPaymentModal = false" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Cancel</button>
+            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Submit Payment</button>
+          </div>
+        </form>
       </div>
     </div>
 
@@ -593,6 +645,70 @@ const showCreditorDetails = ref(false);
 const showAddCreditorModal = ref(false);
 const selectedCreditor = ref(null);
 const showPassword = ref(false);
+
+// Payment modal state
+const showPaymentModal = ref(false);
+const paymentAmount = ref(0);
+const paymentMethod = ref('cash');
+const paymentReference = ref('');
+
+function openPaymentModal(creditor) {
+  selectedCreditor.value = creditor || selectedCreditor.value;
+  // default to the creditor's outstanding amount
+  paymentAmount.value = (selectedCreditor.value && (selectedCreditor.value.amount || 0)) || 0;
+  paymentMethod.value = 'cash';
+  paymentReference.value = '';
+  showPaymentModal.value = true;
+}
+
+async function submitPayment() {
+  if (!selectedCreditor.value) return alert('No creditor selected');
+  const amt = Number(paymentAmount.value || 0);
+  if (isNaN(amt) || amt <= 0) return alert('Enter a valid payment amount');
+  const owed = Number(selectedCreditor.value.amount || 0);
+  if (amt > owed) {
+    if (!confirm(`Payment exceeds amount owed (Rs.${owed}). Proceed and set remaining to 0?`)) return;
+  }
+
+  // Compose payment entry
+  const payment = {
+    date: new Date().toISOString(),
+    amount: amt,
+    status: 'Paid',
+    reference: paymentReference.value || ''
+  };
+
+  // Update local selected creditor
+  selectedCreditor.value.history = selectedCreditor.value.history || [];
+  selectedCreditor.value.history.unshift(payment);
+  const remaining = Math.max(0, owed - amt);
+  selectedCreditor.value.amount = remaining;
+  selectedCreditor.value.status = remaining <= 0 ? 'Paid' : 'Active';
+
+  // Update the creditors list (UI)
+  const idx = creditors.value.findIndex(c => (c._id || c.id) === (selectedCreditor.value._id || selectedCreditor.value.id));
+  if (idx !== -1) {
+    creditors.value[idx] = { ...creditors.value[idx], ...selectedCreditor.value };
+  }
+
+  // Try to persist the change to the backend via PUT (if creditor has an id)
+  try {
+    const id = selectedCreditor.value._id || selectedCreditor.value.id;
+    if (id) {
+      await api.put(`/creditors/${id}`, { amount: selectedCreditor.value.amount, status: selectedCreditor.value.status, history: selectedCreditor.value.history });
+    }
+    alert('Payment recorded successfully');
+  } catch (err) {
+    console.error('Failed to persist payment', err);
+    alert('Payment recorded locally (failed to persist to server)');
+  }
+
+  // Close modal and reset
+  showPaymentModal.value = false;
+  paymentAmount.value = 0;
+  paymentMethod.value = 'cash';
+  paymentReference.value = '';
+}
 
 // New creditor form data
 const newCreditor = ref({
