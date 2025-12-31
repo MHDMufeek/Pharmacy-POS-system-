@@ -977,7 +977,7 @@
   async function fetchSuppliers() {
     try {
       const res = await axios.get(`${API_BASE}/suppliers`, { headers: { Authorization: `Bearer ${token}` } })
-      if (res.data && Array.isArray(res.data.data) && res.data.data.length > 0) {
+      if (res.data && Array.isArray(res.data.data)) {
         // map backend suppliers to expected shape (use _id as id)
         suppliers.value = res.data.data.map(s => {
           const addressRaw = s.address || s.fullAddress || (s.location && typeof s.location === 'string' ? s.location : '') || ''
@@ -1009,6 +1009,9 @@
             country: parsedCountry
           }
         })
+      } else {
+        // backend returned no suppliers or unexpected payload -> use empty list (no sample data)
+        suppliers.value = []
       }
     } catch (err) {
       console.warn('Could not fetch suppliers, using sample data', err)

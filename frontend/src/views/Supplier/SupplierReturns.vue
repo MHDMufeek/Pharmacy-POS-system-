@@ -187,10 +187,9 @@ function refresh() {
             rows.push({ id: r._id || r.id, supplier: supplierName, product: it.name || itemDoc.name || 'Unknown', qty: it.qty || 0, reason: it.reason || 'Unspecified', amount: (it.price||itemDoc.price||0) * (it.qty||0), status: r.status || 'Pending' })
           })
         })
-        if (rows.length) {
-          returns.value = rows
-          return
-        }
+        // assign whatever rows we derived from the backend (may be empty)
+        returns.value = rows
+        return
       }
     } catch (e) {
       // ignore and use sample
