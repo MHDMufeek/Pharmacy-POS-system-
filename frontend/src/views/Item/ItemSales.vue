@@ -181,14 +181,10 @@
           <!-- Medicine Info -->
           <div class="flex-1">
             <h3 class="font-bold text-red-600 text-left truncate">{{ item.name }}</h3>
-            <p v-if="item.genericName" class="text-sm text-gray-500">Generic: <span class="font-bold">{{ item.genericName }}</span></p>
+           
             <p v-if="item.description" class="text-sm text-gray-500 truncate">{{ item.description }}</p>
-            <p class="text-xs text-gray-400 mt-1">
-              Category: <span class="font-bold">{{ item.category || 'N/A' }}</span>
-            </p>
-            <p v-if="item.supplier" class="text-xs text-gray-400 mt-1">
-              Supplier: <span class="font-bold">{{ resolveSupplier(item.supplier) }}</span>
-            </p>
+          
+        
             <p class="text-xs text-gray-400">
               Stock: <span class="font-bold">{{ formatStockDisplay(item.stock ?? item.currentStock ?? item.quantity) }}</span>
             </p>
@@ -532,8 +528,42 @@ function handleItemUpdated(e) {
   }
 }
 
-onMounted(() => window.addEventListener('item-updated', handleItemUpdated))
-onBeforeUnmount(() => window.removeEventListener('item-updated', handleItemUpdated))
+onMounted(() => {
+  window.addEventListener('item-updated', handleItemUpdated)
+  window.addEventListener('item-added', handleItemAdded)
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('item-updated', handleItemUpdated)
+  window.removeEventListener('item-added', handleItemAdded)
+})
+
+// Handle a new item added elsewhere (Stock update / Add item). Add to items list so it becomes available for sales immediately.
+function handleItemAdded(e) {
+  const d = (e && e.detail) || {}
+  const id = d._id || d.id || d.itemId
+  if (!id) return
+  // If item already exists in view, update it
+  const exists = items.value.find(i => (i._id || i.id) === id)
+  const normalized = {
+    ...d,
+    _id: id,
+    id,
+    price: Number(d.price ?? d.sellingPrice ?? 0),
+    sellingPrice: Number(d.price ?? d.sellingPrice ?? 0),
+    stock: Number(d.stock ?? 0),
+    currentStock: Number(d.stock ?? 0)
+  }
+  if (exists) {
+    // update fields
+    items.value = items.value.map(i => ( (i._id || i.id) === id ? { ...i, ...normalized } : i ))
+    notifications.value.push({ id: Date.now() + Math.random(), message: `Item "${normalized.name}" updated and available for sale`, type: 'info' })
+  } else {
+    items.value.unshift(normalized)
+    notifications.value.push({ id: Date.now() + Math.random(), message: `New item "${normalized.name}" added and available for sale`, type: 'success' })
+  }
+  // auto-dismiss small notification
+  setTimeout(() => { notifications.value = notifications.value.filter(n => n.type !== 'info' && n.type !== 'success') }, 4000)
+}
 
 // Fetch creditors from backend so the credit selector shows all creditors
 async function fetchCreditors() {

@@ -984,6 +984,24 @@ function addNewItem() {
         ...created
       };
       stockItems.value.unshift(display);
+
+      // Notify other views (e.g., sales) about the new item so they can show it immediately
+      try {
+        const eventDetail = {
+          id: created._id,
+          _id: created._id,
+          name: created.name,
+          category: created.category,
+          price: created.price ?? created.sellingPrice ?? 0,
+          sellingPrice: created.price ?? created.sellingPrice ?? 0,
+          stock: created.stock ?? created.currentStock ?? 0,
+          supplier: created.supplier
+        };
+        window.dispatchEvent(new CustomEvent('item-added', { detail: eventDetail }));
+      } catch (e) {
+        console.warn('Failed to dispatch item-added event', e);
+      }
+
       // Do not add stock or expiry on registration — registration is metadata-only
       newItem.value = { name: "", category: "", manufacturer: "", code: "", image: "", genericName: "", dose: "", packageSize: "", minLevel: 10, maxLevel: "", costPrice: 0, sellingPrice: 0, supplier: "" };
       imageFile.value = null;
