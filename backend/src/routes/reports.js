@@ -138,7 +138,9 @@ router.get('/drug-movement', authMiddleware, async (req, res) => {
         type: s.type,
         quantity: s.quantity,
         newStock: it.stock || null,
-        date: s.date || s.createdAt
+        date: s.date || s.createdAt,
+        performedBy: s.performedBy || null,
+        expiryDate: s.expiryDate || s.expiryAlertDate || null
       };
     });
 
@@ -171,7 +173,9 @@ router.get('/drug-movement', authMiddleware, async (req, res) => {
         quantity: s.quantity,
         amount: 0,
         date: s.date || s.createdAt,
-        status: 'completed'
+        status: 'completed',
+        performedBy: s.performedBy || null,
+        expiryDate: s.expiryDate || s.expiryAlertDate || null
       });
     });
 

@@ -172,6 +172,7 @@ function createUser() {
   const payload = {
     name: `${userForm.value.firstName.trim()} ${userForm.value.lastName.trim()}`.trim(),
     email: String(userForm.value.email).toLowerCase(),
+    username: String(userForm.value.username).trim(),
     password: userForm.value.password,
     role: userForm.value.role
   };

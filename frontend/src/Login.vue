@@ -123,7 +123,9 @@ export default {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            identifier: this.username,
             email: this.username,
+            username: this.username,
             password: this.password,
           }),
         });
