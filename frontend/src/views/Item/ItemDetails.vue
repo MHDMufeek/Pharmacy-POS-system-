@@ -49,8 +49,8 @@
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Qty</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">New Stock</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">QTY Restocked</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock Value</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performed By</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expiry</th>
             </tr>
@@ -60,7 +60,7 @@
               <td class="px-6 py-3 text-sm text-gray-700">{{ r.date ? r.date : '—' }}</td>
               <td class="px-6 py-3 text-sm text-gray-700">{{ r.productName || r.productId }}</td>
               <td class="px-6 py-3 text-sm text-gray-700">{{ r.quantity ?? 0 }}</td>
-              <td class="px-6 py-3 text-sm text-gray-700">{{ r.newStock ?? '—' }}</td>
+              <td class="px-6 py-3 text-sm text-gray-700">Rs. {{ formatMoney(getStockValueForRestock(r)) }}</td>
               <td class="px-6 py-3 text-sm text-gray-700">{{ r.performedBy || '—' }}</td>
               <td class="px-6 py-3 text-sm text-gray-700">{{ r.expiryDate ? r.expiryDate : '—' }}</td>
             </tr>
@@ -235,6 +235,24 @@ function formatDate(dateStr) {
     return d.toLocaleDateString();
   } catch (e) {
     return dateStr;
+  }
+}
+
+function formatMoney(value, decimals = 2) {
+  const n = Number(value)
+  if (!isFinite(n)) return '0.00'
+  return (Math.round((n + Number.EPSILON) * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(decimals)
+}
+
+function getStockValueForRestock(r) {
+  try {
+    const pid = r.productId || r.productId;
+    const p = stockItems.value.find(s => String(s.id) === String(pid) || String(s._id) === String(pid) || String(s.code) === String(pid));
+    const stock = p ? (p.currentStock ?? p.stock ?? p.quantity ?? 0) : (r.newStock ?? 0);
+    const cost = p ? (p.costPrice ?? p.cost ?? 0) : 0;
+    return Number(stock) * Number(cost || 0)
+  } catch (e) {
+    return 0
   }
 }
 
@@ -484,8 +502,8 @@ function showItemDetails(item) {
   loadItemDetails(item);
 }
 
-function updateStock() {
-  const index = stockItems.value.findIndex(i => i.id === selectedItem.value.id);
+async function updateStock() {
+  const index = stockItems.value.findIndex(i => String(i.id) === String(selectedItem.value.id) || String(i._id) === String(selectedItem.value.id));
   if (index === -1) return;
 
   let quantity = Number(adjustmentQuantity.value);
@@ -494,21 +512,96 @@ function updateStock() {
     return;
   }
 
+  const oldStock = Number(stockItems.value[index].currentStock ?? stockItems.value[index].stock ?? 0);
+  let newStock = oldStock;
   if (adjustmentType.value === "add") {
-    stockItems.value[index].currentStock += quantity;
+    newStock = oldStock + quantity;
   } else if (adjustmentType.value === "subtract") {
-    stockItems.value[index].currentStock = Math.max(0, stockItems.value[index].currentStock - quantity);
+    newStock = Math.max(0, oldStock - quantity);
   } else if (adjustmentType.value === "set") {
-    stockItems.value[index].currentStock = Math.max(0, quantity);
+    newStock = Math.max(0, quantity);
+  }
+
+  // Prepare update payload (only include price when user provided a non-empty numeric value)
+  const payload = { stock: newStock };
+  // Only include price if user explicitly entered a value different from current selling price
+  const currentPrice = stockItems.value[index].sellingPrice ?? stockItems.value[index].price ?? selectedItem.value.sellingPrice ?? selectedItem.value.price ?? null;
+  const priceRaw = (adjustmentPrice.value === null || adjustmentPrice.value === undefined) ? '' : String(adjustmentPrice.value).trim();
+  const priceProvided = priceRaw !== '' && priceRaw !== null && priceRaw !== undefined && !isNaN(Number(priceRaw)) && Number(priceRaw) !== Number(currentPrice);
+  if (priceProvided) {
+    const parsed = Number(priceRaw);
+    if (!isNaN(parsed)) payload.price = parsed;
+  }
+
+  // Try to update backend; fall back to local-only update
+  try {
+    const token = localStorage.getItem('token');
+    const headers = token ? { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+    // PUT update item
+    const id = selectedItem.value.id || selectedItem.value._id || selectedItem.value.code;
+    const res = await fetch(`${API_BASE}/items/${id}`, { method: 'PUT', headers, body: JSON.stringify(payload) });
+    if (res.ok) {
+      const updated = await res.json();
+      // refresh full items list from server to ensure canonical data
+      try { await fetchItems(); } catch (e) { 
+        // fallback to merging updated fields when fetch fails
+        stockItems.value[index] = {
+          ...stockItems.value[index],
+          currentStock: updated.stock ?? newStock,
+          stock: updated.stock ?? newStock,
+          sellingPrice: (typeof updated.price !== 'undefined') ? updated.price : (stockItems.value[index].sellingPrice ?? stockItems.value[index].price)
+        };
+      }
+      // ensure selectedItem reflects latest
+      selectedItem.value = { ...selectedItem.value, ...(updated || {}) };
+    } else {
+      // fallback local update on non-OK response
+      stockItems.value[index].currentStock = newStock;
+      stockItems.value[index].stock = newStock;
+      if (priceProvided) {
+        const parsed = Number(adjustmentPrice.value);
+        if (!isNaN(parsed)) stockItems.value[index].sellingPrice = parsed;
+      }
+    }
+
+    // Create stock history entry on backend
+    try {
+      const userRaw = localStorage.getItem('user');
+      let username = null;
+      if (userRaw) {
+        try { const u = JSON.parse(userRaw); username = u.name || u.email || null } catch(e) {}
+      }
+      const historyBody = {
+        type: adjustmentType.value || 'add',
+        quantity: quantity,
+        date: new Date().toISOString().slice(0,10),
+        expiryDate: selectedItem.value.expiryDate || null,
+        expiryAlertDate: null,
+        performedBy: username,
+        note: ''
+      };
+      await fetch(`${API_BASE}/items/${id}/history`, { method: 'POST', headers, body: JSON.stringify(historyBody) });
+    } catch (e) {
+      // ignore history POST failures
+      console.warn('Failed to post stock history', e);
+    }
+
+    // Refresh restock entries and selected item details
+    try { await loadGlobalRestocks(); } catch(e) {}
+    try { await loadItemDetails(stockItems.value[index]); } catch(e) {}
+
+  } catch (err) {
+    console.error('Failed to sync with server, performing local update', err);
+    stockItems.value[index].currentStock = newStock;
+    stockItems.value[index].stock = newStock;
+    if (priceProvided) {
+      const parsed = Number(adjustmentPrice.value);
+      if (!isNaN(parsed)) stockItems.value[index].sellingPrice = parsed;
+    }
   }
 
   showUpdateModal.value = false;
   adjustmentQuantity.value = 0;
-  // update selling price if price field used (only when provided)
-  if (adjustmentPrice.value !== '' && adjustmentPrice.value != null) {
-    const parsed = Number(adjustmentPrice.value);
-    if (!isNaN(parsed)) stockItems.value[index].sellingPrice = parsed;
-  }
 }
 
 // Initialize data

@@ -786,11 +786,10 @@ async function loadItemDetails(id) {
 
 // Update quantity
 function updateQty(cartItem, change) {
-  cartItem.qty += change
-    const stock = Number(cartItem.stock ?? cartItem.currentStock ?? cartItem.quantity ?? 0)
-    const newQty = cartItem.qty + change
+  const stock = Number(cartItem.stock ?? cartItem.currentStock ?? cartItem.quantity ?? 0)
+  const newQty = (Number(cartItem.qty) || 0) + change
 
-    if (change > 0 && !isNaN(stock) && newQty > stock) {
+  if (change > 0 && !isNaN(stock) && newQty > stock) {
       const msg = stock <= 0 ? `No stock available.` : `Cannot set quantity. Only ${stock} available.`
       try { alert(msg) } catch (e) {}
       notifications.value.push({ id: Date.now() + Math.random(), message: msg, type: 'warning' })
@@ -798,11 +797,11 @@ function updateQty(cartItem, change) {
       return
     }
 
-    if (newQty <= 0) {
-      cart.value = cart.value.filter(c => c.id !== cartItem.id)
-      return
-    }
-    cartItem.qty = newQty
+  if (newQty <= 0) {
+    cart.value = cart.value.filter(c => c.id !== cartItem.id)
+    return
+  }
+  cartItem.qty = newQty
 }
 
 // Remove from cart
