@@ -64,8 +64,8 @@
         </thead>
         <tbody class="divide-y divide-gray-200 dark:divide-slate-700">
           <tr
-            v-for="(creditor, index) in filteredCreditors"
-            :key="index"
+            v-for="(creditor, index) in paginatedCreditors"
+            :key="creditor._id || creditor.id || index"
             class="hover:bg-gray-50 dark:hover:bg-slate-700"
           >
             <td class="px-6 py-4 whitespace-nowrap">
@@ -140,39 +140,39 @@
       </table>
     </div>
 
-    <!-- Pagination -->
+    <!-- Pagination (visible only when items exceed page size) -->
     <div
+      v-if="totalCreditors > pageSize"
       class="flex justify-between items-center mt-6 bg-white p-4 rounded-lg shadow dark:bg-slate-800 dark:text-gray-300 dark:border dark:border-slate-700"
     >
       <div class="text-sm text-gray-700 dark:text-gray-300">
-        Showing <span class="font-medium">1</span> to
-        <span class="font-medium">5</span> of
-        <span class="font-medium">20</span> results
+        Showing <span class="font-medium">{{ displayedFrom }}</span> to
+        <span class="font-medium">{{ displayedTo }}</span> of
+        <span class="font-medium">{{ totalCreditors }}</span> results
       </div>
       <div class="flex space-x-2">
         <button
-          class="px-3 py-1 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-transparent dark:text-gray-300 dark:hover:bg-slate-700"
+          @click.prevent="changePage(currentPage - 1)"
+          :disabled="currentPage === 1"
+          class="px-3 py-1 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-transparent dark:text-gray-300 dark:hover:bg-slate-700"
         >
-            <span class="sr-only">next</span>
+            <span class="sr-only">previous</span>
                   <span class="material-icons">chevron_left</span>
         </button>
+
         <button
-          class="px-3 py-1 rounded-md bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
+          v-for="p in pageNumbers"
+          :key="p"
+          @click.prevent="changePage(p)"
+          :class="['px-3 py-1 rounded-md text-sm', p === currentPage ? 'bg-blue-600 text-white dark:bg-blue-900/20 dark:text-blue-300' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-transparent dark:text-gray-300 dark:hover:bg-slate-700']"
         >
-          1
+          {{ p }}
         </button>
+
         <button
-          class="px-3 py-1 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-transparent dark:text-gray-300 dark:hover:bg-slate-700"
-        >
-          2
-        </button>
-        <button
-          class="px-3 py-1 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-transparent dark:text-gray-300 dark:hover:bg-slate-700"
-        >
-          3
-        </button>
-        <button
-          class="px-3 py-1 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-transparent dark:text-gray-300 dark:hover:bg-slate-700"
+          @click.prevent="changePage(currentPage + 1)"
+          :disabled="currentPage === totalPages"
+          class="px-3 py-1 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-transparent dark:text-gray-300 dark:hover:bg-slate-700"
         >
             <span class="sr-only">next</span>
                   <span class="material-icons">chevron_right</span>
@@ -624,7 +624,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import axios from 'axios';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api';
@@ -738,6 +738,27 @@ const filteredCreditors = computed(() => {
   if (statusFilter.value) filtered = filtered.filter(c => c.status === statusFilter.value);
   return filtered;
 });
+
+// Pagination: show 5 rows per page so pagination appears when there are more than 5 items
+const totalCreditors = computed(() => filteredCreditors.value.length);
+const pageSize = ref(5);
+const currentPage = ref(1);
+const totalPages = computed(() => Math.max(1, Math.ceil(totalCreditors.value / pageSize.value)));
+const pageNumbers = computed(() => Array.from({ length: totalPages.value }, (_, i) => i + 1));
+const paginatedCreditors = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  return filteredCreditors.value.slice(start, start + pageSize.value);
+});
+const displayedFrom = computed(() => totalCreditors.value === 0 ? 0 : (currentPage.value - 1) * pageSize.value + 1);
+const displayedTo = computed(() => Math.min(currentPage.value * pageSize.value, totalCreditors.value));
+
+watch([searchQuery, statusFilter], () => { currentPage.value = 1; });
+watch(totalCreditors, () => { if (currentPage.value > totalPages.value) currentPage.value = totalPages.value; });
+
+function changePage(n) {
+  if (n < 1 || n > totalPages.value) return;
+  currentPage.value = n;
+} 
 
 function formatDate(dateString) {
   if (!dateString) return '—';

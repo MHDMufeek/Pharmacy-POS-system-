@@ -118,8 +118,8 @@
           </button>
         </div>
         
-        <!-- Pagination -->
-        <div v-if="totalSuppliers > 0" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 dark:bg-slate-800 dark:border-t dark:border-slate-700 dark:text-gray-300">
+        <!-- Pagination (visible only when suppliers exceed current page size) -->
+        <div v-if="totalSuppliers > pageSize" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 dark:bg-slate-800 dark:border-t dark:border-slate-700 dark:text-gray-300">
           <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
               <p class="text-sm text-gray-700 dark:text-gray-300">
@@ -327,7 +327,8 @@
   const isEditing = ref(false)
   const isViewing = ref(false)
   const currentPage = ref(1)
-  const pageSize = ref(10)
+  // show 5 rows per page so pagination appears when list grows beyond 5
+  const pageSize = ref(5)
   const currentSupplier = ref({
     id: '',
     name: '',

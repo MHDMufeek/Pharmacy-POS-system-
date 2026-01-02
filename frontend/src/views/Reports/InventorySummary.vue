@@ -111,7 +111,7 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200 dark:bg-transparent dark:divide-slate-700">
-              <tr v-for="(item, index) in inventoryData" :key="index" class="cursor-pointer hover:bg-gray-50" @click="goToItem(item)">
+              <tr v-for="(item, index) in paginatedInventory" :key="item.id || item.code || index" class="cursor-pointer hover:bg-gray-50" @click="goToItem(item)">
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ item.code }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{{ item.name }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ item.category }}</td>
@@ -134,28 +134,26 @@
           </table>
         </div>
         
-        <!-- Pagination -->
-        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 dark:bg-slate-800 dark:border-t dark:border-slate-700 dark:text-gray-300">
+        <!-- Pagination (visible only when items exceed page size) -->
+        <div v-if="totalItems > pageSize" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 dark:bg-slate-800 dark:border-t dark:border-slate-700 dark:text-gray-300">
           <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
               <p class="text-sm text-gray-700 dark:text-gray-300">
-                Showing <span class="font-medium">1</span> to <span class="font-medium">10</span> of
-                <span class="font-medium">{{ inventoryData.length }}</span> results
+                Showing <span class="font-medium">{{ displayedFrom }}</span> to <span class="font-medium">{{ displayedTo }}</span> of
+                <span class="font-medium">{{ totalItems }}</span> results
               </p>
             </div>
             <div>
               <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-slate-600 dark:bg-transparent dark:text-gray-300 dark:hover:bg-slate-700">
+                <button @click.prevent="changePage(currentPage - 1)" :disabled="currentPage === 1" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-slate-600 dark:bg-transparent dark:text-gray-300 dark:hover:bg-slate-700">
                   <span class="sr-only">Previous</span>
                   <span class="material-icons text-sm">chevron_left</span>
-                </a>
-                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-300">1</a>
-                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:bg-transparent dark:text-gray-300 dark:hover:bg-slate-700">2</a>
-                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:bg-transparent dark:text-gray-300 dark:hover:bg-slate-700">3</a>
-                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-slate-600 dark:bg-transparent dark:text-gray-300 dark:hover:bg-slate-700">
+                </button>
+                <button v-for="p in pageNumbers" :key="p" @click.prevent="changePage(p)" :class="['relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium', p === currentPage ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300' : 'bg-white text-gray-500 hover:bg-gray-50 dark:bg-transparent dark:text-gray-300 dark:hover:bg-slate-700']">{{ p }}</button>
+                <button @click.prevent="changePage(currentPage + 1)" :disabled="currentPage === totalPages" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-slate-600 dark:bg-transparent dark:text-gray-300 dark:hover:bg-slate-700">
                   <span class="sr-only">Next</span>
                   <span class="material-icons text-sm">chevron_right</span>
-                </a>
+                </button>
               </nav>
             </div>
           </div>
@@ -165,7 +163,7 @@
   </template>
   
   <script setup>
-  import { ref, computed, onMounted } from 'vue';
+  import { ref, computed, onMounted, watch } from 'vue';
   import { useRouter } from 'vue-router';
   
   const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api';
@@ -282,6 +280,27 @@
     return { totalItems, inStock, lowStock, outOfStock };
   });
   
+  // Pagination state: show 5 rows per page, show controls only when totalItems > pageSize
+  const totalItems = computed(() => inventoryData.value.length);
+  const pageSize = ref(5);
+  const currentPage = ref(1);
+  const totalPages = computed(() => Math.max(1, Math.ceil(totalItems.value / pageSize.value)));
+  const pageNumbers = computed(() => Array.from({ length: totalPages.value }, (_, i) => i + 1));
+  const paginatedInventory = computed(() => {
+    const start = (currentPage.value - 1) * pageSize.value;
+    return inventoryData.value.slice(start, start + pageSize.value);
+  });
+  const displayedFrom = computed(() => totalItems.value === 0 ? 0 : (currentPage.value - 1) * pageSize.value + 1);
+  const displayedTo = computed(() => Math.min(currentPage.value * pageSize.value, totalItems.value));
+
+  watch([filterDate, filterCategory, filterSupplier], () => { currentPage.value = 1; });
+  watch(totalItems, () => { if (currentPage.value > totalPages.value) currentPage.value = totalPages.value; });
+
+  function changePage(n) {
+    if (n < 1 || n > totalPages.value) return;
+    currentPage.value = n;
+  }
+
   const router = useRouter();
   function goToItem(item) {
     router.push({ name: 'ItemDetails', query: { id: item.id } });
