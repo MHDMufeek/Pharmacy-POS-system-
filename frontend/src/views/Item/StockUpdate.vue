@@ -1081,6 +1081,8 @@ onMounted(init);
 
 function adjustStock(item) {
   selectedItem.value = { ...item };
+  // initialize adjustmentPrice to the item's current price so we don't accidentally send 0
+  adjustmentPrice.value = selectedItem.value.price ?? selectedItem.value.sellingPrice ?? selectedItem.value.costPrice ?? 0;
   adjustmentType.value = "add";
   adjustmentQuantity.value = 0;
   updateExpiryDate.value = '';
