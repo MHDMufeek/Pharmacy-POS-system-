@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto p-6">
+  <div class="container mx-auto p-6 dark:bg-slate-900 dark:text-white">
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold text-blue-900">Item Details</h1>
@@ -17,8 +17,8 @@
             <span class="material-icons text-blue-600">inventory</span>
           </div>
           <div>
-            <p class="text-gray-500 text-sm">Total Items</p>
-            <p class="text-2xl font-bold text-black">{{ stockItems.length }}</p>
+            <p class="text-gray-500 text-sm dark:text-gray-300">Total Items</p>
+            <p class="text-2xl font-bold text-black dark:text-white">{{ stockItems.length }}</p>
           </div>
         </div>
       </div>
@@ -28,8 +28,8 @@
             <span class="material-icons text-red-600">warning</span>
           </div>
           <div>
-            <p class="text-gray-500 text-sm">Low Stock Items</p>
-            <p class="text-2xl font-bold text-black">{{ lowStockItems }}</p>
+            <p class="text-gray-500 text-sm dark:text-gray-300">Low Stock Items</p>
+            <p class="text-2xl font-bold text-black dark:text-white">{{ lowStockItems }}</p>
           </div>
         </div>
       </div>
@@ -41,11 +41,11 @@
     <!-- Quick Actions removed -->
 
     <!-- Global Restocked Table -->
-    <div class="bg-white rounded-lg shadow mt-6 p-4">
+    <div class="bg-white rounded-lg shadow mt-6 p-4 dark:bg-slate-800 dark:border dark:border-slate-700 dark:text-white">
       <h2 class="text-lg font-semibold mb-4">Restocked History</h2>
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+          <thead class="bg-gray-50 dark:bg-slate-900">
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
@@ -55,17 +55,17 @@
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expiry</th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody class="bg-white divide-y divide-gray-200 dark:bg-transparent dark:divide-slate-700">
             <tr v-for="(r, idx) in restockEntries" :key="idx" class="hover:bg-gray-50">
-              <td class="px-6 py-3 text-sm text-gray-700">{{ r.date ? r.date : '—' }}</td>
-              <td class="px-6 py-3 text-sm text-gray-700">{{ r.productName || r.productId }}</td>
-              <td class="px-6 py-3 text-sm text-gray-700">{{ r.quantity ?? 0 }}</td>
-              <td class="px-6 py-3 text-sm text-gray-700">Rs. {{ formatMoney(getStockValueForRestock(r)) }}</td>
-              <td class="px-6 py-3 text-sm text-gray-700">{{ r.performedBy || '—' }}</td>
-              <td class="px-6 py-3 text-sm text-gray-700">{{ r.expiryDate ? r.expiryDate : '—' }}</td>
+              <td class="px-6 py-3 text-sm text-gray-700 dark:text-gray-300">{{ r.date ? r.date : '—' }}</td>
+              <td class="px-6 py-3 text-sm text-gray-700 dark:text-gray-300">{{ r.productName || r.productId }}</td>
+              <td class="px-6 py-3 text-sm text-gray-700 dark:text-gray-300">{{ r.quantity ?? 0 }}</td>
+              <td class="px-6 py-3 text-sm text-gray-700 dark:text-gray-300">Rs. {{ formatMoney(getStockValueForRestock(r)) }}</td>
+              <td class="px-6 py-3 text-sm text-gray-700 dark:text-gray-300">{{ r.performedBy || '—' }}</td>
+              <td class="px-6 py-3 text-sm text-gray-700 dark:text-gray-300">{{ r.expiryDate ? r.expiryDate : '—' }}</td>
             </tr>
             <tr v-if="restockEntries.length === 0">
-              <td class="px-6 py-4 text-sm text-gray-500" colspan="6">No restock entries found</td>
+              <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-300" colspan="6">No restock entries found</td>
             </tr>
           </tbody>
         </table>
@@ -503,7 +503,7 @@ function showItemDetails(item) {
 }
 
 async function updateStock() {
-  const index = stockItems.value.findIndex(i => String(i.id) === String(selectedItem.value.id) || String(i._id) === String(selectedItem.value.id));
+  const index = stockItems.value.findIndex(i => String(i.id) === String(selectedItem.value.id) || String(i._id) === String(selectedItem.value.id) || String(i.code) === String(selectedItem.value.code));
   if (index === -1) return;
 
   let quantity = Number(adjustmentQuantity.value);
@@ -524,80 +524,85 @@ async function updateStock() {
 
   // Prepare update payload (only include price when user provided a non-empty numeric value)
   const payload = { stock: newStock };
-  // Only include price if user explicitly entered a value different from current selling price
   const currentPrice = stockItems.value[index].sellingPrice ?? stockItems.value[index].price ?? selectedItem.value.sellingPrice ?? selectedItem.value.price ?? null;
   const priceRaw = (adjustmentPrice.value === null || adjustmentPrice.value === undefined) ? '' : String(adjustmentPrice.value).trim();
-  const priceProvided = priceRaw !== '' && priceRaw !== null && priceRaw !== undefined && !isNaN(Number(priceRaw)) && Number(priceRaw) !== Number(currentPrice);
+  const priceProvided = priceRaw !== '' && !isNaN(Number(priceRaw)) && Number(priceRaw) !== Number(currentPrice);
   if (priceProvided) {
     const parsed = Number(priceRaw);
     if (!isNaN(parsed)) payload.price = parsed;
   }
 
-  // Try to update backend; fall back to local-only update
+  // Update only the table row locally first for instant feedback
+  stockItems.value[index] = {
+    ...stockItems.value[index],
+    currentStock: newStock,
+    stock: newStock,
+    ...(priceProvided ? { sellingPrice: Number(adjustmentPrice.value) } : {})
+  };
+
+  // Keep selectedItem in sync if it's the same product
+  const idForSync = selectedItem.value.id || selectedItem.value._id || selectedItem.value.code || stockItems.value[index].id;
+  if (String(selectedItem.value.id) === String(stockItems.value[index].id) || String(selectedItem.value.code) === String(stockItems.value[index].code)) {
+    selectedItem.value = {
+      ...selectedItem.value,
+      currentStock: newStock,
+      stock: newStock,
+      ...(priceProvided ? { sellingPrice: Number(adjustmentPrice.value) } : {})
+    };
+  }
+
+  // Optimistic local save
+  try { localStorage.setItem('items', JSON.stringify(stockItems.value)); } catch (e) {}
+
+  // Try to sync with server, but do NOT refetch the whole items list (keep table update minimal)
   try {
     const token = localStorage.getItem('token');
     const headers = token ? { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
-    // PUT update item
-    const id = selectedItem.value.id || selectedItem.value._id || selectedItem.value.code;
-    const res = await fetch(`${API_BASE}/items/${id}`, { method: 'PUT', headers, body: JSON.stringify(payload) });
+    const res = await fetch(`${API_BASE}/items/${idForSync}`, { method: 'PUT', headers, body: JSON.stringify(payload) });
     if (res.ok) {
       const updated = await res.json();
-      // refresh full items list from server to ensure canonical data
-      try { await fetchItems(); } catch (e) { 
-        // fallback to merging updated fields when fetch fails
-        stockItems.value[index] = {
-          ...stockItems.value[index],
+      // Merge backend response into local row (only update relevant fields)
+      stockItems.value[index] = {
+        ...stockItems.value[index],
+        currentStock: updated.stock ?? newStock,
+        stock: updated.stock ?? newStock,
+        sellingPrice: (typeof updated.price !== 'undefined') ? updated.price : stockItems.value[index].sellingPrice
+      };
+
+      if (String(selectedItem.value.id) === String(stockItems.value[index].id) || String(selectedItem.value.code) === String(stockItems.value[index].code)) {
+        selectedItem.value = {
+          ...selectedItem.value,
           currentStock: updated.stock ?? newStock,
           stock: updated.stock ?? newStock,
-          sellingPrice: (typeof updated.price !== 'undefined') ? updated.price : (stockItems.value[index].sellingPrice ?? stockItems.value[index].price)
+          sellingPrice: (typeof updated.price !== 'undefined') ? updated.price : selectedItem.value.sellingPrice
         };
       }
-      // ensure selectedItem reflects latest
-      selectedItem.value = { ...selectedItem.value, ...(updated || {}) };
-    } else {
-      // fallback local update on non-OK response
-      stockItems.value[index].currentStock = newStock;
-      stockItems.value[index].stock = newStock;
-      if (priceProvided) {
-        const parsed = Number(adjustmentPrice.value);
-        if (!isNaN(parsed)) stockItems.value[index].sellingPrice = parsed;
-      }
+      try { localStorage.setItem('items', JSON.stringify(stockItems.value)); } catch (e) {}
     }
-
-    // Create stock history entry on backend
-    try {
-      const userRaw = localStorage.getItem('user');
-      let username = null;
-      if (userRaw) {
-        try { const u = JSON.parse(userRaw); username = u.name || u.email || null } catch(e) {}
-      }
-      const historyBody = {
-        type: adjustmentType.value || 'add',
-        quantity: quantity,
-        date: new Date().toISOString().slice(0,10),
-        expiryDate: selectedItem.value.expiryDate || null,
-        expiryAlertDate: null,
-        performedBy: username,
-        note: ''
-      };
-      await fetch(`${API_BASE}/items/${id}/history`, { method: 'POST', headers, body: JSON.stringify(historyBody) });
-    } catch (e) {
-      // ignore history POST failures
-      console.warn('Failed to post stock history', e);
-    }
-
-    // Refresh restock entries and selected item details
-    try { await loadGlobalRestocks(); } catch(e) {}
-    try { await loadItemDetails(stockItems.value[index]); } catch(e) {}
-
   } catch (err) {
-    console.error('Failed to sync with server, performing local update', err);
-    stockItems.value[index].currentStock = newStock;
-    stockItems.value[index].stock = newStock;
-    if (priceProvided) {
-      const parsed = Number(adjustmentPrice.value);
-      if (!isNaN(parsed)) stockItems.value[index].sellingPrice = parsed;
-    }
+    console.warn('Failed to sync update with server', err);
+    // We already updated locally; user can retry if needed
+  }
+
+  // Post stock history (best-effort)
+  try {
+    const userRaw = localStorage.getItem('user');
+    let username = null;
+    if (userRaw) { try { const u = JSON.parse(userRaw); username = u.name || u.email || null } catch(e) {} }
+    const historyBody = {
+      type: adjustmentType.value || 'add',
+      quantity: quantity,
+      date: new Date().toISOString().slice(0,10),
+      expiryDate: selectedItem.value.expiryDate || null,
+      expiryAlertDate: null,
+      performedBy: username,
+      note: ''
+    };
+    const token = localStorage.getItem('token');
+    const headers = token ? { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+    await fetch(`${API_BASE}/items/${idForSync}/history`, { method: 'POST', headers, body: JSON.stringify(historyBody) }).catch(() => {});
+  } catch (e) {
+    // ignore history failures
   }
 
   showUpdateModal.value = false;

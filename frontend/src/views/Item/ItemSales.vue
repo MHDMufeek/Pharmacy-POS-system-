@@ -1,28 +1,28 @@
 <template>
-  <div class="flex h-screen bg-gray-50">
+  <div class="flex h-screen bg-gray-50 dark:bg-slate-900 dark:text-white">
     <!-- Left: Item Grid -->
     <div class="flex-1 p-6 overflow-y-auto">
       <!-- Notifications -->
       <div class="fixed top-4 right-4 z-50 flex flex-col gap-2">
-        <div v-for="n in notifications" :key="n.id" class="bg-yellow-100 border-l-4 border-yellow-400 text-yellow-800 px-4 py-2 rounded shadow-sm max-w-sm">
+        <div v-for="n in notifications" :key="n.id" class="bg-yellow-100 border-l-4 border-yellow-400 text-yellow-800 dark:bg-yellow-900/10 dark:text-yellow-300 px-4 py-2 rounded shadow-sm max-w-sm">
           {{ n.message }}
         </div>
       </div>
       <!-- Header -->
       <div class="mb-6">
-        <h1 class="text-2xl font-bold text-blue-900 mb-2">Waiting List</h1>
-        <h1 class="text-2xl font-bold text-blue-900 mb-4">Medicines</h1>
+        <h1 class="text-2xl font-bold text-blue-900 mb-2 dark:text-blue-300">Waiting List</h1>
+        <h1 class="text-2xl font-bold text-blue-900 mb-4 dark:text-blue-300">Medicines</h1>
 
         <!-- Search + Category Filter -->
         <div class="flex flex-col gap-3">
           <!-- Search -->
-          <div class="flex items-center bg-gray-100 rounded-lg px-3 py-2 w-72">
+          <div class="flex items-center bg-gray-100 dark:bg-slate-800 rounded-lg px-3 py-2 w-72">
             <span class="material-icons text-gray-400 mr-2">search</span>
             <input
               v-model="searchQuery"
               type="text"
               placeholder="Search by name, category,genaric name , product name"
-              class="bg-transparent outline-none w-full text-sm text-black focus:outline-none focus:ring-1 focus:ring-gray-300"
+              class="bg-transparent outline-none w-full text-sm text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-slate-600"
             />
           </div>
 
@@ -50,10 +50,10 @@
       </div>
 
     <!-- Item Details Modal: minimal stable version (reverted) -->
-    <div v-if="showDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 text-black">
-      <div class="bg-white rounded-lg shadow-lg p-6 w-96 max-h-[80vh] overflow-y-auto">
+    <div v-if="showDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-black dark:bg-opacity-60 flex items-center justify-center z-50 text-black dark:text-white">
+      <div class="bg-white dark:bg-slate-800 dark:text-white rounded-lg shadow-lg p-6 w-96 max-h-[80vh] overflow-y-auto">
         <h3 class="text-lg font-semibold mb-4">Product Details</h3>
-        <div class="space-y-3 text-sm text-gray-700">
+        <div class="space-y-3 text-sm text-gray-700 dark:text-gray-300">
           <div>
             <span class="text-gray-600">Name:</span>
             <div class="font-medium">{{ selectedItem.name }}</div>
@@ -106,8 +106,8 @@
     </div>
       
     <!-- Receipt Modal (styled to resemble a thermal receipt) -->
-    <div v-if="showReceipt" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 text-black">
-      <div class="bg-white rounded shadow-lg p-4 w-72 max-h-[85vh] overflow-y-auto font-mono text-xs">
+    <div v-if="showReceipt" class="fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-black dark:bg-opacity-60 flex items-center justify-center z-50 text-black dark:text-white">
+      <div class="bg-white dark:bg-slate-800 dark:text-white rounded shadow-lg p-4 w-72 max-h-[85vh] overflow-y-auto font-mono text-xs">
         <div class="text-center mb-2">
           <div class="text-2xl font-bold">PHARMACY</div>
           <div class="tracking-widest">LOCAL DRUGS</div>
@@ -153,24 +153,24 @@
 
       <!-- Medicines Grid -->
       <div v-if="loading" class="text-center py-8">
-        <div class="text-gray-500">Loading items...</div>
+        <div class="text-gray-500 dark:text-gray-300">Loading items...</div>
       </div>
       <div v-else-if="error" class="text-center py-8">
-        <div class="text-red-500">{{ error }}</div>
+        <div class="text-red-500 dark:text-red-400">{{ error }}</div>
         <button @click="fetchItems" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded">Retry</button>
       </div>
       <div v-else-if="filteredItems.length === 0" class="text-center py-8">
-        <div class="text-gray-500">No items found</div>
+        <div class="text-gray-500 dark:text-gray-300">No items found</div>
       </div>
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         <div
           v-for="item in filteredItems"
           :key="item._id"
-          class="bg-white rounded-lg shadow p-4 flex flex-col justify-between cursor-pointer h-full text-left"
+          class="bg-white rounded-lg shadow p-4 flex flex-col justify-between cursor-pointer h-full text-left dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700"
           @click="viewItem(item)"
         >
           <!-- Medicine Image -->
-          <div class="h-32 w-full bg-gradient-to-br from-gray-50 to-white rounded-md overflow-hidden mb-3 flex items-center justify-center border">
+          <div class="h-32 w-full bg-gradient-to-br from-gray-50 to-white rounded-md overflow-hidden mb-3 flex items-center justify-center border dark:border-slate-700">
             <img
               :src="item.image || 'https://via.placeholder.com/160x120?text=No+Image'"
               :alt="item.name"
@@ -180,7 +180,7 @@
 
           <!-- Medicine Info -->
           <div class="flex-1">
-            <h3 class="font-bold text-red-600 text-left truncate">{{ item.name }}</h3>
+            <h3 class="font-bold text-red-600 dark:text-red-400 text-left truncate">{{ item.name }}</h3>
            
             <p v-if="item.description" class="text-sm text-gray-500 truncate">{{ item.description }}</p>
           
@@ -192,13 +192,13 @@
 
           <!-- Price + Add Button -->
           <div class="flex justify-between items-center mt-4">
-            <p class="text-red-600 font-bold">Rs. {{ formatMoney(item.price) }}</p>
+            <p class="text-red-600 dark:text-red-400 font-bold">Rs. {{ formatMoney(item.price) }}</p>
             <button 
               @click.stop="addToCart(item)"
               :disabled="(Number(item.stock ?? item.currentStock ?? item.quantity ?? 0) <= 0)"
               :class="[
                 (Number(item.stock ?? item.currentStock ?? item.quantity ?? 0) <= 0)
-                  ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                  ? 'bg-gray-300 text-gray-600 dark:bg-gray-700 dark:text-gray-400 cursor-not-allowed'
                   : 'bg-blue-600 hover:bg-blue-700 text-white',
                 'px-3 py-1 rounded-md text-sm'
               ]"
@@ -211,10 +211,10 @@
     </div>
 
     <!-- Right: Cart / Selected Items -->
-    <div class="w-80 bg-white shadow-xl border-l flex flex-col">
+    <div class="w-80 bg-white shadow-xl border-l flex flex-col dark:bg-slate-800 dark:text-white dark:border-slate-700">
       <!-- Header -->
-      <div class="p-4 border-b bg-blue-50">
-        <h2 class="text-lg font-bold text-blue-900 flex items-center gap-2">
+      <div class="p-4 border-b bg-blue-50 dark:bg-transparent dark:border-b dark:border-slate-700">
+        <h2 class="text-lg font-bold text-blue-900 dark:text-blue-300 flex items-center gap-2">
           <span class="material-icons text-blue-600">shopping_cart</span>
           Current Sale
         </h2>
@@ -226,7 +226,7 @@
           <div
             v-for="cartItem in cart"
             :key="cartItem.id"
-            class="bg-gray-50 border rounded-lg p-3 flex flex-col shadow-sm"
+            class="bg-gray-50 border rounded-lg p-3 flex flex-col shadow-sm dark:bg-slate-800 dark:border dark:border-slate-700"
           >
             <!-- Item Info -->
             <div class="flex justify-between items-center">
@@ -257,12 +257,12 @@
             </div>
           </div>
         </div>
-        <p v-else class="text-gray-500 text-center italic">🛒 No Items Selected</p>
+        <p v-else class="text-gray-500 dark:text-gray-300 text-center italic">🛒 No Items Selected</p>
       </div>
 
       <!-- Category Summary -->
-      <div v-if="cart.length > 0" class="p-4 border-t bg-gray-50">
-        <h3 class="text-sm font-semibold text-blue-900 mb-2">Category Summary</h3>
+      <div v-if="cart.length > 0" class="p-4 border-t bg-gray-50 dark:bg-slate-800 dark:border-t dark:border-slate-700">
+        <h3 class="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-2">Category Summary</h3>
         <div
           v-for="(cat, name) in categorySummary"
           :key="name"
@@ -274,8 +274,8 @@
       </div>
 
       <!-- Payment Section -->
-      <div v-if="cart.length > 0" class="p-4 border-t bg-white">
-        <h3 class="text-sm font-semibold text-blue-900 mb-3">Payment Method</h3>
+      <div v-if="cart.length > 0" class="p-4 border-t bg-white dark:bg-slate-800 dark:border-t dark:border-slate-700">
+        <h3 class="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-3">Payment Method</h3>
         
         <!-- Payment Method Selection -->
         <div class="grid grid-cols-2 gap-2 mb-4">
@@ -296,13 +296,13 @@
         <!-- Payment Details based on selected method -->
         <div v-if="selectedPaymentMethod === 'cash'" class="space-y-3">
           <div class="flex flex-col sm:flex-row justify-between items-center">
-            <label class="text-sm font-medium text-gray-700 mb-2 sm:mb-0">Amount Paid:</label>
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">Amount Paid:</label>
             <input
               v-model.number="amountPaid"
               type="number"
               min="0"
               step="0.01"
-              class="w-full sm:w-40 border rounded px-2 py-1 text-sm text-right"
+              class="w-full sm:w-40 border rounded px-2 py-1 text-sm text-right bg-white dark:bg-slate-700 dark:text-white"
               placeholder="0.00"
             />
           </div>
@@ -320,7 +320,7 @@
             <label class="text-sm font-medium text-gray-700">Creditor:</label>
             <select 
               v-model="selectedSupplier" 
-              class="border rounded px-2 py-1 text-sm text-black bg-white"
+              class="border rounded px-2 py-1 text-sm text-black dark:text-white bg-white dark:bg-slate-700 dark:border-slate-600"
             >
               <option value="">Select Creditor</option>
               <option v-for="c in creditors" :key="c._id" :value="c.name">{{ c.name }}</option>
@@ -349,8 +349,8 @@
             <span class="font-bold text-orange-600">Rs. {{ formatMoney(creditRemaining) }}</span>
           </div>
 
-          <div class="bg-yellow-50 border border-yellow-200 rounded p-3">
-            <p class="text-xs text-yellow-800 text-center">
+          <div class="bg-yellow-50 border border-yellow-200 rounded p-3 dark:bg-yellow-900/10 dark:text-yellow-300">
+            <p class="text-xs text-yellow-800 dark:text-yellow-300 text-center">
               💡 This sale will be recorded as credit (outstanding amount will be added to creditor)
             </p>
           </div>
@@ -360,14 +360,14 @@
       </div>
 
       <!-- Overall Totals -->
-      <div class="p-4 border-t bg-gradient-to-r from-blue-50 to-blue-100 space-y-3">
+      <div class="p-4 border-t bg-gradient-to-r from-blue-50 to-blue-100 space-y-3 dark:bg-transparent dark:border-t dark:border-slate-700">
         <div class="flex justify-between">
-          <span class="font-medium text-gray-700">Total Items:</span>
-          <span class="font-bold text-gray-900">{{ totalItems }}</span>
+          <span class="font-medium text-gray-700 dark:text-gray-300">Total Items:</span>
+          <span class="font-bold text-gray-900 dark:text-white">{{ totalItems }}</span>
         </div>
         <div class="flex justify-between">
-          <span class="font-medium text-gray-700">Total Amount:</span>
-          <span class="font-bold text-green-700 text-lg">Rs. {{ formatMoney(totalAmount) }}</span>
+          <span class="font-medium text-gray-700 dark:text-gray-300">Total Amount:</span>
+          <span class="font-bold text-green-700 dark:text-green-400 text-lg">Rs. {{ formatMoney(totalAmount) }}</span>
         </div>
 
         <!-- Action Buttons -->
