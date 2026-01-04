@@ -3,16 +3,7 @@
       <!-- Header -->
       <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-blue-900 dark:text-blue-300">Inventory Summary</h1>
-        <div class="flex gap-2">
-          <button @click="exportReport" class="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center dark:bg-blue-500 dark:text-white">
-            <span class="material-icons mr-2">download</span>
-            Export Report
-          </button>
-          <button @click="printReport" class="bg-green-600 text-white px-4 py-2 rounded-md flex items-center dark:bg-green-500 dark:text-white">
-            <span class="material-icons mr-2">print</span>
-            Print
-          </button>
-        </div>
+        <!-- Export/Print removed from Inventory Summary header -->
       </div>
   
       <!-- Filters -->
@@ -20,18 +11,18 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">As of Date</label>
-            <input type="date" class="w-full p-2 border border-gray-300 rounded-md bg-white dark:bg-slate-700 dark:text-white border-gray-300 dark:border-slate-600" v-model="filterDate">
+            <input type="date" class="w-full p-2 border border-gray-300 rounded-md bg-white text-gray-700 dark:bg-slate-700 dark:text-white border-gray-300 dark:border-slate-600" v-model="filterDate">
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
-            <select class="w-full p-2 border border-gray-300 rounded-md bg-white dark:bg-slate-700 dark:text-white border-gray-300 dark:border-slate-600" v-model="filterCategory">
+            <select class="w-full p-2 border border-gray-300 rounded-md bg-white text-gray-700 dark:bg-slate-700 dark:text-white border-gray-300 dark:border-slate-600" v-model="filterCategory">
               <option value="">All Categories</option>
               <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
             </select>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Supplier</label>
-            <select class="w-full p-2 border border-gray-300 rounded-md bg-white dark:bg-slate-700 dark:text-white border-gray-300 dark:border-slate-600" v-model="filterSupplier">
+            <select class="w-full p-2 border border-gray-300 rounded-md bg-white text-gray-700 dark:bg-slate-700 dark:text-white border-gray-300 dark:border-slate-600" v-model="filterSupplier">
               <option value="">All Suppliers</option>
               <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">{{ supplier.name }}</option>
             </select>
@@ -51,7 +42,7 @@
             </div>
             <div>
               <p class="text-sm text-gray-500 dark:text-gray-300">Total Items</p>
-              <p class="text-2xl font-bold dark:text-white">{{ summaryData.totalItems }}</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ summaryData.totalItems }}</p>
             </div>
           </div>
         </div>
@@ -63,7 +54,7 @@
             </div>
             <div>
               <p class="text-sm text-gray-500 dark:text-gray-300">In Stock</p>
-              <p class="text-2xl font-bold dark:text-white">{{ summaryData.inStock }}</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ summaryData.inStock }}</p>
             </div>
           </div>
         </div>
@@ -75,7 +66,7 @@
             </div>
             <div>
               <p class="text-sm text-gray-500 dark:text-gray-300">Low Stock</p>
-              <p class="text-2xl font-bold dark:text-white">{{ summaryData.lowStock }}</p>
+                  <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ summaryData.lowStock }}</p>
             </div>
           </div>
         </div>
@@ -87,7 +78,7 @@
             </div>
             <div>
               <p class="text-sm text-gray-500 dark:text-gray-300">Out of Stock</p>
-              <p class="text-2xl font-bold dark:text-white">{{ summaryData.outOfStock }}</p>
+                  <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ summaryData.outOfStock }}</p>
             </div>
           </div>
         </div>

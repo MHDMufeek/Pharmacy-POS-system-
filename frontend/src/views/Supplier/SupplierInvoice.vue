@@ -107,14 +107,14 @@
                 <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Supplier</label>
-                    <select v-model="filters.supplier" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                    <select v-model="filters.supplier" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
                       <option value="">All Suppliers</option>
                       <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">{{ supplier.name }}</option>
                     </select>
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                    <select v-model="filters.status" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                    <select v-model="filters.status" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
                       <option value="">All Status</option>
                       <option value="pending">Pending</option>
                       <option value="paid">Paid</option>
@@ -127,7 +127,7 @@
                     <input 
                       type="date" 
                       v-model="filters.fromDate" 
-                      class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                      class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                     >
                   </div>
                   <div>
@@ -135,7 +135,7 @@
                     <input 
                       type="date" 
                       v-model="filters.toDate" 
-                      class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                      class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                     >
                   </div>
                 </div>
@@ -164,13 +164,13 @@
                
               </div>
               <div class="flex gap-2">
-                <div class="flex items-center bg-white border border-gray-300 rounded-lg px-3 py-2 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                  <div class="flex items-center bg-white border border-gray-300 rounded-lg px-3 py-2 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
                   <span class="material-icons text-gray-400 mr-2">search</span>
                   <input
                     type="text"
                     placeholder="Search invoices..."
                     v-model="searchQuery"
-                    class="bg-transparent outline-none w-full text-sm"
+                    class="bg-transparent outline-none w-full text-sm text-gray-700"
                   />
                 </div>
               </div>
@@ -219,7 +219,7 @@
                       {{ formatDate(invoice.dueDate) }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                      Rs.{{ invoice.totalAmount.toFixed(2) }}
+                      Rs.{{ ((invoice.balance !== undefined ? invoice.balance : invoice.totalAmount) || 0).toFixed(2) }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span :class="['px-2 inline-flex text-xs leading-5 font-semibold rounded-full', 
@@ -229,16 +229,24 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div class="flex items-center space-x-2">
-                        <button type="button" class="password-toggle" @click="showPassword = !showPassword">
-  <span class="text-lg">{{ showPassword ? '🙈' : '👁️' }}</span>
-</button>
-                        <button class="text-green-600 hover:text-green-900 transition-colors dark:text-green-300 dark:hover:text-green-100" @click="editInvoice(invoice)" v-if="invoice.status === 'pending'" title="Edit Invoice">
+                        <button class="text-gray-700 hover:text-gray-900 transition-colors dark:text-gray-200 dark:hover:text-white" @click="openInvoiceDetails(invoice)" title="View Invoice">
+                          <span class="material-icons text-base">visibility</span>
+                        </button>
+
+                        <button class="text-green-600 hover:text-green-900 transition-colors dark:text-green-300 dark:hover:text-green-100" @click="editInvoice(invoice)" title="Edit Invoice">
                           <span class="material-icons text-base">edit</span>
                         </button>
-                        <button class="text-red-600 hover:text-red-900 transition-colors dark:text-red-300 dark:hover:text-red-100" @click="deleteInvoice(invoice)" v-if="invoice.status === 'pending'" title="Delete Invoice">
+
+                        <button class="text-red-600 hover:text-red-900 transition-colors dark:text-red-300 dark:hover:text-red-100" @click="deleteInvoice(invoice)" title="Delete Invoice">
                           <span class="material-icons text-base">delete</span>
                         </button>
-                        <button class="text-purple-600 hover:text-purple-900 transition-colors dark:text-purple-300 dark:hover:text-purple-100" @click="openPaymentModal(invoice)" v-if="invoice.status === 'pending'" title="Mark as Paid">
+
+                        <button
+                          class="text-purple-600 hover:text-purple-900 transition-colors dark:text-purple-300 dark:hover:text-purple-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                          @click="openPaymentModal(invoice)"
+                          :disabled="((invoice.balance !== undefined ? invoice.balance : invoice.totalAmount) <= 0)"
+                          title="Record Payment"
+                        >
                           <span class="material-icons text-base">payments</span>
                         </button>
                       </div>
@@ -289,14 +297,7 @@
                   <div class="bg-blue-100 p-3 rounded-lg">
                     <span class="material-icons text-blue-600">business</span>
                   </div>
-                  <div class="flex space-x-2">
-                    <button class="text-blue-600 hover:text-blue-800 transition-colors" title="Edit Supplier">
-                      <span class="material-icons text-base">edit</span>
-                    </button>
-                    <button class="text-red-600 hover:text-red-800 transition-colors" title="Delete Supplier">
-                      <span class="material-icons text-base">delete</span>
-                    </button>
-                  </div>
+                  <!-- edit/delete removed per request -->
                 </div>
                 <h4 class="text-lg font-semibold text-gray-900 mb-2 dark:text-white">{{ supplier.name }}</h4>
                 <div class="space-y-2 text-sm text-gray-600 dark:text-gray-300">
@@ -320,7 +321,11 @@
                 <div class="mt-4 pt-4 border-t border-gray-200">
                   <div class="flex justify-between text-sm">
                     <span class="text-gray-500">Total Invoices:</span>
-                    <span class="font-medium">{{ getSupplierInvoiceCount(supplier.id) }}</span>
+                    <span class="font-medium text-gray-900">{{ getSupplierInvoiceCount(supplier.id) }}</span>
+                  </div>
+                  <div class="flex justify-between text-sm mt-1">
+                    <span class="text-gray-500">Total Pending:</span>
+                    <span class="font-medium text-red-600">Rs.{{ getSupplierPendingAmount(supplier.id).toFixed(2) }}</span>
                   </div>
                 </div>
               </div>
@@ -403,7 +408,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Supplier *</label>
-                <select v-model="currentInvoice.supplierId" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600" required>
+                <select v-model="currentInvoice.supplierId" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600" required>
                   <option value="">Select Supplier</option>
                   <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">{{ supplier.name }}</option>
                 </select>
@@ -421,7 +426,7 @@
                 <input 
                   type="date" 
                   v-model="currentInvoice.date" 
-                  class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
+                  class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
                   required
                 >
               </div>
@@ -430,13 +435,13 @@
                 <input 
                   type="date" 
                   v-model="currentInvoice.dueDate" 
-                  class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
+                  class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
                   required
                 >
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Status</label>
-                <select v-model="currentInvoice.status" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600">
+                <select v-model="currentInvoice.status" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600">
                   <option value="pending">Pending</option>
                   <option value="paid">Paid</option>
                   <option value="overdue">Overdue</option>
@@ -462,7 +467,7 @@
                     :name="`item-name-${index}`"
                     placeholder="Name"
                     aria-label="Item name"
-                    class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white"
+                    class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none dark:bg-slate-700 dark:text-white"
                   >
                 </div>
                 <div class="col-span-2">
@@ -471,7 +476,7 @@
                     v-model.number="item.quantity" 
                     placeholder="Qty"
                     min="1"
-                    class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
+                    class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
                     @input="calculateItemTotal(item)"
                   >
                 </div>
@@ -482,7 +487,7 @@
                     placeholder="Unit Price"
                     min="0"
                     step="0.01"
-                    class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
+                    class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
                     @input="calculateItemTotal(item)"
                   >
                 </div>
@@ -491,7 +496,7 @@
                     type="text" 
                     :value="'Rs.' + (item.total || 0).toFixed(2)" 
                     disabled
-                    class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
+                    class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
                   >
                 </div>
                 <div class="col-span-1">
@@ -515,7 +520,7 @@
                   <div class="flex justify-between mb-2">
                     <span class="text-sm text-gray-600 dark:text-gray-300">Discount</span>
                     <div class="flex items-center space-x-2">
-                      <select v-model="discountMode" class="w-28 bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600">
+                      <select v-model="discountMode" class="w-28 bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600">
                         <option value="percent">Percent</option>
                         <option value="amount">Amount</option>
                       </select>
@@ -526,7 +531,7 @@
                         step="0.01"
                         v-model.number="discountInput"
                         @change="() => {}"
-                        class="w-36 bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
+                        class="w-36 bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none dark:bg-slate-700 dark:text-white dark:border-slate-600"
                       />
                       <span class="font-medium dark:text-white">- Rs.{{ currentInvoice.discount.toFixed(2) }}</span>
                     </div>
@@ -544,7 +549,7 @@
               <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Notes</label>
               <textarea 
                 v-model="currentInvoice.notes" 
-                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white"
+                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none dark:bg-slate-700 dark:text-white"
                 placeholder="Additional notes for this invoice"
                 rows="2"
               ></textarea>
@@ -792,9 +797,27 @@
                 </div>
               </div>
 
+              <!-- Transactions / Payments -->
+              <div class="mb-4">
+                <h4 class="font-medium mb-2">Transactions</h4>
+                <div v-if="(invoiceDetails.payments || []).length > 0" class="space-y-2">
+                  <div v-for="(p, idx) in invoiceDetails.payments" :key="idx" class="flex items-center justify-between border rounded p-3 bg-gray-50 dark:bg-slate-900">
+                    <div class="text-sm">
+                      <div class="font-medium text-gray-800 dark:text-gray-200">Rs.{{ Number(p.amount || 0).toFixed(2) }}</div>
+                      <div class="text-xs text-gray-500 dark:text-gray-400">Date: {{ formatDate(p.date) }} • Method: {{ p.method || '-' }} • Ref: {{ p.reference || '-' }}</div>
+                      <div class="text-xs text-gray-500 dark:text-gray-400" v-if="p.notes">Notes: {{ p.notes }}</div>
+                    </div>
+                    <div class="text-sm text-gray-600 dark:text-gray-300">#{{ idx + 1 }}</div>
+                  </div>
+                </div>
+                <div v-else class="text-sm text-gray-500 dark:text-gray-400">No transactions recorded.</div>
+              </div>
+
               <div class="border-t pt-4 text-right">
                 <div class="text-sm text-gray-600">Subtotal: <span class="font-medium">Rs.{{ (invoiceDetails.subtotal || 0).toFixed(2) }}</span></div>
                 <div class="text-sm text-gray-600">Discount: <span class="font-medium">Rs.{{ (invoiceDetails.discount || 0).toFixed(2) }}</span></div>
+                <div class="text-sm text-gray-600">Paid: <span class="font-medium">Rs.{{ getPaidAmount(invoiceDetails).toFixed(2) }}</span></div>
+                <div class="text-sm text-gray-600">Balance: <span class="font-medium">Rs.{{ getBalance(invoiceDetails).toFixed(2) }}</span></div>
                 <div class="text-lg font-bold mt-2">Total: <span class="text-blue-600">Rs.{{ (invoiceDetails.totalAmount || 0).toFixed(2) }}</span></div>
               </div>
             </div>
@@ -817,15 +840,15 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Amount</label>
-                <input type="number" v-model.number="paymentForm.amount" min="0" step="0.01" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white" />
+                <input type="number" v-model.number="paymentForm.amount" min="0" step="0.01" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none dark:bg-slate-700 dark:text-white" />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                <input type="date" v-model="paymentForm.date" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white" />
+                <input type="date" v-model="paymentForm.date" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none dark:bg-slate-700 dark:text-white" />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Method</label>
-                <select v-model="paymentForm.method" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white">
+                <select v-model="paymentForm.method" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none dark:bg-slate-700 dark:text-white">
                   <option value="cash">Cash</option>
                   <option value="card">Card</option>
                   <option value="bank">Bank Transfer</option>
@@ -835,17 +858,17 @@
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Reference</label>
-                <input type="text" v-model="paymentForm.reference" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white" />
+                <input type="text" v-model="paymentForm.reference" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none dark:bg-slate-700 dark:text-white" />
               </div>
               <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-                <textarea v-model="paymentForm.notes" rows="3" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white"></textarea>
+                <textarea v-model="paymentForm.notes" rows="3" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none dark:bg-slate-700 dark:text-white"></textarea>
               </div>
             </div>
           </div>
           <div class="px-6 py-4 border-t flex justify-end gap-3 dark:bg-slate-800 dark:border-t dark:border-slate-700">
             <button @click="closePaymentModal" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg dark:bg-slate-700 dark:text-white">Cancel</button>
-            <button @click="payInvoice" class="px-4 py-2 text-white bg-blue-600 rounded-lg">Pay & Print</button>
+            <button @click="payInvoice" class="px-4 py-2 text-white bg-blue-600 rounded-lg">Pay</button>
           </div>
         </div>
       </div>
@@ -1182,14 +1205,21 @@
       try {
         const res = await axios.get(`${API_BASE}/invoices`, { headers: { Authorization: `Bearer ${token}` } })
         if (res.data && Array.isArray(res.data.data)) {
-          invoices.value = res.data.data.map(i => ({
-            ...i,
-            id: i._id || i.id,
-            subtotal: Number(i.subtotal || 0),
-            discount: Number(i.discount || 0),
-            discountPercent: Number(i.discountPercent || 0),
-            totalAmount: Number(i.totalAmount || 0)
-          }))
+          invoices.value = res.data.data.map(i => {
+            const inv = {
+              ...i,
+              id: i._id || i.id,
+              subtotal: Number(i.subtotal || 0),
+              discount: Number(i.discount || 0),
+              discountPercent: Number(i.discountPercent || 0),
+              totalAmount: Number(i.totalAmount || 0),
+              payments: Array.isArray(i.payments) ? i.payments : (i.payments || [])
+            }
+            const paidSum = (inv.payments || []).reduce((s, p) => s + Number(p.amount || 0), 0)
+            inv.balance = Math.max(0, (inv.totalAmount || 0) - paidSum)
+            inv.status = inv.balance <= 0 ? 'paid' : (inv.status || 'pending')
+            return inv
+          })
           console.log('Loaded', invoices.value.length, 'invoices from API')
           return
         }
@@ -1204,13 +1234,20 @@
       if (raw) {
         const parsed = JSON.parse(raw)
         if (Array.isArray(parsed)) {
-        invoices.value = parsed.map(i => ({
+        invoices.value = parsed.map(i => {
+          const inv = {
             ...i,
             subtotal: Number(i.subtotal || 0),
             discount: Number(i.discount || 0),
             discountPercent: Number(i.discountPercent || 0),
-            totalAmount: Number(i.totalAmount || 0)
-          }))
+            totalAmount: Number(i.totalAmount || 0),
+            payments: Array.isArray(i.payments) ? i.payments : (i.payments || [])
+          }
+          const paidSum = (inv.payments || []).reduce((s, p) => s + Number(p.amount || 0), 0)
+          inv.balance = Math.max(0, (inv.totalAmount || 0) - paidSum)
+          inv.status = inv.balance <= 0 ? 'paid' : (inv.status || 'pending')
+          return inv
+        })
           console.log('Loaded', invoices.value.length, 'invoices from localStorage')
           return
         }
@@ -1414,7 +1451,12 @@
     showInvoiceDetailsModal.value = true
     axios.get(`${API_BASE}/invoices/${id}`, { headers: { Authorization: `Bearer ${token}` } })
       .then(res => {
-        invoiceDetails.value = res.data && res.data.data ? res.data.data : res.data
+        const d = res.data && res.data.data ? res.data.data : res.data
+        d.payments = Array.isArray(d.payments) ? d.payments : (d.payments || [])
+        const paidSum = (d.payments || []).reduce((s, p) => s + Number(p.amount || 0), 0)
+        d.balance = Math.max(0, (Number(d.totalAmount || 0) - paidSum))
+        d.status = d.balance <= 0 ? 'paid' : (d.status || 'pending')
+        invoiceDetails.value = d
       })
       .catch(err => {
         console.error('Failed to load invoice details', err)
@@ -1434,8 +1476,9 @@
 
   function openPaymentModal(invoice) {
     // prefill payment form
+    const available = (typeof invoice.balance !== 'undefined') ? invoice.balance : (invoice.totalAmount || 0)
     paymentForm.value = {
-      amount: invoice.totalAmount || 0,
+      amount: available,
       date: new Date().toISOString().split('T')[0],
       method: 'cash',
       reference: '',
@@ -1465,32 +1508,74 @@
       reference: paymentForm.value.reference,
       notes: paymentForm.value.notes
     }
-
-    if (token) {
-      try {
+    try {
+      if (token) {
         const res = await axios.post(`${API_BASE}/invoices/${invId}/pay`, payload, { headers: { Authorization: `Bearer ${token}` } })
         const updated = res.data && res.data.data ? res.data.data : res.data
-        const idx = invoices.value.findIndex(inv => (inv._id === updated._id) || (inv.id === updated._id) || (inv.id === updated.id))
-        if (idx !== -1) invoices.value[idx] = { ...invoices.value[idx], ...updated, id: updated._id || updated.id }
-        invoiceToPrint.value = { invoice: updated, payment: payload }
-        closePaymentModal()
-        printInvoice(invoiceToPrint.value)
-      } catch (err) {
-        console.error('Payment failed', err)
-        alert(err?.response?.data?.message || 'Payment failed')
+
+        // find local invoice entry (by local id or server id)
+        const idx = invoices.value.findIndex(inv => (inv._id === updated._id) || (inv.id === updated._id) || (inv.id === updated.id) || (inv._id === updated.id) || (inv.id === invId) || (inv._id === invId))
+
+        if (idx !== -1) {
+          // merge server fields but prefer server payments when provided
+          const localTotal = Number(invoices.value[idx].totalAmount || 0)
+          const serverTotal = (typeof updated.totalAmount !== 'undefined') ? Number(updated.totalAmount) : null
+          // create merged invoice object
+          invoices.value[idx] = { ...invoices.value[idx], ...updated, id: updated._id || updated.id || invoices.value[idx].id }
+          invoices.value[idx].totalAmount = serverTotal === null ? localTotal : serverTotal
+
+          if (Array.isArray(updated.payments) && updated.payments.length > 0) {
+            // use server payments (normalize amounts to numbers)
+            invoices.value[idx].payments = updated.payments.map(p => ({ ...p, amount: Number(p.amount || 0) }))
+          } else {
+            invoices.value[idx].payments = invoices.value[idx].payments || []
+            // avoid duplicating same payment: check last entry
+            const last = invoices.value[idx].payments[invoices.value[idx].payments.length - 1]
+            const same = last && Number(last.amount || 0) === Number(payload.amount || 0) && last.date === payload.date
+            if (!same) invoices.value[idx].payments.push({ ...payload })
+          }
+
+          const paidSum = (invoices.value[idx].payments || []).reduce((s, p) => s + Number(p.amount || 0), 0)
+          const totalForBalance = Number(invoices.value[idx].totalAmount || 0)
+          invoices.value[idx].balance = Math.max(0, totalForBalance - paidSum)
+          invoices.value[idx].status = invoices.value[idx].balance <= 0 ? 'paid' : 'pending'
+        } else if (updated) {
+          // not found locally — insert normalized invoice with payment info
+          const normalized = { ...updated, id: updated._id || updated.id }
+          if (Array.isArray(updated.payments) && updated.payments.length > 0) {
+            normalized.payments = updated.payments.map(p => ({ ...p, amount: Number(p.amount || 0) }))
+          } else {
+            normalized.payments = [{ ...payload }]
+          }
+          const totalForBalance = Number(normalized.totalAmount || 0)
+          const paidSum = (normalized.payments || []).reduce((s, p) => s + Number(p.amount || 0), 0)
+          normalized.balance = Math.max(0, totalForBalance - paidSum)
+          normalized.status = normalized.balance <= 0 ? 'paid' : 'pending'
+          invoices.value.unshift(normalized)
+        }
+
+        // persist local snapshot so UI reflects newest state across reloads
+        persistInvoices()
+      } else {
+        // offline: update local invoice payments and compute balance
+        const idx = invoices.value.findIndex(inv => inv.id === invId || inv._id === invId)
+        if (idx !== -1) {
+          invoices.value[idx].payments = invoices.value[idx].payments || []
+          const last = invoices.value[idx].payments[invoices.value[idx].payments.length - 1]
+          const same = last && Number(last.amount || 0) === Number(payload.amount || 0) && last.date === payload.date
+          if (!same) invoices.value[idx].payments.push({ ...payload })
+          const totalForBalance = Number(invoices.value[idx].totalAmount || 0)
+          const paidSum = (invoices.value[idx].payments || []).reduce((s, p) => s + Number(p.amount || 0), 0)
+          invoices.value[idx].balance = Math.max(0, totalForBalance - paidSum)
+          invoices.value[idx].status = invoices.value[idx].balance <= 0 ? 'paid' : 'pending'
+        }
+        persistInvoices()
       }
-    } else {
-      // offline: mark local invoice as paid
-      const idx = invoices.value.findIndex(inv => inv.id === invId || inv._id === invId)
-      if (idx !== -1) {
-        invoices.value[idx].status = 'paid'
-        invoices.value[idx].payments = invoices.value[idx].payments || []
-        invoices.value[idx].payments.push(payload)
-        invoiceToPrint.value = { invoice: invoices.value[idx], payment: payload }
-      }
+
       closePaymentModal()
-      persistInvoices()
-      printInvoice(invoiceToPrint.value)
+    } catch (err) {
+      console.error('Payment failed', err)
+      alert(err?.response?.data?.message || 'Payment failed')
     }
   }
 
@@ -1522,6 +1607,34 @@
       console.error('Print failed', err)
       alert('Could not open print window')
     }
+  }
+
+  function getPaidAmount(inv) {
+    try {
+      const arr = inv && (Array.isArray(inv.payments) ? inv.payments : (inv.payments || [])) || []
+      return (arr || []).reduce((s, p) => {
+        const raw = p && p.amount != null ? String(p.amount) : '0'
+        const numeric = Number(raw.replace(/,/g, '')) || 0
+        return s + numeric
+      }, 0)
+    } catch (e) { return 0 }
+  }
+
+  function getBalance(inv) {
+    const total = Number(inv.totalAmount || 0)
+    const paid = getPaidAmount(inv)
+    return Math.max(0, total - paid)
+  }
+
+  function getSupplierPendingAmount(supplierId) {
+    try {
+      const list = invoices.value.filter(inv => (inv.supplierId === supplierId) || (inv.supplierId === String(supplierId)))
+      return list.reduce((sum, inv) => {
+        const bal = (typeof inv.balance !== 'undefined') ? Number(inv.balance || 0) : Math.max(0, Number(inv.totalAmount || 0) - (inv.payments || []).reduce((s, p) => s + Number(p.amount || 0), 0))
+        // count only pending/overdue balances
+        return sum + (bal > 0 ? bal : 0)
+      }, 0)
+    } catch (e) { return 0 }
   }
   
   function applyFilters() {
@@ -1606,11 +1719,18 @@
             date: created.date ? new Date(created.date).toISOString().split('T')[0] : (invoiceToSave.date || new Date().toISOString().split('T')[0]),
             dueDate: created.dueDate ? new Date(created.dueDate).toISOString().split('T')[0] : (invoiceToSave.dueDate || '')
           }
+          normalized.payments = Array.isArray(normalized.payments) ? normalized.payments : []
+          const paidSum = (normalized.payments || []).reduce((s,p) => s + Number(p.amount || 0), 0)
+          normalized.balance = Math.max(0, (normalized.totalAmount || 0) - paidSum)
+          normalized.status = normalized.balance <= 0 ? 'paid' : (normalized.status || 'pending')
           invoices.value.unshift(normalized)
         } catch (err) {
           console.warn('Failed to create invoice on server, saving locally', err)
-          invoiceToSave.id = invoiceToSave.id || String(1000 + (invoices.value.length || 0) + 1)
-          invoices.value.unshift(invoiceToSave)
+        invoiceToSave.id = invoiceToSave.id || String(1000 + (invoices.value.length || 0) + 1)
+        invoiceToSave.payments = Array.isArray(invoiceToSave.payments) ? invoiceToSave.payments : []
+        invoiceToSave.balance = Math.max(0, (invoiceToSave.totalAmount || 0) - (invoiceToSave.payments || []).reduce((s,p) => s + Number(p.amount || 0), 0))
+        invoiceToSave.status = invoiceToSave.balance <= 0 ? 'paid' : (invoiceToSave.status || 'pending')
+        invoices.value.unshift(invoiceToSave)
         }
       } else {
         invoiceToSave.id = invoiceToSave.id || String(1000 + (invoices.value.length || 0) + 1)

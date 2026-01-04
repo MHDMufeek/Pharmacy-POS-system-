@@ -301,6 +301,7 @@
                   <option value="capsule">Capsule</option>
                   <option value="ointment">Ointment</option>
                   <option value="eye-drops">Eye Drops</option>
+                  <option value="piece">Piece</option>
                 </select>
               </div>
 

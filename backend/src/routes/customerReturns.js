@@ -6,7 +6,7 @@ const { authMiddleware } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Create a customer return — restock items and record refund
+// Create a customer return — record refund (do NOT modify inventory stock)
 router.post('/', authMiddleware, async (req, res) => {
   try {
     const { items: incomingItems = [], customer, saleRef, refundMethod, notes } = req.body;
@@ -19,19 +19,16 @@ router.post('/', authMiddleware, async (req, res) => {
       const itemId = it.itemId || it.item;
       const qty = parseInt(it.qty, 10) || 0;
       if (!itemId || qty <= 0) {
-        for (const ui of updatedItems) await Item.findByIdAndUpdate(ui.item, { $inc: { stock: -ui.qty } });
         return res.status(400).json({ message: 'Invalid item or quantity' });
       }
 
       const itemDoc = await Item.findById(itemId).lean();
       if (!itemDoc) {
-        for (const ui of updatedItems) await Item.findByIdAndUpdate(ui.item, { $inc: { stock: -ui.qty } });
         return res.status(404).json({ message: `Item not found: ${itemId}` });
       }
 
-      // restock
-      await Item.findByIdAndUpdate(itemId, { $inc: { stock: qty } });
-
+      // Do NOT modify inventory stock when recording a customer return.
+      // Just record the returned quantity for the return record and compute refund.
       updatedItems.push({ item: itemId, qty });
       totalRefund += (itemDoc.price || 0) * qty;
     }

@@ -231,16 +231,7 @@
         <div v-if="activeTab === 'transactions'">
           <div class="flex justify-between items-center mb-6">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">All Transactions</h3>
-            <div class="flex gap-2">
-              <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
-                <span class="material-icons text-sm mr-1">file_download</span>
-                Export
-              </button>
-              <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
-                <span class="material-icons text-sm mr-1">print</span>
-                Print
-              </button>
-            </div>
+            <!-- Export/Print buttons removed -->
           </div>
 
           <!-- Transactions Table -->

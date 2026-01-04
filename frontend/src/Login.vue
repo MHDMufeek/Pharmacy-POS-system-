@@ -10,8 +10,6 @@
       <!-- Header -->
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold">Login</h2>
-
-        
       </div>
 
       <!-- Error Message -->
@@ -105,12 +103,6 @@ export default {
     togglePassword() {
       this.showPassword = !this.showPassword;
     },
-    toggleTheme() {
-      this.isDark = !this.isDark;
-      if (this.isDark) document.documentElement.classList.add('dark')
-      else document.documentElement.classList.remove('dark')
-      localStorage.setItem('theme', this.isDark ? 'dark' : 'light');
-    },
 
     async handleLogin() {
       this.errorMessage = "";
@@ -168,7 +160,15 @@ export default {
   },
   mounted() {
     this.loadThemePreference();
+    // listen for global theme changes (from Navbar toggle)
+    this._themeHandler = (ev) => {
+      try { this.isDark = !!(ev && ev.detail && ev.detail.isDark); } catch(e) {}
+    }
+    window.addEventListener('themeChanged', this._themeHandler);
     localStorage.removeItem("user"); // Clear previous user
+  },
+  beforeUnmount() {
+    try { window.removeEventListener('themeChanged', this._themeHandler); } catch(e) {}
   },
 };
 </script>

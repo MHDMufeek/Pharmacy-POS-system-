@@ -42,11 +42,11 @@
 
             <div v-if="filterOpen" id="supplier-filter-dropdown" @click.stop class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow border p-3 z-50 dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700">
               <label class="text-xs text-gray-500 mb-1 block dark:text-gray-300">Status</label>
-              <select v-model="statusFilter" class="w-full rounded px-2 py-1 border text-sm bg-white dark:bg-slate-700 dark:text-white dark:border-slate-600">
+              <select v-model="statusFilter" class="w-full rounded px-2 py-1 border text-sm text-gray-900 bg-white dark:bg-slate-700 dark:text-white dark:border-slate-600">
                 <option value="">All</option>
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
-              </select>
+                </select>
               <div class="mt-3 flex justify-end gap-2">
                 <button @click="clearFilter" class="px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200 dark:bg-slate-700 dark:text-gray-200 dark:hover:bg-slate-600">Clear</button>
                 <button @click="applyFilter" class="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700">Apply</button>
@@ -240,7 +240,7 @@
               <input 
                 type="text" 
                 v-model="currentSupplier.name" 
-                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white"
+                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none dark:bg-slate-700 dark:text-white"
                 placeholder="Enter supplier name"
               >
             </div>
@@ -249,7 +249,7 @@
               <input 
                 type="text" 
                 v-model="currentSupplier.contactPerson" 
-                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white"
+                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none dark:bg-slate-700 dark:text-white"
                 placeholder="Enter contact person name"
               >
             </div>
@@ -258,7 +258,7 @@
               <input 
                 type="tel" 
                 v-model="currentSupplier.phone" 
-                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white"
+                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none dark:bg-slate-700 dark:text-white"
                 placeholder="Enter phone number"
               >
             </div>
@@ -267,7 +267,7 @@
               <input 
                 type="email" 
                 v-model="currentSupplier.email" 
-                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white"
+                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none dark:bg-slate-700 dark:text-white"
                 placeholder="Enter email address"
               >
             </div>
@@ -275,14 +275,14 @@
               <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-200">Address</label>
               <textarea 
                 v-model="currentSupplier.address" 
-                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white"
+                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none dark:bg-slate-700 dark:text-white"
                 placeholder="Enter full address"
                 rows="3"
               ></textarea>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-200">Status</label>
-              <select v-model="currentSupplier.status" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white">
+              <select v-model="currentSupplier.status" class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none dark:bg-slate-700 dark:text-white">
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
               </select>
@@ -291,7 +291,7 @@
               <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-200">Notes</label>
               <textarea 
                 v-model="currentSupplier.notes" 
-                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none dark:bg-slate-700 dark:text-white"
+                class="w-full bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none dark:bg-slate-700 dark:text-white"
                 placeholder="Additional notes about this supplier"
                 rows="2"
               ></textarea>

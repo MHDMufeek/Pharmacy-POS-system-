@@ -168,6 +168,7 @@ function toggleTheme() {
   if (isDark.value) document.documentElement.classList.add('dark');
   else document.documentElement.classList.remove('dark');
   try { localStorage.setItem('theme', isDark.value ? 'dark' : 'light'); } catch (e) {}
+  try { window.dispatchEvent(new CustomEvent('themeChanged', { detail: { isDark: isDark.value } })); } catch (e) {}
 }
 
 // Notifications state

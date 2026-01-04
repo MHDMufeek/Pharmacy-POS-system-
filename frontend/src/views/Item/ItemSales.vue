@@ -302,7 +302,7 @@
               type="number"
               min="0"
               step="0.01"
-              class="w-full sm:w-40 border rounded px-2 py-1 text-sm text-right bg-white dark:bg-slate-700 dark:text-white"
+              class="w-full sm:w-40 border rounded px-2 py-1 text-sm text-right bg-white text-gray-900 dark:bg-slate-700 dark:text-white"
               placeholder="0.00"
             />
           </div>
@@ -339,7 +339,7 @@
               type="number"
               min="0"
               step="0.01"
-              class="w-full sm:w-40 border rounded px-2 py-1 text-sm text-right"
+              class="w-full sm:w-40 border rounded px-2 py-1 text-sm text-right bg-white text-gray-900 dark:bg-slate-700 dark:text-white"
               placeholder="0.00"
             />
           </div>

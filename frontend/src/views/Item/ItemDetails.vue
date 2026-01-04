@@ -9,32 +9,7 @@
     <div v-if="loadingItems" class="text-sm text-gray-500 mb-4">Loading items...</div>
     <div v-else-if="itemsError" class="text-sm text-red-600 mb-4">{{ itemsError }}</div>
 
-    <!-- Quick Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-      <div class="bg-white p-4 rounded-lg shadow">
-        <div class="flex items-center">
-          <div class="bg-blue-100 p-3 rounded-lg mr-4">
-            <span class="material-icons text-blue-600">inventory</span>
-          </div>
-          <div>
-            <p class="text-gray-500 text-sm dark:text-gray-300">Total Items</p>
-            <p class="text-2xl font-bold text-black dark:text-white">{{ stockItems.length }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="bg-white p-4 rounded-lg shadow">
-        <div class="flex items-center">
-          <div class="bg-red-100 p-3 rounded-lg mr-4">
-            <span class="material-icons text-red-600">warning</span>
-          </div>
-          <div>
-            <p class="text-gray-500 text-sm dark:text-gray-300">Low Stock Items</p>
-            <p class="text-2xl font-bold text-black dark:text-white">{{ lowStockItems }}</p>
-          </div>
-        </div>
-      </div>
-      
-    </div>
+    <!-- Quick Stats removed per request -->
 
     <!-- Item list removed as requested -->
 
@@ -50,7 +25,6 @@
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">QTY Restocked</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock Value</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performed By</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expiry</th>
             </tr>
@@ -59,13 +33,12 @@
             <tr v-for="(r, idx) in restockEntries" :key="idx" class="hover:bg-gray-50">
               <td class="px-6 py-3 text-sm text-gray-700 dark:text-gray-300">{{ r.date ? r.date : '—' }}</td>
               <td class="px-6 py-3 text-sm text-gray-700 dark:text-gray-300">{{ r.productName || r.productId }}</td>
-              <td class="px-6 py-3 text-sm text-gray-700 dark:text-gray-300">{{ r.quantity ?? 0 }}</td>
-              <td class="px-6 py-3 text-sm text-gray-700 dark:text-gray-300">Rs. {{ formatMoney(getStockValueForRestock(r)) }}</td>
+              <td class="px-6 py-3 text-sm text-gray-700 dark:text-gray-300">{{ '+' + (r.quantity ?? 0) }}</td>
               <td class="px-6 py-3 text-sm text-gray-700 dark:text-gray-300">{{ r.performedBy || '—' }}</td>
               <td class="px-6 py-3 text-sm text-gray-700 dark:text-gray-300">{{ r.expiryDate ? r.expiryDate : '—' }}</td>
             </tr>
             <tr v-if="restockEntries.length === 0">
-              <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-300" colspan="6">No restock entries found</td>
+              <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-300" colspan="5">No restock entries found</td>
             </tr>
           </tbody>
         </table>
@@ -266,8 +239,14 @@ async function loadGlobalRestocks() {
     if (res.ok) {
       const body = await res.json();
       const movements = Array.isArray(body.recentMovements) ? body.recentMovements : [];
+      // Filter to only include restock/add movements (exclude sales/returns that reduce stock)
+      const filtered = movements.filter(m => {
+        const t = (m.type || m.movementType || '').toString().toLowerCase();
+        const qty = (typeof m.quantity !== 'undefined') ? Number(m.quantity) : NaN;
+        return (Number.isFinite(qty) && qty > 0) || t.includes('restock') || t.includes('add');
+      });
       // Map backend recentMovements to restockEntries shape
-      const arr = movements.map(m => ({
+      const arr = filtered.map(m => ({
         date: m.date || m.createdAt || '',
         productId: m.id || m.itemId || '',
         productName: m.drugName || m.productName || '—',
